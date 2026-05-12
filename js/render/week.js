@@ -1,5 +1,24 @@
 import { STATE } from '../state.js';
-import { escapeHtml, computeDayTotals, activeMetricsFor } from '../helpers.js';
+import { escapeHtml, computeDayTotals, activeMetricsFor, mealKey } from '../helpers.js';
+
+function dayAdherence(plan, day, dayIdx) {
+  const planId = STATE.currentPlanId;
+  const result = {};
+  for (const pk of ['jakub', 'partnerka']) {
+    let eaten = 0, total = 0;
+    const dots = plan.slots.map(slotKey => {
+      const slot = day.meals[slotKey] || {};
+      const has  = slot.shared ? true : !!slot[pk];
+      if (!has) return null;
+      total++;
+      const k = mealKey(planId, dayIdx, slotKey, pk);
+      if (STATE.ate[k]) { eaten++; return 'eaten'; }
+      return 'planned';
+    });
+    result[pk] = { dots, eaten, total };
+  }
+  return result;
+}
 
 export function renderWeekView() {
   const main = document.getElementById('main');
@@ -11,13 +30,41 @@ export function renderWeekView() {
   }
 
   const pf      = STATE.personFilter;
-  const persons = pf === 'both' ? ['jakub','partnerka'] : [pf];
+  const persons = pf === 'both' ? ['jakub', 'partnerka'] : [pf];
   const metrics = activeMetricsFor(plan);
 
-  let html = `<div class="week-summary">`;
+  // ── Overall adherence summary ──────────────────────────────
+  const totAdh = { jakub: { e: 0, t: 0 }, partnerka: { e: 0, t: 0 } };
+  plan.days.forEach((day, idx) => {
+    const adh = dayAdherence(plan, day, idx);
+    for (const pk of ['jakub', 'partnerka']) {
+      totAdh[pk].e += adh[pk].eaten;
+      totAdh[pk].t += adh[pk].total;
+    }
+  });
 
+  const summaryPersons = persons.map(pk => {
+    const { e, t } = totAdh[pk];
+    const pct = t > 0 ? Math.round(100 * e / t) : 0;
+    return `<span class="was-person">
+      <span class="was-name">${escapeHtml(plan.persons[pk].name)}</span>
+      <strong>${e}/${t}</strong>
+      <span class="was-pct">${pct}%</span>
+    </span>`;
+  }).join('');
+
+  let html = `
+    <div class="week-adherence-summary">
+      <div class="was-label">Plnění plánu</div>
+      <div class="was-persons">${summaryPersons}</div>
+    </div>
+    <div class="week-summary">`;
+
+  // ── Day cards ──────────────────────────────────────────────
   plan.days.forEach((day, idx) => {
     const totals = computeDayTotals(plan, day);
+    const adh    = dayAdherence(plan, day, idx);
+
     html += `<div class="week-day-card">
       <div class="wdc-header">
         <span class="wdc-name">${escapeHtml(day.name || '')}</span>
@@ -38,12 +85,27 @@ export function renderWeekView() {
         html += `<div class="metric-row">
           <span class="metric-label">${escapeHtml(m.label)}</span>
           <span class="metric-bar"><span class="metric-fill ${m.key}${over ? ' over' : ''}" style="width:${pct.toFixed(1)}%"></span></span>
-          <span class="metric-value${over ? ' over' : ''}">${v}${tg ? ' / '+tg : ''}${m.key === 'kcal' ? '' : ' g'}</span>
+          <span class="metric-value${over ? ' over' : ''}">${v}${tg ? ' / ' + tg : ''}${m.key === 'kcal' ? '' : ' g'}</span>
         </div>`;
       }
       html += '</div>';
     }
-    html += '</div>';
+
+    // Adherence dots per person
+    html += `<div class="adh-wrap">`;
+    for (const pk of persons) {
+      const { dots, eaten, total } = adh[pk];
+      if (total === 0) continue;
+      const dotsHtml = dots.map(d =>
+        d === null ? '' : `<span class="adh-dot${d === 'eaten' ? ' eaten' : ''}"></span>`
+      ).join('');
+      html += `<div class="adh-row">
+        <span class="adh-person">${escapeHtml(plan.persons[pk].label || pk[0].toUpperCase())}</span>
+        <span class="adh-dots">${dotsHtml}</span>
+        <span class="adh-count">${eaten}/${total}</span>
+      </div>`;
+    }
+    html += `</div></div>`;
   });
 
   html += '</div>';

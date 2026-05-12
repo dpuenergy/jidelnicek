@@ -173,43 +173,115 @@ function breakShared(day, slotKey) {
   delete slot.shared;
 }
 
-function swapMeals(plan, day, fromSlot, toSlot, pk) {
-  if (!day.meals[fromSlot]) day.meals[fromSlot] = {};
-  if (!day.meals[toSlot])   day.meals[toSlot]   = {};
-  breakShared(day, fromSlot);
-  breakShared(day, toSlot);
-  const fromMeal = getMealForPerson(day, fromSlot, pk);
-  const toMeal   = getMealForPerson(day, toSlot,   pk);
-  if (toMeal)   day.meals[fromSlot][pk] = toMeal;   else delete day.meals[fromSlot][pk];
-  if (fromMeal) day.meals[toSlot][pk]   = fromMeal; else delete day.meals[toSlot][pk];
+function scaleMealName(name, factor) {
+  if (Math.abs(factor - 1) < 0.01) return name;
+  return name
+    .replace(/(\d+(?:[.,]\d+)?)\s*g\b/g,  (_, n) => Math.round(parseFloat(n.replace(',', '.')) * factor) + 'g')
+    .replace(/(\d+(?:[.,]\d+)?)\s*ks\b/g, (_, n) => Math.round(parseFloat(n.replace(',', '.')) * factor) + 'ks')
+    .replace(/(\d+(?:[.,]\d+)?)\s*×/g,    (_, n) => {
+      const s = parseFloat(n.replace(',', '.')) * factor;
+      return (Number.isInteger(s) ? s : Math.round(s * 2) / 2) + '×';
+    });
 }
+
+function applyScale(meal, factor) {
+  if (Math.abs(factor - 1) < 0.01) return { ...meal };
+  const m = meal.macros || {};
+  return {
+    ...meal,
+    name: scaleMealName(meal.name || '', factor),
+    macros: {
+      kcal:  m.kcal  != null ? Math.round(m.kcal  * factor) : null,
+      p:     m.p     != null ? Math.round(m.p     * factor) : null,
+      c:     m.c     != null ? Math.round(m.c     * factor) : null,
+      f:     m.f     != null ? Math.round(m.f     * factor) : null,
+      fiber: m.fiber != null ? Math.round(m.fiber * factor) : null,
+    },
+  };
+}
+
+function swapMealsAcrossDays(plan, fromDayIdx, fromSlot, toDayIdx, toSlot, pk, factor) {
+  const fromDay = plan.days[fromDayIdx];
+  const toDay   = plan.days[toDayIdx];
+  if (!fromDay.meals[fromSlot]) fromDay.meals[fromSlot] = {};
+  if (!toDay.meals[toSlot])     toDay.meals[toSlot]     = {};
+  breakShared(fromDay, fromSlot);
+  breakShared(toDay,   toSlot);
+  const fromMeal = getMealForPerson(fromDay, fromSlot, pk);
+  const toMeal   = getMealForPerson(toDay,   toSlot,   pk);
+  const scaledFrom = fromMeal ? applyScale(fromMeal, factor)       : null;
+  const scaledTo   = toMeal   ? applyScale(toMeal,   1 / factor)   : null;
+  if (scaledTo)   fromDay.meals[fromSlot][pk] = scaledTo;   else delete fromDay.meals[fromSlot][pk];
+  if (scaledFrom) toDay.meals[toSlot][pk]     = scaledFrom; else delete toDay.meals[toSlot][pk];
+}
+
+// 2-step move modal state
+let _mv = null;
+
+function _titleShort(name) { return name && name.length > 40 ? name.slice(0, 40) + '…' : name || ''; }
 
 function openMoveModal(plan, day, dayIdx, planId, fromSlot, pk, rerender) {
   const fromMeal = getMealForPerson(day, fromSlot, pk);
   if (!fromMeal) return;
-  document.getElementById('move-modal-title').textContent = `Přesunout: ${fromMeal.name}`;
+  _mv = { plan, planId, fromDayIdx: dayIdx, fromSlot, pk, rerender };
+  document.getElementById('move-modal-title').textContent = `Přesunout: ${_titleShort(fromMeal.name)}`;
+  _showDayPicker();
+  document.getElementById('move-modal').classList.remove('hidden');
+}
+
+function _showDayPicker() {
+  const { plan, fromDayIdx } = _mv;
   const list = document.getElementById('move-slot-list');
-  list.innerHTML = plan.slots.filter(s => s !== fromSlot).map(s => {
-    const label = (plan.slot_labels && plan.slot_labels[s]) || s;
-    const existing = getMealForPerson(day, s, pk);
-    const note = existing ? `↔ vymění s: ${escapeHtml(existing.name)}` : 'prázdný slot';
-    return `<button class="move-slot-btn" data-to="${escapeHtml(s)}">
-      <span class="move-slot-icon">${slotIcon(s)}</span>
-      <span class="move-slot-info">
-        <span class="move-slot-name">${escapeHtml(label)}</span>
-        <span class="move-slot-note">${note}</span>
-      </span>
-    </button>`;
-  }).join('');
-  list.querySelectorAll('.move-slot-btn').forEach(btn => {
+  list.innerHTML = `<p class="move-step-label">Vyber den:</p>` +
+    plan.days.map((d, idx) => `
+      <button class="move-day-btn${idx === fromDayIdx ? ' current' : ''}" data-didx="${idx}">
+        <span class="move-day-name">${escapeHtml(d.name || '')}</span>
+        <span class="move-day-date">${escapeHtml(d.date || '')}</span>
+      </button>`).join('');
+  list.querySelectorAll('.move-day-btn').forEach(btn =>
+    btn.addEventListener('click', () => _showSlotPicker(parseInt(btn.dataset.didx)))
+  );
+}
+
+function _showSlotPicker(targetDayIdx) {
+  const { plan, fromDayIdx, fromSlot, pk } = _mv;
+  const targetDay = plan.days[targetDayIdx];
+  const list = document.getElementById('move-slot-list');
+  list.innerHTML =
+    `<button class="move-back-btn" id="move-back">← ${escapeHtml(targetDay.name || '')} ${escapeHtml(targetDay.date || '')}</button>` +
+    plan.slots
+      .filter(s => !(s === fromSlot && targetDayIdx === fromDayIdx))
+      .map(s => {
+        const label    = (plan.slot_labels && plan.slot_labels[s]) || s;
+        const existing = getMealForPerson(targetDay, s, pk);
+        const note     = existing ? `↔ ${escapeHtml(_titleShort(existing.name))}` : 'prázdný slot';
+        return `<button class="move-slot-btn" data-to="${escapeHtml(s)}">
+          <span class="move-slot-icon">${slotIcon(s)}</span>
+          <span class="move-slot-info">
+            <span class="move-slot-name">${escapeHtml(label)}</span>
+            <span class="move-slot-note">${note}</span>
+          </span>
+        </button>`;
+      }).join('') +
+    `<div class="move-scale-row">
+      <label class="move-scale-label">Faktor gramáží</label>
+      <div class="move-scale-controls">
+        <input type="number" id="move-scale-input" class="move-scale-input" value="1.00" min="0.1" max="3" step="0.05">
+        <span class="move-scale-hint">1.0 = beze změny · 0.8 = o 20 % méně</span>
+      </div>
+    </div>`;
+
+  document.getElementById('move-back').addEventListener('click', _showDayPicker);
+  list.querySelectorAll('.move-slot-btn').forEach(btn =>
     btn.addEventListener('click', () => {
-      swapMeals(plan, day, fromSlot, btn.dataset.to, pk);
+      const factor = parseFloat(document.getElementById('move-scale-input').value) || 1;
+      const { plan, fromDayIdx, fromSlot, pk, rerender } = _mv;
+      swapMealsAcrossDays(plan, fromDayIdx, fromSlot, targetDayIdx, btn.dataset.to, pk, factor);
       persistPlans();
       document.getElementById('move-modal').classList.add('hidden');
       rerender();
-    });
-  });
-  document.getElementById('move-modal').classList.remove('hidden');
+    })
+  );
 }
 
 // ── Main render ────────────────────────────────────────────────
