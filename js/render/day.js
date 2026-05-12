@@ -1,7 +1,7 @@
-import { STATE, persistAte, persistCurrent } from '../state.js';
+import { STATE, persistAte, persistCurrent, persistPlans } from '../state.js';
 import {
   escapeHtml, activeMetricsFor, computeDayTotals,
-  computeEatenTotals, mealKey, slotIcon,
+  computeEatenTotals, mealKey, slotIcon, ICONS,
 } from '../helpers.js';
 
 // Accordion state: set of expanded slotKeys for current day
@@ -124,8 +124,9 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
     <div class="meal-macros">${macroLine}</div>
     <div class="meal-actions">
       <button class="eaten-btn${isEaten ? ' is-eaten' : ''}" data-act="eat" data-key="${key}">${isEaten ? '✓ Snědeno' : 'Snědeno'}</button>
-      <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">📷 Foto</button>
-      <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">💬 Otázka</button>
+      <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
+      <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">${ICONS.chat} Otázka</button>
+      <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesunout</button>
     </div>
   </div>`;
 }
@@ -154,6 +155,61 @@ function dayTotalsHTML(plan, day, persons) {
     html += '</div>';
   }
   return html + '</div>';
+}
+
+// ── Move meal helpers ──────────────────────────────────────────
+function getMealForPerson(day, slotKey, pk) {
+  const slot = day.meals[slotKey] || {};
+  if (slot.shared) return { name: slot.shared.name, note: slot.shared.note, macros: slot.shared['macros_'+pk] || {}, type: slot.shared.type };
+  return slot[pk] ? { ...slot[pk] } : null;
+}
+
+function breakShared(day, slotKey) {
+  const slot = day.meals[slotKey];
+  if (!slot || !slot.shared) return;
+  const sh = slot.shared;
+  slot.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+  slot.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+  delete slot.shared;
+}
+
+function swapMeals(plan, day, fromSlot, toSlot, pk) {
+  if (!day.meals[fromSlot]) day.meals[fromSlot] = {};
+  if (!day.meals[toSlot])   day.meals[toSlot]   = {};
+  breakShared(day, fromSlot);
+  breakShared(day, toSlot);
+  const fromMeal = getMealForPerson(day, fromSlot, pk);
+  const toMeal   = getMealForPerson(day, toSlot,   pk);
+  if (toMeal)   day.meals[fromSlot][pk] = toMeal;   else delete day.meals[fromSlot][pk];
+  if (fromMeal) day.meals[toSlot][pk]   = fromMeal; else delete day.meals[toSlot][pk];
+}
+
+function openMoveModal(plan, day, dayIdx, planId, fromSlot, pk, rerender) {
+  const fromMeal = getMealForPerson(day, fromSlot, pk);
+  if (!fromMeal) return;
+  document.getElementById('move-modal-title').textContent = `Přesunout: ${fromMeal.name}`;
+  const list = document.getElementById('move-slot-list');
+  list.innerHTML = plan.slots.filter(s => s !== fromSlot).map(s => {
+    const label = (plan.slot_labels && plan.slot_labels[s]) || s;
+    const existing = getMealForPerson(day, s, pk);
+    const note = existing ? `↔ vymění s: ${escapeHtml(existing.name)}` : 'prázdný slot';
+    return `<button class="move-slot-btn" data-to="${escapeHtml(s)}">
+      <span class="move-slot-icon">${slotIcon(s)}</span>
+      <span class="move-slot-info">
+        <span class="move-slot-name">${escapeHtml(label)}</span>
+        <span class="move-slot-note">${note}</span>
+      </span>
+    </button>`;
+  }).join('');
+  list.querySelectorAll('.move-slot-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      swapMeals(plan, day, fromSlot, btn.dataset.to, pk);
+      persistPlans();
+      document.getElementById('move-modal').classList.add('hidden');
+      rerender();
+    });
+  });
+  document.getElementById('move-modal').classList.remove('hidden');
 }
 
 // ── Main render ────────────────────────────────────────────────
@@ -261,6 +317,12 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
         ? { name: slotData.shared.name, macros: slotData.shared['macros_'+pk] }
         : slotData[pk];
       if (meal) openChat({ planId, dayIdx, slot, personKey: pk, meal });
+    });
+  });
+
+  main.querySelectorAll('[data-act="move"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openMoveModal(plan, day, dayIdx, planId, btn.dataset.slot, btn.dataset.person, rerender);
     });
   });
 

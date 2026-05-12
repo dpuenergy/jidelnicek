@@ -564,5 +564,35 @@ main {
 }
 .chat-send-btn:disabled { opacity: .4; }
 
+/* ─── Meal action button SVG icons ──────────────────────────── */
+.meal-actions button svg {
+  width: 13px; height: 13px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  vertical-align: -2px;
+  margin-right: 3px;
+  flex-shrink: 0;
+}
+
+/* ─── Move meal modal ────────────────────────────────────────── */
+.move-slot-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.move-slot-btn {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--rule);
+  border-radius: 12px; font-family: inherit;
+  cursor: pointer; text-align: left;
+}
+.move-slot-btn:active { background: var(--rule-soft); }
+.move-slot-icon { display: flex; align-items: center; }
+.move-slot-icon svg {
+  width: 22px; height: 22px;
+  stroke: var(--ink-soft); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.move-slot-info { display: flex; flex-direction: column; gap: 2px; }
+.move-slot-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+.move-slot-note { font-size: 12px; color: var(--ink-faint); }
+
 /* ─── Utilities ──────────────────────────────────────────────── */
 .hidden { display: none !important; }
