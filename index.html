@@ -169,6 +169,29 @@
     </div>
   </div>
 
+  <!-- ── Modal: Recipe detail ─────────────────────────────────── -->
+  <div id="recipe-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3 id="recipe-modal-name"></h3>
+      <div id="recipe-modal-meta" class="recipe-modal-meta"></div>
+      <div class="recipe-modal-section">
+        <div class="recipe-modal-label">Ingredience</div>
+        <ul id="recipe-modal-ingredients" class="recipe-ingredients"></ul>
+      </div>
+      <div class="recipe-modal-section" id="recipe-steps-wrap">
+        <div class="recipe-modal-label">Postup</div>
+        <ol id="recipe-modal-steps" class="recipe-steps"></ol>
+      </div>
+      <div class="recipe-modal-section" id="recipe-modal-notes-wrap">
+        <div class="recipe-modal-label">Poznámka</div>
+        <div id="recipe-modal-notes" class="recipe-modal-notes"></div>
+      </div>
+      <div class="modal-actions">
+        <button data-close="recipe-modal">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Modal: Move meal ─────────────────────────────────────── -->
   <div id="move-modal" class="modal-backdrop hidden">
     <div class="modal">

@@ -140,5 +140,95 @@
         }
       }
     }
+  ],
+  "recipes": [
+    {
+      "id": "sladkokysela-cina",
+      "name": "Sladkokyselá čína s kuřecím",
+      "batch_note": "2 porce — Po oběd K+V, Út oběd V",
+      "prep_time": 15,
+      "cook_time": 20,
+      "ingredients": [
+        {"item": "kuřecí prsa", "amount": "600 g"},
+        {"item": "mrkev", "amount": "150 g"},
+        {"item": "brokolice", "amount": "200 g"},
+        {"item": "cuketa", "amount": "150 g"},
+        {"item": "ananas (plech)", "amount": "200 g"},
+        {"item": "rajčatový protlak", "amount": "3 lžíce"},
+        {"item": "sójová omáčka", "amount": "3 lžíce"},
+        {"item": "rýžový ocet", "amount": "2 lžíce"},
+        {"item": "med", "amount": "1 lžíce"},
+        {"item": "škrob kukuřičný", "amount": "1 lžíce"},
+        {"item": "olej", "amount": "2 lžíce"},
+        {"item": "česnek, zázvor", "amount": "dle chuti"}
+      ],
+      "steps": [
+        "Kuřecí prsa nakrájet na kostky 2×2 cm, osolit.",
+        "Zeleninu nakrájet na kousky podobné velikosti.",
+        "Na rozpáleném oleji opéct kuřecí maso do zlatova (cca 5 min), odložit.",
+        "Na stejné pánvi orestovat tvrdší zeleninu (mrkev, brokolici) 3 min, přidat cuketu.",
+        "Smíchat protlak, sójovou omáčku, ocet, med a škrob rozpuštěný v 50 ml vody.",
+        "Přidat ananas a omáčku k zelenině, promíchat, přivést k varu.",
+        "Vrátit maso, vařit 2–3 min dokud se omáčka nezahustí.",
+        "Rozdělit na porce: K 400 g, V 200–220 g. Zbytek uchovej v lednici."
+      ],
+      "notes": "Verčina porce bez paprik. Batch vydrží v lednici 2–3 dny. Podávat s rýží zvlášť."
+    },
+    {
+      "id": "nivova-omacka-s-kurecim",
+      "name": "Nivová omáčka s kuřecím",
+      "batch_note": "3 porce — Út večeře, St večeře, Pá oběd K",
+      "prep_time": 10,
+      "cook_time": 25,
+      "ingredients": [
+        {"item": "kuřecí prsa", "amount": "700 g"},
+        {"item": "niva (30 % t.v.s.)", "amount": "120 g"},
+        {"item": "smetana ke vaření 15 %", "amount": "200 ml"},
+        {"item": "vývar kuřecí", "amount": "150 ml"},
+        {"item": "cibule", "amount": "1 ks"},
+        {"item": "česnek", "amount": "2 stroužky"},
+        {"item": "máslo", "amount": "20 g"},
+        {"item": "sůl, pepř, muškátový oříšek", "amount": "dle chuti"}
+      ],
+      "steps": [
+        "Kuřecí prsa nakrájet na plátky, osolit a opepřit.",
+        "Na másle orestovat cibuli do sklovata, přidat česnek, minutu restovat.",
+        "Přidat kuřecí plátky, opéct z obou stran (3–4 min každá).",
+        "Přidat vývar, smetanu a niva natrhaná na kousky.",
+        "Vařit na středním plameni 10–15 min, dokud se niva nerozpustí a omáčka nezhoustne.",
+        "Ochutit muškátovým oříškem, případně dosolit.",
+        "Rozdělit na porce. Batch uchovat v lednici, podávat s těstovinami zvlášť."
+      ],
+      "notes": "Kalorie jsou bez těstovin (počítej 200 g uvařených = cca 260 kcal navíc). Při ohřevu přidat lžíci vody nebo vývaru."
+    },
+    {
+      "id": "lasagne-cerstava",
+      "name": "Lasagne čerstvá",
+      "batch_note": "2 porce — St oběd K, Čt oběd K",
+      "prep_time": 25,
+      "cook_time": 45,
+      "ingredients": [
+        {"item": "mleté hovězí (10 % tuku)", "amount": "500 g"},
+        {"item": "lasagne plátky (suché)", "amount": "200 g"},
+        {"item": "ricotta", "amount": "250 g"},
+        {"item": "rajčatová passata", "amount": "400 g"},
+        {"item": "mozzarella", "amount": "125 g"},
+        {"item": "parmazán strouhaný", "amount": "50 g"},
+        {"item": "cibule", "amount": "1 ks"},
+        {"item": "česnek", "amount": "3 stroužky"},
+        {"item": "olivový olej", "amount": "2 lžíce"},
+        {"item": "oregano, bazalka, sůl, pepř", "amount": "dle chuti"}
+      ],
+      "steps": [
+        "Troubu předehřát na 200 °C.",
+        "Cibuli a česnek nakrájet najemno, orestovat na oleji.",
+        "Přidat mleté maso, restovat do hnědova. Přidat passatu, oregano, sůl, pepř. Dusit 15 min.",
+        "Do zapékací mísy navrstvit: lžíce ragú — plátky lasagní — ragú — ricotta — plátky lasagní — ragú — ricotta.",
+        "Zakončit vrstvou ragú, posypat mozzarellou a parmazánem.",
+        "Péct 40–45 min do zlatova. Nechat 10 min odpočinout před krájením.",
+        "Nakrájet na porce: K 500 g (St) + 450 g (Čt). Zbytek uložit do dózy."
+      ],
+      "notes": "Plátky lasagní nepředvářej — absorbují vlhkost z ragú. Batch v lednici max 3 dny."
+    }
   ]
 }
