@@ -107,12 +107,17 @@ body {
   border-radius: 50%;
   z-index: -1;
 }
-.bnav-btn svg {
-  width: 24px; height: 24px;
+.bnav-btn svg, .slot-emoji svg, .menu-item-icon svg, .appbar-btn svg, .asb-emoji svg {
+  display: block;
   stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
   flex-shrink: 0;
 }
+.bnav-btn svg   { width: 24px; height: 24px; }
+.slot-emoji svg { width: 22px; height: 22px; }
+.menu-item-icon svg { width: 20px; height: 20px; }
+.appbar-btn svg { width: 22px; height: 22px; }
+.asb-emoji svg  { width: 26px; height: 26px; }
 
 /* ─── Main scroll area ───────────────────────────────────────── */
 main {
@@ -460,6 +465,7 @@ main {
   background: rgba(28,36,33,.5);
   z-index: 1000;
   display: flex; align-items: flex-end;
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 .modal-backdrop.hidden { display: none; }

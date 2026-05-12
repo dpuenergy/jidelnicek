@@ -1,7 +1,7 @@
 import { STATE, persistAte, persistCurrent } from '../state.js';
 import {
   escapeHtml, activeMetricsFor, computeDayTotals,
-  computeEatenTotals, mealKey, slotEmoji,
+  computeEatenTotals, mealKey, slotIcon,
 } from '../helpers.js';
 
 // Accordion state: set of expanded slotKeys for current day
@@ -185,7 +185,7 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
   for (const slotKey of plan.slots) {
     const slot    = day.meals[slotKey] || {};
     const label   = (plan.slot_labels && plan.slot_labels[slotKey]) || slotKey;
-    const emoji   = slotEmoji(slotKey);
+    const emoji   = slotIcon(slotKey);
     const expanded = _expanded.has(slotKey);
     const kcalStr  = slotKcalSummary(plan, slot, persons);
 

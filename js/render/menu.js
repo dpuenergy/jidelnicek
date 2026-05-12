@@ -1,5 +1,5 @@
 import { STATE, persistPlans, persistCurrent } from '../state.js';
-import { escapeHtml, czechDayPlural, planProgress } from '../helpers.js';
+import { escapeHtml, czechDayPlural, planProgress, ICONS } from '../helpers.js';
 
 export function renderMenuView(rerender, openSettings, openAddPlan) {
   const main = document.getElementById('main');
@@ -32,7 +32,7 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
       const pct  = prog.total > 0 ? Math.round(100 * prog.eaten / prog.total) : 0;
       const active = id === STATE.currentPlanId;
       html += `<div class="menu-item" data-plan-id="${escapeHtml(id)}">
-        <span class="menu-item-icon">${active ? '✅' : '📋'}</span>
+        <span class="menu-item-icon">${active ? ICONS.check : ICONS.list}</span>
         <div style="flex:1">
           <div class="menu-item-label${active ? ' menu-item-active' : ''}">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
           <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${prog.eaten}/${prog.total} snědeno (${pct}%)</div>
@@ -47,12 +47,12 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
   html += `<div class="menu-section">
     <div class="menu-section-title">Akce</div>
     <div class="menu-item" id="menu-add-plan">
-      <span class="menu-item-icon">➕</span>
+      <span class="menu-item-icon">${ICONS.plus}</span>
       <span class="menu-item-label">Přidat plán</span>
       <span class="menu-item-chevron">›</span>
     </div>
     <div class="menu-item" id="menu-settings">
-      <span class="menu-item-icon">⚙️</span>
+      <span class="menu-item-icon">${ICONS.settings}</span>
       <span class="menu-item-label">Nastavení</span>
       <div class="menu-item-meta">API klíč, model</div>
       <span class="menu-item-chevron">›</span>
