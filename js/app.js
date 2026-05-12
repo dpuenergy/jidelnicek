@@ -1,4 +1,5 @@
 import { loadState, STATE, persistCurrent } from './state.js';
+import { buildTimeline, parseDayDate } from './helpers.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
 import { renderDayView }     from './render/day.js';
 import { renderWeekView }    from './render/week.js';
@@ -38,8 +39,26 @@ function onPlanImported(planId) {
   render();
 }
 
+function autoInitTimeline() {
+  const tl = buildTimeline(STATE.plans);
+  if (tl.length === 0) return;
+  // If current plan/day is already valid, keep it
+  if (STATE.currentPlanId && STATE.plans[STATE.currentPlanId]) return;
+  // Otherwise jump to the day closest to today
+  const now = new Date();
+  const best = tl.reduce((acc, e) => {
+    if (!e.date) return acc;
+    const diff = Math.abs(e.date - now);
+    return (!acc || diff < acc.diff) ? { e, diff } : acc;
+  }, null);
+  const target = best ? best.e : tl[0];
+  STATE.currentPlanId = target.planId;
+  STATE.currentDayIdx = target.dayIdx;
+}
+
 function boot() {
   loadState();
+  autoInitTimeline();
 
   initModalDismiss();
   initSettings();

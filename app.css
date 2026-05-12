@@ -138,6 +138,12 @@ main {
 }
 .week-strip-wrap::-webkit-scrollbar { display: none; }
 .week-strip-wrap.hidden { display: none; }
+.week-strip-month {
+  display: flex; align-items: flex-end;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--ink-faint);
+  padding: 0 4px 2px; align-self: flex-end;
+}
 .week-strip {
   display: flex;
   min-width: max-content;
@@ -374,6 +380,12 @@ main {
 
 /* ─── Week summary view ──────────────────────────────────────── */
 .week-summary { display: grid; gap: 12px; }
+.week-plan-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--ink-faint);
+  padding: 4px 2px; margin-top: 4px;
+}
+.week-day-card.future { opacity: .55; }
 .week-day-card {
   background: var(--bg-card); border: 1px solid var(--rule);
   border-radius: 12px; padding: 14px; box-shadow: var(--shadow-card);

@@ -18,6 +18,34 @@ export const ICONS = {
 const SLOT_ICON_MAP = { snidane: ICONS.coffee, svacina: ICONS.apple, obed: ICONS.utensils, vecere: ICONS.moon };
 export const slotIcon = k => SLOT_ICON_MAP[k] || ICONS.utensils;
 
+// ── Timeline helpers ───────────────────────────────────────────
+export function parseDayDate(dateStr) {
+  if (!dateStr) return null;
+  const m = dateStr.match(/(\d+)\.\s*(\d+)\./);
+  if (!m) return null;
+  const now = new Date();
+  const d = parseInt(m[1]), mo = parseInt(m[2]) - 1;
+  let yr = now.getFullYear();
+  const cand = new Date(yr, mo, d);
+  if (now - cand > 180 * 86400000) yr++; // >6 months in past → next year
+  return new Date(yr, mo, d);
+}
+
+export function buildTimeline(plans) {
+  const entries = [];
+  for (const [planId, plan] of Object.entries(plans)) {
+    (plan.days || []).forEach((day, dayIdx) => {
+      entries.push({ planId, plan, dayIdx, day, date: parseDayDate(day.date) });
+    });
+  }
+  return entries.sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date - b.date;
+  });
+}
+
 export function czechDayPlural(n) {
   if (n === 1) return 'den';
   if (n >= 2 && n <= 4) return 'dny';

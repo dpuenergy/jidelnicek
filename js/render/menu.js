@@ -1,5 +1,5 @@
 import { STATE, persistPlans, persistCurrent } from '../state.js';
-import { escapeHtml, czechDayPlural, planProgress, ICONS } from '../helpers.js';
+import { escapeHtml, czechDayPlural, planProgress, ICONS, buildTimeline } from '../helpers.js';
 
 export function renderMenuView(rerender, openSettings, openAddPlan) {
   const main = document.getElementById('main');
@@ -7,35 +7,20 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
 
   let html = '';
 
-  // ── Active plan section ────────────────────────────────────
-  if (STATE.currentPlanId && STATE.plans[STATE.currentPlanId]) {
-    const p = STATE.plans[STATE.currentPlanId];
-    html += `<div class="menu-section">
-      <div class="menu-section-title">Aktivní plán</div>
-      <div class="menu-item" style="border-color:var(--accent)">
-        <span class="menu-item-icon">📅</span>
-        <div style="flex:1">
-          <div class="menu-item-label menu-item-active">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
-          <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${p.days.length} ${czechDayPlural(p.days.length)}</div>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ── All plans ──────────────────────────────────────────────
+  // ── Plans list ─────────────────────────────────────────────
   if (ids.length > 0) {
     html += `<div class="menu-section">
-      <div class="menu-section-title">Všechny plány</div>`;
+      <div class="menu-section-title">Plány · přidržením smažeš</div>`;
     for (const id of ids) {
       const p    = STATE.plans[id];
       const prog = planProgress(id, STATE.plans, STATE.ate);
       const pct  = prog.total > 0 ? Math.round(100 * prog.eaten / prog.total) : 0;
-      const active = id === STATE.currentPlanId;
       html += `<div class="menu-item" data-plan-id="${escapeHtml(id)}">
-        <span class="menu-item-icon">${active ? ICONS.check : ICONS.list}</span>
-        <div style="flex:1">
-          <div class="menu-item-label${active ? ' menu-item-active' : ''}">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
-          <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${prog.eaten}/${prog.total} snědeno (${pct}%)</div>
+        <span class="menu-item-icon">${ICONS.calendar}</span>
+        <div class="menu-item-body">
+          <div class="menu-item-label">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
+          <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${p.days.length} ${czechDayPlural(p.days.length)}</div>
+          <div class="menu-item-meta">${prog.eaten}/${prog.total} snědeno · ${pct}% plnění</div>
         </div>
         <span class="menu-item-chevron">›</span>
       </div>`;
@@ -61,11 +46,14 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
 
   main.innerHTML = html;
 
-  // Tap plan → activate
+  // Tap plan → go to its first day in timeline
   main.querySelectorAll('[data-plan-id]').forEach(item => {
     item.addEventListener('click', () => {
-      STATE.currentPlanId  = item.dataset.planId;
-      STATE.currentDayIdx  = 0;
+      const pid = item.dataset.planId;
+      const tl  = buildTimeline(STATE.plans);
+      const entry = tl.find(e => e.planId === pid) || { planId: pid, dayIdx: 0 };
+      STATE.currentPlanId = entry.planId;
+      STATE.currentDayIdx = entry.dayIdx;
       STATE.view = 'day';
       persistCurrent();
       rerender();
@@ -75,8 +63,13 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
     item.addEventListener('pointerdown', () => {
       timer = setTimeout(() => {
         if (confirm('Smazat tento plán?')) {
-          delete STATE.plans[item.dataset.planId];
-          if (STATE.currentPlanId === item.dataset.planId) STATE.currentPlanId = null;
+          const pid = item.dataset.planId;
+          delete STATE.plans[pid];
+          if (STATE.currentPlanId === pid) {
+            const tl = buildTimeline(STATE.plans);
+            STATE.currentPlanId = tl[0]?.planId || null;
+            STATE.currentDayIdx = tl[0]?.dayIdx  ?? 0;
+          }
           persistPlans(); persistCurrent(); rerender();
         }
       }, 800);
@@ -85,8 +78,6 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
     item.addEventListener('pointerleave', () => clearTimeout(timer));
   });
 
-  document.getElementById('menu-add-plan')
-    .addEventListener('click', openAddPlan);
-  document.getElementById('menu-settings')
-    .addEventListener('click', openSettings);
+  document.getElementById('menu-add-plan').addEventListener('click', openAddPlan);
+  document.getElementById('menu-settings').addEventListener('click', openSettings);
 }

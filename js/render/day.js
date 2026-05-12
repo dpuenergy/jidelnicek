@@ -1,7 +1,7 @@
 import { STATE, persistAte, persistCurrent, persistPlans } from '../state.js';
 import {
   escapeHtml, activeMetricsFor, computeDayTotals,
-  computeEatenTotals, mealKey, slotIcon, ICONS,
+  computeEatenTotals, mealKey, slotIcon, ICONS, buildTimeline,
 } from '../helpers.js';
 
 // Accordion state: set of expanded slotKeys for current day
@@ -398,7 +398,7 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
     });
   });
 
-  // Swipe gesture
+  // Swipe gesture — navigates across full timeline (all plans)
   let sx = null, sy = null;
   main.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
@@ -409,10 +409,14 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
     const dx = e.changedTouches[0].clientX - sx;
     const dy = e.changedTouches[0].clientY - sy;
     if (Math.abs(dx) > 60 && Math.abs(dy) < 50) {
-      if (dx > 0 && STATE.currentDayIdx > 0) {
-        STATE.currentDayIdx--; persistCurrent(); rerender(); window.scrollTo(0, 0);
-      } else if (dx < 0 && plan && STATE.currentDayIdx < plan.days.length - 1) {
-        STATE.currentDayIdx++; persistCurrent(); rerender(); window.scrollTo(0, 0);
+      const tl = buildTimeline(STATE.plans);
+      const ci = tl.findIndex(t => t.planId === planId && t.dayIdx === dayIdx);
+      if (dx > 0 && ci > 0) {
+        const p = tl[ci - 1]; STATE.currentPlanId = p.planId; STATE.currentDayIdx = p.dayIdx;
+        persistCurrent(); rerender(); window.scrollTo(0, 0);
+      } else if (dx < 0 && ci < tl.length - 1) {
+        const n = tl[ci + 1]; STATE.currentPlanId = n.planId; STATE.currentDayIdx = n.dayIdx;
+        persistCurrent(); rerender(); window.scrollTo(0, 0);
       }
     }
     sx = null;
