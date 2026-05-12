@@ -127,6 +127,7 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
       <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
       <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">${ICONS.chat} Otázka</button>
       <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesunout</button>
+      <button data-act="reset" data-slot="${slotKey}" data-person="${pk}">${ICONS.reset} Reset</button>
     </div>
   </div>`;
 }
@@ -321,7 +322,6 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
       <span class="slot-emoji">${emoji}</span>
       <span class="slot-row-name">${escapeHtml(label)}</span>
       ${kcalStr ? `<span class="slot-row-kcal">${kcalStr}</span>` : ''}
-      <button class="slot-row-add" data-slot-add="${slotKey}" title="Přidat">＋</button>
       <span class="slot-chevron">▼</span>
     </div>`;
 
@@ -395,6 +395,22 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
   main.querySelectorAll('[data-act="move"]').forEach(btn => {
     btn.addEventListener('click', () => {
       openMoveModal(plan, day, dayIdx, planId, btn.dataset.slot, btn.dataset.person, rerender);
+    });
+  });
+
+  main.querySelectorAll('[data-act="reset"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!plan._original_days) {
+        alert('Původní verze není k dispozici — smaž plán a importuj znovu.');
+        return;
+      }
+      const slot    = btn.dataset.slot;
+      const origDay = plan._original_days[dayIdx];
+      const origSlot = origDay?.meals?.[slot];
+      if (!origSlot) return;
+      plan.days[dayIdx].meals[slot] = JSON.parse(JSON.stringify(origSlot));
+      persistPlans();
+      rerender();
     });
   });
 

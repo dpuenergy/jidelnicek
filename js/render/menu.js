@@ -22,6 +22,7 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
           <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${p.days.length} ${czechDayPlural(p.days.length)}</div>
           <div class="menu-item-meta">${prog.eaten}/${prog.total} snědeno · ${pct}% plnění</div>
         </div>
+        ${p._original_days ? `<button class="menu-item-reset" data-reset-id="${escapeHtml(id)}" title="Reset plánu">${ICONS.reset}</button>` : ''}
         <span class="menu-item-chevron">›</span>
       </div>`;
     }
@@ -76,6 +77,19 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
     });
     item.addEventListener('pointerup',    () => clearTimeout(timer));
     item.addEventListener('pointerleave', () => clearTimeout(timer));
+  });
+
+  main.querySelectorAll('[data-reset-id]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const pid = btn.dataset.resetId;
+      const p   = STATE.plans[pid];
+      if (!p?._original_days) return;
+      if (confirm('Resetovat celý plán na původní verzi z BEN? Vlastní úpravy jídel se ztratí.')) {
+        p.days = JSON.parse(JSON.stringify(p._original_days));
+        persistPlans(); persistCurrent(); rerender();
+      }
+    });
   });
 
   document.getElementById('menu-add-plan').addEventListener('click', openAddPlan);

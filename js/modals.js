@@ -71,6 +71,7 @@ export function initAddPlan(onPlanImported) {
               const r    = await fetch(GITHUB_RAW_BASE + this.dataset.file);
               if (!r.ok) throw new Error(`HTTP ${r.status}`);
               const plan = await r.json();
+              plan._original_days = JSON.parse(JSON.stringify(plan.days));
               STATE.plans[plan.id] = plan;
               persistPlans();
               closeModal('addplan-modal');
@@ -99,6 +100,7 @@ export function initAddPlan(onPlanImported) {
       errEl.textContent = 'Chybí povinná pole (id, persons, slots, days).';
       errEl.style.display = 'block'; return;
     }
+    plan._original_days = JSON.parse(JSON.stringify(plan.days));
     STATE.plans[plan.id] = plan;
     persistPlans();
     closeModal('addplan-modal');
