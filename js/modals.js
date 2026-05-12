@@ -1,6 +1,6 @@
 import {
   STATE, persistPlans, persistChats,
-  getApiKey, getModel, KEY_MODEL,
+  getApiKey, getModel, KEY_API, KEY_MODEL,
 } from './state.js';
 import { escapeHtml, mealKey } from './helpers.js';
 
@@ -24,11 +24,14 @@ export function initModalDismiss() {
 export function initSettings() {
   document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('settings-save').addEventListener('click', () => {
+    const k = document.getElementById('settings-key').value.trim();
+    if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
     closeModal('settings-modal');
   });
 }
 export function openSettings() {
+  document.getElementById('settings-key').value   = getApiKey();
   document.getElementById('settings-model').value = getModel();
   openModal('settings-modal');
 }
