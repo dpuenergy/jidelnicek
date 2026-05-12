@@ -420,6 +420,17 @@ main {
 .recipe-card-footer { display: flex; gap: 10px; align-items: center; }
 .recipe-card-meta  { font-size: 12px; color: var(--ink-soft); }
 .recipe-card-count { font-size: 11px; color: var(--ink-faint); margin-left: auto; }
+.recipe-card-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.recipe-pt  { font-size: 12px; color: var(--ink-soft); }
+.recipe-badge { font-size: 11px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: auto; }
+.recipe-badge.v-yes { background: var(--accent-soft); color: var(--accent); }
+.recipe-badge.v-no  { background: var(--c-over-soft); color: var(--c-over); }
+.recipe-macros { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; margin-top: 6px; }
+.rm-kcal { font-size: 13px; font-weight: 700; color: var(--ink); }
+.rm-p    { font-size: 12px; color: var(--c-protein); }
+.rm-c    { font-size: 12px; color: var(--c-carbs); }
+.rm-f    { font-size: 12px; color: var(--c-fat); }
+.rm-unit { font-size: 11px; color: var(--ink-faint); }
 
 /* Recipe detail modal */
 .recipe-modal-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; }
