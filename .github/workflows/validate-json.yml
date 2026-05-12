@@ -1,0 +1,36 @@
+name: Validate plan JSON
+
+on:
+  push:
+    paths:
+      - 'shared/**.json'
+      - 'scripts/inject-plan.js'
+  pull_request:
+    paths:
+      - 'shared/**.json'
+      - 'scripts/inject-plan.js'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON syntax (all shared/*.json)
+        run: |
+          for f in shared/*.json; do
+            echo "Checking $f..."
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "  OK"
+          done
+
+      - name: Schema check via inject-plan.js (dry-run against template)
+        run: |
+          for f in shared/*.json; do
+            echo "Schema check: $f"
+            node scripts/inject-plan.js "$f" jidelnicek_sablona.html /tmp/out_test.html
+          done

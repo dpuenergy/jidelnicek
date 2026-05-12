@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Pre-commit secret scanner — lightweight substitute for gitleaks.
+# Blocks commits that contain likely API keys or secrets.
+# Install: cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only 2>/dev/null || true)
+if [ -z "$STAGED" ]; then exit 0; fi
+
+# Patterns that strongly suggest a real secret
+PATTERNS=(
+  'sk-ant-api[0-9A-Za-z_-]{20,}'       # Anthropic API key
+  'AKIA[0-9A-Z]{16}'                    # AWS access key
+  'ghp_[0-9A-Za-z]{36}'                # GitHub personal access token
+  'gho_[0-9A-Za-z]{36}'                # GitHub OAuth token
+  '-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----'
+)
+
+FOUND=0
+for FILE in $STAGED; do
+  [ -f "$FILE" ] || continue
+  for PAT in "${PATTERNS[@]}"; do
+    if git diff --cached -- "$FILE" | grep -qE "$PAT"; then
+      echo "SECRET SCANNER: possible secret matching /$PAT/ in $FILE"
+      FOUND=1
+    fi
+  done
+done
+
+if [ "$FOUND" -eq 1 ]; then
+  echo ""
+  echo "Commit blocked. Remove the secret, then commit again."
+  echo "If this is a false positive, use:  git commit --no-verify"
+  exit 1
+fi
