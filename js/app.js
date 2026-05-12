@@ -1,5 +1,6 @@
 import { loadState, STATE, persistCurrent } from './state.js';
 import { buildTimeline, parseDayDate } from './helpers.js';
+import { CLAUDE_KEY, CLAUDE_MODEL } from './config.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
 import { renderDayView }     from './render/day.js';
 import { renderWeekView }    from './render/week.js';
@@ -56,16 +57,13 @@ function autoInitTimeline() {
   STATE.currentDayIdx = target.dayIdx;
 }
 
-async function applyConfig() {
-  try {
-    const cfg = await import('./config.js');
-    if (cfg.CLAUDE_KEY)   localStorage.setItem('claude_api_key', cfg.CLAUDE_KEY);
-    if (cfg.CLAUDE_MODEL) localStorage.setItem('claude_model',   cfg.CLAUDE_MODEL);
-  } catch { /* config.js not present — use localStorage settings */ }
+function applyConfig() {
+  if (CLAUDE_KEY)   localStorage.setItem('claude_api_key', CLAUDE_KEY);
+  if (CLAUDE_MODEL) localStorage.setItem('claude_model',   CLAUDE_MODEL);
 }
 
-async function boot() {
-  await applyConfig();
+function boot() {
+  applyConfig();
   loadState();
   autoInitTimeline();
 
@@ -88,4 +86,4 @@ async function boot() {
   render();
 }
 
-boot().catch(console.error);
+boot();

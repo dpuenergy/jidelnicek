@@ -30,3 +30,7 @@ export const CLAUDE_KEY   = '${key}';
 export const CLAUDE_MODEL = '${model}';
 `);
 console.log(`✓ js/config.js generated (key: ${key.slice(0,12)}…, model: ${model})`);
+
+// Prevent git from tracking local changes to config.js
+import { execSync } from 'child_process';
+try { execSync('git update-index --skip-worktree js/config.js', { cwd: root }); } catch {}
