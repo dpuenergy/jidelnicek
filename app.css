@@ -92,16 +92,26 @@ body {
 .bnav-btn.active { color: var(--accent); }
 .bnav-btn:active { background: var(--rule-soft); }
 .bnav-fab {
-  font-size: 30px; color: var(--accent);
+  font-size: 28px; color: var(--accent);
   position: relative;
 }
 .bnav-fab::before {
   content: '';
   position: absolute;
-  inset: 8px;
+  width: 52px;
+  height: 52px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: var(--accent-soft);
   border-radius: 50%;
   z-index: -1;
+}
+.bnav-btn svg {
+  width: 24px; height: 24px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
 }
 
 /* ─── Main scroll area ───────────────────────────────────────── */
