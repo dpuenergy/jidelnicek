@@ -1,0 +1,2741 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jídelníček</title>
+
+<!-- PWA: installable on iOS (Add to Home Screen) and Android (manifest-based install) -->
+<meta name="theme-color" content="#3e9b66">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Jídelníček">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- Inline SVG icon (sage green "J" badge) used for both manifest + apple-touch-icon -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'&gt;&lt;rect width='512' height='512' fill='%23f6f8f4' rx='96'/&gt;&lt;text x='256' y='340' font-family='-apple-system,Plus Jakarta Sans,sans-serif' font-size='280' font-weight='600' fill='%233e9b66' text-anchor='middle'&gt;J&lt;/text&gt;&lt;/svg&gt;">
+<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'&gt;&lt;rect width='512' height='512' fill='%23f6f8f4' rx='96'/&gt;&lt;text x='256' y='340' font-family='Plus Jakarta Sans,sans-serif' font-size='280' font-weight='600' fill='%233e9b66' text-anchor='middle'&gt;J&lt;/text&gt;&lt;/svg&gt;">
+<!-- Manifest is generated inline below by JS (uses Blob URL for "Add to Home Screen" prompt on Android) -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f8f4;            /* fresh light, slight green undertone */
+    --bg-card: #ffffff;       /* pure white cards */
+    --ink: #1c2421;           /* charcoal with green undertone */
+    --ink-soft: #5a6660;
+    --ink-faint: #97a09a;
+    --accent: #3e9b66;        /* fresh leaf green (was muted sage #6b8e5a) */
+    --accent-soft: #e3efe8;
+    --accent-warm: #c8924c;
+    --accent-warm-soft: #f4e6d0;
+    --rule: #e0e6df;          /* thinner, cooler hairlines */
+    --rule-soft: #eef2ec;
+    --highlight: #fff5dc;
+    --c-protein: #4d8cac;     /* slate blue, fresher */
+    --c-carbs:   #d9a02e;     /* modern gold (was amber) */
+    --c-fat:     #db7e5d;     /* coral (was terracotta) */
+    --c-fiber:   #5cb074;     /* vibrant fresh green */
+    --c-over:    #d04848;
+    --c-over-soft: #fae0e0;
+    --shadow-soft: 0 1px 2px rgba(28, 36, 33, 0.025);   /* very subtle */
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 40px 80px;
+  }
+
+  /* ─── Masthead ───────────────────────────────────── */
+  header.masthead {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 24px;
+  }
+  .masthead h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 300;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .masthead .meta {
+    text-align: right;
+    font-size: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+  .masthead .meta strong {
+    display: block;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  /* Action row — replaces the old subhead, just controls */
+  .actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .controls { display: flex; gap: 6px; flex-wrap: wrap; }
+  .controls button {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-radius: 100px;
+    letter-spacing: 0.01em;
+  }
+  .controls button:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .controls button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* ─── Macro legend ───────────────────────────────── */
+  .macro-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .macro-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .macro-legend i {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .macro-legend .p i { background: var(--c-protein); }
+  .macro-legend .c i { background: var(--c-carbs); }
+  .macro-legend .f i { background: var(--c-fat); }
+  .macro-legend .fb i { background: var(--c-fiber); }
+  .macro-legend .k i { background: var(--ink); }
+
+  /* ─── Targets strip ──────────────────────────────── */
+  .targets-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .target-pill {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow-soft);
+  }
+  .target-pill h3 {
+    margin: 0 0 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .target-macros-line {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .target-macros-line span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .target-macros-line strong {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* ─── Edit hint ──────────────────────────────────── */
+  .edit-hint {
+    display: none;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    font-size: 12.5px;
+    color: var(--ink);
+    margin-bottom: 28px;
+    border-radius: 4px;
+    line-height: 1.6;
+  }
+  body.edit-mode .edit-hint { display: block; }
+
+  /* ─── Week grid ──────────────────────────────────── */
+  /* Auto-fit grid: works for any plan length (1 day, 3 days, 5 days, 7 days, 14 days…) */
+  .week {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    margin-bottom: 56px;
+  }
+  /* Constrain max columns at very wide viewports for readability */
+  @media (min-width: 1400px) {
+    .week { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  }
+  .day {
+    background: var(--bg-card);
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    container-type: inline-size;
+    container-name: day;
+  }
+  .day-header {
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+  }
+  .day-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    display: block;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .day-date {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    margin-top: 5px;
+    display: block;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  .day-note {
+    font-size: 10.5px;
+    color: var(--accent-warm);
+    margin-top: 6px;
+    display: block;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .meal-note {
+    display: block;
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+    font-weight: 400;
+    line-height: 1.35;
+  }
+  .slot {
+    padding: 10px 12px 12px;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .slot:last-of-type { border-bottom: none; }
+  .slot-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .meal {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 4px 6px 0;
+    font-size: 13px;
+    line-height: 1.35;
+    border-radius: 4px;
+  }
+  .meal + .meal {
+    border-top: 1px dotted var(--rule);
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+  .person {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 18px;
+    margin-top: 1px;
+    letter-spacing: 0.04em;
+  }
+  .meal-content { flex: 1; min-width: 0; }
+  .meal-name {
+    display: block;
+    line-height: 1.3;
+  }
+  .meal-meta {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meal-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .meal-person-tag {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Macro chips — small colored badges with gram numbers */
+  .macro-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px 7px;
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .macro-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+  }
+  .macro-chip i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .macro-chip.p i { background: var(--c-protein); }
+  .macro-chip.c i { background: var(--c-carbs); }
+  .macro-chip.f i { background: var(--c-fat); }
+  .macro-chip.fb i { background: var(--c-fiber); }
+
+  .meal-kcal {
+    color: var(--ink);
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    flex-shrink: 0;
+    letter-spacing: -0.005em;
+  }
+  .meal-kcal .unit {
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-left: 2px;
+    font-weight: 500;
+    text-transform: lowercase;
+  }
+  .meal-portion {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--accent-warm);
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+
+  /* Placeholder meal (restaurant / guest) */
+  .meal.placeholder {
+    background: var(--accent-warm-soft);
+    border: 1px dashed var(--accent-warm);
+    padding: 8px 10px;
+  }
+  .meal.placeholder .meal-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--accent-warm);
+    font-weight: 500;
+  }
+  .meal.placeholder .macro-chips { display: none; }
+  .meal.placeholder .meal-kcal::before { content: "≈ "; color: var(--accent-warm); font-weight: 600; }
+  .meal.placeholder + .meal.placeholder { margin-top: 6px; border-top-style: dashed; }
+  .placeholder-note {
+    display: inline-block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    color: var(--accent-warm);
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-warm);
+  }
+
+  /* ─── Day totals card ────────────────────────────── */
+  .day-totals {
+    padding: 14px 12px 14px;
+    background: transparent;
+    border-top: 1px solid var(--rule);
+  }
+  .day-totals-person { margin-bottom: 12px; }
+  .day-totals-person:last-child { margin-bottom: 0; }
+  .day-totals-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Compact totals row — colored dot + number per macro */
+  .day-totals-compact { display: none; }   /* default hidden; container query reveals it */
+  .day-totals-compact .dt-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    align-items: baseline;
+  }
+  .day-totals-compact .dt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .day-totals-compact .dt-chip i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .day-totals-compact .dt-chip.kcal i { background: var(--ink); }
+  .day-totals-compact .dt-chip.p i { background: var(--c-protein); }
+  .day-totals-compact .dt-chip.c i { background: var(--c-carbs); }
+  .day-totals-compact .dt-chip.f i { background: var(--c-fat); }
+  .day-totals-compact .dt-chip.fb i { background: var(--c-fiber); }
+  .day-totals-compact .dt-chip.kcal { font-size: 12px; margin-right: 4px; }
+  .day-totals-compact .dt-chip.is-over { color: var(--c-over); }
+  .day-totals-compact .dt-chip.is-over small {
+    background: var(--c-over-soft);
+    color: var(--c-over);
+    font-weight: 700;
+    font-size: 9px;
+    padding: 0 5px 1px;
+    border-radius: 6px;
+    margin-left: 3px;
+    letter-spacing: 0.01em;
+  }
+  .day-totals-compact .dt-tip {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    color: var(--c-over);
+    margin-top: 4px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  /* Container query: if the day card is narrow (typical desktop multi-column), 
+     switch to compact totals. On wide cards (tablet/mobile or short plans), keep full. */
+  @container day (max-width: 290px) {
+    .day-totals-full { display: none; }
+    .day-totals-compact { display: block; }
+  }
+  .metric-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 7px;
+    font-variant-numeric: tabular-nums;
+  }
+  .metric-row:last-child { margin-bottom: 0; }
+  .metric-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .metric-label {
+    color: var(--ink-soft);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .metric-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+  .metric-dot.kcal { background: var(--ink); }
+  .metric-dot.p    { background: var(--c-protein); }
+  .metric-dot.c    { background: var(--c-carbs); }
+  .metric-dot.f    { background: var(--c-fat); }
+  .metric-dot.fb   { background: var(--c-fiber); }
+  .metric-bar {
+    height: 6px;
+    background: var(--rule);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-bar.is-over {
+    background: var(--c-over-soft);
+  }
+  .metric-fill {
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    transition: width 0.3s ease;
+  }
+  .metric-fill.kcal { background: var(--ink); }
+  .metric-fill.p { background: var(--c-protein); }
+  .metric-fill.c { background: var(--c-carbs); }
+  .metric-fill.f { background: var(--c-fat); }
+  .metric-fill.fb { background: var(--c-fiber); }
+  .metric-fill-over {
+    position: absolute;
+    top: 0; bottom: 0;
+    height: 100%;
+    background: var(--c-over);
+    transition: width 0.3s ease, left 0.3s ease;
+  }
+  .metric-target-line {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    width: 1px;
+    background: var(--ink-soft);
+    z-index: 2;
+    opacity: 0.45;
+  }
+  .metric-value {
+    text-align: right;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+  .metric-value .target { color: var(--ink-faint); font-weight: 400; margin-left: 2px; }
+  .metric-value.is-over { color: var(--c-over); }
+  .metric-value.is-over .target { color: var(--c-over); opacity: 0.55; }
+  .metric-surplus {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px 1.5px;
+    border-radius: 8px;
+    background: var(--c-over-soft);
+    color: var(--c-over);
+    font-size: 9.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    vertical-align: 1px;
+    letter-spacing: 0.01em;
+  }
+  .metric-tip {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+  .metric-tip strong {
+    color: var(--c-over);
+    font-weight: 600;
+  }
+  .weekly-card .metric-tip { font-size: 12.5px; margin-top: 6px; }
+
+  .day-totals-warn {
+    font-size: 10px;
+    color: var(--accent-warm);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* ─── Weekly summary ─────────────────────────────── */
+  .weekly-section {
+    margin-top: 56px;
+    padding-top: 36px;
+    border-top: 1px solid var(--rule);
+  }
+  .weekly-section h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 300;
+    font-size: 36px;
+    margin: 0 0 6px;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .weekly-section .section-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .weekly-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow-soft);
+  }
+  .weekly-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 18px;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .weekly-card .metric-row {
+    margin-bottom: 14px;
+    gap: 5px;
+  }
+  .weekly-card .metric-bar { height: 8px; }
+  .weekly-card .metric-label { font-size: 14px; gap: 7px; }
+  .weekly-card .metric-dot { width: 9px; height: 9px; }
+  .weekly-card .metric-value { font-size: 14px; }
+  .weekly-card .footnote {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--rule);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  /* ─── Colophon ───────────────────────────────────── */
+  .colophon {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  /* ─── Action buttons on meal row ─────────────────── */
+  .meal-edit-btn,
+  .meal-flag-btn {
+    display: none;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.edit-mode .meal-edit-btn,
+  body.edit-mode .meal-flag-btn { display: inline-flex; }
+  .meal-edit-btn:hover, .meal-edit-btn:focus-visible {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    outline: none;
+  }
+  .meal-flag-btn:hover, .meal-flag-btn:focus-visible {
+    background: var(--accent-warm-soft);
+    color: var(--accent-warm);
+    border-color: var(--accent-warm);
+    outline: none;
+  }
+  .meal-flag-btn.is-flagged {
+    background: var(--accent-warm-soft);
+    border-color: var(--accent-warm);
+    color: var(--accent-warm);
+    font-size: 14px;
+  }
+
+  .meal-drag-handle {
+    display: none;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    grid-template-columns: 3px 3px;
+    grid-template-rows: 3px 3px 3px;
+    gap: 3px;
+    align-content: center;
+    justify-content: center;
+    color: var(--ink-faint);
+    cursor: grab;
+    border-radius: 4px;
+    padding: 0;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  body.edit-mode .meal-drag-handle { display: grid; }
+  .meal-drag-handle:hover { background: var(--rule-soft); color: var(--ink); }
+  .meal-drag-handle:active,
+  .meal-drag-handle.is-dragging {
+    cursor: grabbing;
+    background: var(--accent);
+    color: white;
+  }
+  .meal-drag-handle i {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    display: block;
+  }
+
+  /* ─── Edit mode visuals ──────────────────────────── */
+  body.edit-mode .meal {
+    cursor: pointer;
+    transition: background 0.12s ease, outline-color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    padding: 6px 4px;
+  }
+  @media (hover: hover) {
+    body.edit-mode .meal:hover:not(.placeholder) {
+      background: var(--highlight);
+      outline: 1px solid var(--accent-warm);
+      outline-offset: 1px;
+    }
+  }
+  body.edit-mode .meal.dragging { opacity: 0.4; }
+  body.edit-mode .meal.selected {
+    background: var(--accent-soft);
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  body.edit-mode .meal.drag-over {
+    background: var(--accent-soft);
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  body.edit-mode .meal.drag-over-invalid {
+    background: #fbeaea;
+    outline: 2px solid #b84444;
+    outline-offset: 1px;
+  }
+  body.edit-mode .meal.shake { animation: meal-shake 0.32s ease; }
+  @keyframes meal-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+  }
+  body.edit-mode .meal-name[contenteditable="true"] {
+    background: white;
+    outline: 1px solid var(--accent);
+    padding: 2px 4px;
+    margin: -2px -4px;
+    cursor: text;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Drag ghost */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    background: white;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 14px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    opacity: 0.95;
+    font-family: inherit;
+    transform: translate(-50%, -50%);
+    max-width: 300px;
+  }
+
+  /* ─── Tablet ─────────────────────────────────────── */
+  @media (max-width: 1100px) {
+    .weekly-grid { grid-template-columns: 1fr; }
+  }
+  /* ─── Mobile ─────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .page { padding: 32px 18px 60px; }
+    .masthead { grid-template-columns: 1fr; gap: 14px; align-items: start; }
+    .masthead .meta { text-align: left; }
+    .actions-bar { justify-content: flex-start; }
+    .targets-strip { grid-template-columns: 1fr; }
+    .week { grid-template-columns: 1fr; gap: 14px; }
+    .weekly-card { padding: 20px; }
+  }
+
+  /* ─── Modals (Settings, Photo capture/result) ──────────────────────── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 36, 33, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+  .modal-backdrop.hidden { display: none; }
+  .modal {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .modal-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+  .modal label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+    margin-top: 14px;
+  }
+  .modal input[type=password],
+  .modal input[type=text],
+  .modal select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--bg);
+    box-sizing: border-box;
+  }
+  .modal input[type=password]:focus,
+  .modal input[type=text]:focus,
+  .modal select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .modal-hint {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    line-height: 1.45;
+  }
+  .modal-hint code {
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: ui-monospace, monospace;
+    font-size: 10.5px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+  .modal-actions button {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .modal-actions button:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .modal-actions button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .modal-actions button.primary:hover {
+    background: #348556;
+    border-color: #348556;
+  }
+  .modal-actions button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Photo result card */
+  .photo-preview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--bg);
+    margin-bottom: 14px;
+  }
+  .photo-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .photo-status.error {
+    color: var(--c-over);
+    background: var(--c-over-soft);
+  }
+  .photo-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--ink-faint);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .photo-result {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+    background: var(--bg);
+  }
+  .photo-result-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .photo-result-macros {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 10px;
+  }
+  .photo-result-macros span strong {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .photo-result-macros span {
+    color: var(--ink-soft);
+  }
+  .photo-result-confidence {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 100px;
+    margin-bottom: 8px;
+  }
+  .photo-result-confidence.low { background: var(--c-over-soft); color: var(--c-over); }
+  .photo-result-confidence.medium { background: #fff4e0; color: var(--accent-warm); }
+  .photo-result-confidence.high { background: #e0f0e7; color: var(--accent); }
+  .photo-result-notes {
+    font-size: 11px;
+    color: var(--ink-faint);
+    line-height: 1.45;
+    margin-top: 4px;
+  }
+  .target-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  @media (max-width: 640px) {
+    .modal-backdrop { padding: 0; align-items: stretch; }
+    .modal {
+      border-radius: 0;
+      max-width: none;
+      max-height: 100vh;
+      padding: 20px 18px;
+      padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    .target-form-row { grid-template-columns: 1fr; }
+  }
+
+  /* Actions-bar additions for camera and settings */
+  .actions-bar button.icon-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .actions-bar button[data-action="camera"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .actions-bar button[data-action="camera"]:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* ─── Print sheet (hidden on screen, fills the page when printing) ── */
+  .print-sheet { display: none; }
+
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    html, body { background: #ffffff !important; color: #1a1a1a; }
+    body > .page { display: none !important; }
+    .print-sheet { display: block !important; }
+
+    .print-sheet {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 7.8pt;
+      line-height: 1.3;
+      color: #1c2421;
+    }
+    .ps-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 5mm;
+      padding-bottom: 3mm;
+      border-bottom: 0.5pt solid #c8ccc6;
+    }
+    .ps-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 300;
+      font-size: 24pt;
+      margin: 0;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: #1c2421;
+    }
+    .ps-meta {
+      text-align: right;
+      font-size: 8.5pt;
+      color: #5a6660;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+    .ps-meta strong {
+      font-weight: 600;
+      color: #1c2421;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 8pt;
+    }
+    .ps-meta span { display: block; }
+
+    .ps-grid {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .ps-grid thead th {
+      text-align: left;
+      padding: 1.5mm 2mm 2.5mm;
+      border-bottom: 0.6pt solid #1c2421;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 9pt;
+      letter-spacing: -0.01em;
+      vertical-align: bottom;
+      color: #1c2421;
+    }
+    .ps-grid thead th small {
+      font-weight: 400;
+      font-size: 7pt;
+      color: #97a09a;
+      margin-left: 3pt;
+      letter-spacing: 0.02em;
+    }
+    .ps-day-note {
+      font-size: 6.5pt;
+      color: #c8924c;
+      margin-top: 1mm;
+      font-weight: 500;
+      line-height: 1.3;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .ps-grid thead th.ps-th-corner { width: 16mm; }
+
+    .ps-slot-row > th {
+      text-align: left;
+      padding: 2.5mm 2mm 2.5mm 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 8.5pt;
+      color: #3e9b66;
+      border-top: 0.3pt solid #e0e6df;
+      vertical-align: top;
+      width: 16mm;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .ps-slot-row > td {
+      padding: 2.5mm 2mm;
+      border-top: 0.3pt solid #e0e6df;
+      border-left: 0.3pt solid #eef2ec;
+      vertical-align: top;
+    }
+    .ps-slot-row > th + td { border-left: 0.3pt solid #e0e6df; }
+
+    .ps-meal {
+      margin-bottom: 1.8mm;
+      page-break-inside: avoid;
+    }
+    .ps-meal:last-child { margin-bottom: 0; }
+    .ps-tag {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #3e9b66;
+      font-weight: 700;
+      font-size: 7pt;
+      margin-right: 2pt;
+      letter-spacing: 0.04em;
+    }
+    .ps-meal-name {
+      font-size: 7.8pt;
+      line-height: 1.25;
+      color: #1c2421;
+    }
+    .ps-kcal {
+      display: block;
+      font-size: 6.8pt;
+      color: #97a09a;
+      margin-top: 0.4mm;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+    .ps-note {
+      display: block;
+      font-size: 6.5pt;
+      color: #97a09a;
+      margin-top: 0.3mm;
+      font-weight: 400;
+      line-height: 1.25;
+    }
+    .ps-meal.ps-placeholder .ps-tag { color: #c8924c; }
+    .ps-meal.ps-placeholder .ps-meal-name { color: #b8814c; }
+    .ps-meal.ps-placeholder .ps-kcal::before { content: "≈ "; }
+
+    .ps-totals-row > th {
+      text-align: left;
+      padding: 2mm 2mm 2mm 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 8.5pt;
+      color: #1c2421;
+      border-top: 0.6pt solid #1c2421;
+      letter-spacing: 0;
+      text-transform: none;
+      vertical-align: top;
+    }
+    .ps-totals-row > td {
+      padding: 2mm;
+      border-top: 0.6pt solid #1c2421;
+      border-left: 0.3pt solid #eef2ec;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 8pt;
+      color: #1c2421;
+      font-variant-numeric: tabular-nums;
+      vertical-align: top;
+    }
+    .ps-totals-row > th + td { border-left: 0.3pt solid #d8d8d8; }
+    .ps-totals-row + .ps-totals-row > th,
+    .ps-totals-row + .ps-totals-row > td {
+      border-top: 0.3pt solid #d8d8d8;
+    }
+    .ps-tot-kcal {
+      font-weight: 600;
+      font-size: 8.5pt;
+      letter-spacing: -0.005em;
+    }
+    .ps-tot-macros {
+      font-size: 7pt;
+      color: #5a6660;
+      margin-top: 0.6mm;
+      font-weight: 400;
+    }
+    .ps-totals-row .ps-over { color: #c44a4a; font-weight: 700; }
+
+    .ps-footer {
+      margin-top: 4mm;
+      padding-top: 2.5mm;
+      font-size: 6.5pt;
+      color: #97a09a;
+      text-align: right;
+      border-top: 0.3pt solid #e0e6df;
+      letter-spacing: 0.02em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <h1 id="plan-title">Jídelníček</h1>
+    <div class="meta">
+      <strong id="plan-period"></strong>
+      <span id="plan-dates">11. – 16. května 2026</span><br>
+      <span id="plan-persons">Kuba &amp; Verča</span>
+    </div>
+  </header>
+
+  <div class="actions-bar">
+    <div class="controls no-print">
+      <button data-action="edit">Režim úprav</button>
+      <button data-action="camera" class="icon-btn" title="Odhad maker z fotky">📷 Foto pokrmu</button>
+      <button data-action="print">Tisk</button>
+      <button data-action="export">Stáhnout</button>
+      <button data-action="reset">Obnovit</button>
+      <button data-action="settings" class="icon-btn" title="Nastavení (API klíč)">⚙</button>
+    </div>
+  </div>
+
+  <!-- Hidden camera input — programmatically clicked from "Foto pokrmu" button -->
+  <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none">
+
+  <!-- Settings modal: Claude API key -->
+  <div class="modal-backdrop hidden" id="settings-modal">
+    <div class="modal">
+      <h3>Nastavení</h3>
+      <p class="modal-sub">Pro odhad maker z fotky potřebuješ Anthropic API klíč.</p>
+      <label for="api-key-input">Claude API klíč</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+      <p class="modal-hint">
+        Klíč se ukládá lokálně v prohlížeči (<code>localStorage</code>) a posílá se pouze na <code>api.anthropic.com</code>.
+        Vytvořit klíč: <code>console.anthropic.com → API Keys</code>.
+        <strong>Pozor:</strong> v prohlížeči je klíč viditelný v JS sources. Pro osobní zařízení OK,
+        pro produkční použití nasaď proxy (Cloudflare Worker / vlastní backend).
+      </p>
+      <label for="model-input">Model</label>
+      <select id="model-input">
+        <option value="claude-sonnet-4-5">claude-sonnet-4-5 (doporučeno)</option>
+        <option value="claude-opus-4-5">claude-opus-4-5 (přesnější, dražší)</option>
+        <option value="claude-haiku-4-5">claude-haiku-4-5 (rychlejší, méně přesné)</option>
+      </select>
+      <div class="modal-actions">
+        <button data-action="close-settings">Zavřít</button>
+        <button data-action="save-settings" class="primary">Uložit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo modal: shows preview, status, result, target picker -->
+  <div class="modal-backdrop hidden" id="photo-modal">
+    <div class="modal">
+      <h3>Odhad maker z fotky</h3>
+      <p class="modal-sub" id="photo-modal-sub">Claude analyzuje obrázek a odhadne ingredience, gramáže a makra.</p>
+      <img id="photo-preview" class="photo-preview" alt="Náhled fotky" style="display:none">
+      <div id="photo-status" class="photo-status" style="display:none"></div>
+      <div id="photo-result" style="display:none">
+        <div class="photo-result">
+          <div class="photo-result-confidence" id="photo-confidence">—</div>
+          <div class="photo-result-name" id="photo-name">—</div>
+          <div class="photo-result-macros" id="photo-macros">—</div>
+          <div class="photo-result-notes" id="photo-notes"></div>
+        </div>
+        <p class="modal-sub" style="margin-top:0">Vlož do plánu (volitelné):</p>
+        <div class="target-form-row">
+          <div>
+            <label for="target-day">Den</label>
+            <select id="target-day"></select>
+          </div>
+          <div>
+            <label for="target-slot">Slot</label>
+            <select id="target-slot"></select>
+          </div>
+          <div>
+            <label for="target-person">Osoba</label>
+            <select id="target-person">
+              <option value="jakub">Kuba</option>
+              <option value="partnerka">Verča</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button data-action="close-photo">Zavřít</button>
+        <button data-action="insert-photo" class="primary" disabled>Vložit do plánu</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-hint">
+    <strong>Režim úprav.</strong>
+    Přesun pokrmu: chyť 6 teček
+    <span style="display:inline-grid;grid-template-columns:2px 2px;grid-template-rows:2px 2px 2px;gap:2px;width:14px;height:14px;align-content:center;justify-content:center;padding:0 3px;vertical-align:middle;color:var(--ink);"><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i><i style="width:2px;height:2px;border-radius:50%;background:currentColor;display:block;"></i></span>
+    a táhni, nebo klepni na dva pokrmy. Společné pokrmy (K·V) jen mezi sebou, individuální kdekoli. Při změně osoby se gramáž automaticky přepočítá podle kcal cílů. Tlačítko
+    <span style="display:inline-flex;width:18px;height:18px;border-radius:50%;border:1px solid var(--ink);color:var(--ink);font-size:9px;align-items:center;justify-content:center;vertical-align:middle;line-height:1;">✎</span>
+    upraví název pokrmu, ikona
+    <span style="display:inline-flex;width:18px;height:18px;border-radius:50%;border:1px solid var(--accent-warm);background:var(--bg);color:var(--accent-warm);font-size:10px;align-items:center;justify-content:center;vertical-align:middle;line-height:1;">🍽</span>
+    přepne pokrm na restauraci / návštěvu (jen kalorický prostor, bez maker). Změny se ukládají automaticky.
+  </div>
+
+  <section class="targets-strip" id="targets"></section>
+
+  <div class="macro-legend" id="macro-legend"></div>
+
+  <main class="week" id="week"></main>
+
+  <section class="weekly-section">
+    <h2>Denní průměr</h2>
+    <div class="section-sub">Průměrný denní příjem za sledované období proti cílovým hodnotám.</div>
+    <div class="weekly-grid" id="weekly-summary"></div>
+  </section>
+
+  <div class="colophon">
+    <span>BEN · Brain-enhanced notebook</span>
+    <span>Verze 2.3 · ID&nbsp;<span id="plan-id">2026-W19-kv</span></span>
+  </div>
+
+</div>
+
+<!-- Dedicated compact A4 landscape print layout (hidden on screen, rendered by renderPrintSheet) -->
+<section class="print-sheet" aria-hidden="true"></section>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     DATA — BEN sem injektuje vygenerovaný plán (nahrazením celého JSON)
+     ═════════════════════════════════════════════════════════════════════════ -->
+<script id="plan-data" type="application/json">
+{
+  "id": "2026-jidla-1105-1605",
+  "plan_title": "Jídelníček",
+  "date_range": "11. – 16. května 2026",
+  "persons": {
+    "jakub":     { "label": "K", "name": "Kuba",  "targets": {"kcal": 2400, "p": 180, "c": 200, "f": 130} },
+    "partnerka": { "label": "V", "name": "Verča", "targets": {"kcal": 1700, "p": 110, "c": 150, "f": 80} }
+  },
+  "slots": ["snidane", "obed", "svacina", "vecere"],
+  "slot_labels": {
+    "snidane": "snídaně",
+    "obed": "oběd",
+    "svacina": "svačina",
+    "vecere": "večeře"
+  },
+  "days": [
+    {
+      "name": "Pondělí", "date": "11. 5.", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Sladkokyselá čína (bez paprik) 400g + rýže 250g", "note": "→ batch: Verča Út oběd", "macros":{"kcal":785,"p":67,"c":94,"f":13}},
+          "partnerka": {"name": "Sladkokyselá čína 200g + rýže 150g", "macros":{"kcal":425,"p":34,"c":54,"f":6}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + lučina 50g + fuet 50g + microgreens", "macros":{"kcal":472,"p":20,"c":31,"f":31}},
+          "partnerka": {"name": "Sendvič: chléb 40g + lučina 35g + fuet 35g", "macros":{"kcal":326,"p":14,"c":21,"f":21}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Losos 250g + wakame 50g + bylinkové máslo 25g", "macros":{"kcal":718,"p":52,"c":4,"f":58}},
+          "partnerka": {"name": "Losos 160g + wakame 50g + bylinkové máslo 15g", "macros":{"kcal":460,"p":34,"c":4,"f":34}}
+        }
+      }
+    },
+    {
+      "name": "Úterý", "date": "12. 5.", "note": "Kuba v Kloboučku",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "🍽 Klobouček", "type": "placeholder", "note": "restaurace — odhad", "macros":{"kcal":800,"p":null,"c":null,"f":null}},
+          "partnerka": {"name": "Sladkokyselá čína 220g + rýže 170g", "note": "z batch pondělí", "macros":{"kcal":474,"p":38,"c":61,"f":7}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + kozí sýr 80g + datle 20g", "macros":{"kcal":356,"p":14,"c":44,"f":15}},
+          "partnerka": {"name": "Sendvič: chléb 40g + kozí sýr 60g + datle 20g", "macros":{"kcal":269,"p":10,"c":34,"f":11}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Nivová omáčka s kuřecím 300g + těstoviny 200g", "note": "→ batch: St + Pá", "macros":{"kcal":650,"p":51,"c":56,"f":26}},
+          "partnerka": {"name": "Nivová omáčka s kuřecím 200g + těstoviny 150g", "macros":{"kcal":455,"p":35,"c":42,"f":17}}
+        }
+      }
+    },
+    {
+      "name": "Středa", "date": "13. 5.", "note": "Verča v NGO",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Lasagne čerstvá 500g", "note": "→ batch: Kuba Čt oběd", "macros":{"kcal":825,"p":53,"c":60,"f":35}},
+          "partnerka": {"name": "🍽 NGO — červené kari s tofu", "type": "placeholder", "note": "netrackovatelné", "macros":{"kcal":600,"p":null,"c":null,"f":null}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + lučina 50g + jamon 40g + microgreens", "macros":{"kcal":325,"p":19,"c":30,"f":15}},
+          "partnerka": {"name": "Sendvič: chléb 40g + lučina 35g + jamon 30g", "macros":{"kcal":228,"p":14,"c":20,"f":10}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Nivová omáčka 350g + těstoviny 220g", "note": "z batch úterý", "macros":{"kcal":741,"p":59,"c":62,"f":30}},
+          "partnerka": {"name": "Nivová omáčka 200g + těstoviny 150g", "note": "z batch úterý", "macros":{"kcal":455,"p":35,"c":42,"f":17}}
+        }
+      }
+    },
+    {
+      "name": "Čtvrtek", "date": "14. 5.", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Lasagne 450g", "note": "z batch středa", "macros":{"kcal":743,"p":47,"c":54,"f":32}},
+          "partnerka": {"name": "Kuřecí prsa 160g + brokolice a mrkev 200g + rýže 100g", "macros":{"kcal":384,"p":43,"c":38,"f":5}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + Parenica 110g + datle 20g", "macros":{"kcal":505,"p":34,"c":45,"f":23}},
+          "partnerka": {"name": "Sendvič: chléb 40g + Parenica 110g + datle 20g", "macros":{"kcal":458,"p":33,"c":35,"f":23}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Grilovaný hermelín 125g + 2× vejce tvrdé + chléb 60g + mrkev syrová 100g", "macros":{"kcal":668,"p":40,"c":40,"f":40}},
+          "partnerka": {"name": "Grilovaný hermelín 125g + chléb 40g + mrkev syrová 100g", "macros":{"kcal":465,"p":26,"c":29,"f":29}}
+        }
+      }
+    },
+    {
+      "name": "Pátek", "date": "15. 5.", "note": "Kuba na poradě (krabička) · večer hosté",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "🧳 Krabička: nivová 200g + těstoviny 150g", "note": "z batch úterý", "macros":{"kcal":455,"p":35,"c":42,"f":17}},
+          "partnerka": {"name": "Kuřecí prsa 160g + brokolice 150g + rýže 100g", "macros":{"kcal":365,"p":43,"c":38,"f":5}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + fuet 50g + microgreens", "note": "na cestách", "macros":{"kcal":369,"p":16,"c":29,"f":21}},
+          "partnerka": {"name": "Sendvič: chléb 40g + fuet 40g + microgreens", "macros":{"kcal":277,"p":12,"c":20,"f":17}}
+        },
+        "vecere": {
+          "jakub":     {"name": "🍽 Hosté — volný kalorický prostor", "type": "placeholder", "note": "odhad", "macros":{"kcal":900,"p":null,"c":null,"f":null}},
+          "partnerka": {"name": "🍽 Hosté — volný kalorický prostor", "type": "placeholder", "note": "odhad", "macros":{"kcal":700,"p":null,"c":null,"f":null}}
+        }
+      }
+    },
+    {
+      "name": "Sobota", "date": "16. 5.", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Kuřecí stehna pečená 400g + kořenová zelenina 200g + chléb 80g", "macros":{"kcal":868,"p":85,"c":54,"f":34}},
+          "partnerka": {"name": "Kuřecí stehno 180g + kořenová zelenina 150g + chléb 60g", "macros":{"kcal":471,"p":41,"c":41,"f":16}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + jamon 40g + kozí sýr 40g + microgreens", "macros":{"kcal":302,"p":20,"c":29,"f":12}},
+          "partnerka": {"name": "Sendvič: chléb 40g + jamon 30g + kozí sýr 40g", "macros":{"kcal":235,"p":16,"c":19,"f":11}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Losos 280g + wakame 50g + bylinkové máslo 25g", "macros":{"kcal":780,"p":58,"c":4,"f":62}},
+          "partnerka": {"name": "Losos 180g + wakame 50g + bylinkové máslo 15g", "macros":{"kcal":501,"p":38,"c":4,"f":36}}
+        }
+      }
+    }
+  ]
+}
+</script>
+
+<script>
+(function() {
+  'use strict';
+
+  const PLAN_ID_KEY = 'ben_meal_plan_id_v2';
+  const PLAN_DATA_KEY = 'ben_meal_plan_data_v2';
+  const METRICS = ['kcal','p','c','f','fiber'];
+  const METRIC_LABELS = { kcal:'kcal', p:'bílk.', c:'sach.', f:'tuky', fiber:'vlák.' };
+  const METRIC_LABELS_LONG = { kcal:'energie', p:'bílkoviny', c:'sacharidy', f:'tuky', fiber:'vláknina' };
+
+  function loadPlan() {
+    const embedded = JSON.parse(document.getElementById('plan-data').textContent);
+    try {
+      const stored = localStorage.getItem(PLAN_DATA_KEY);
+      const storedId = localStorage.getItem(PLAN_ID_KEY);
+      if (stored && storedId === embedded.id) return JSON.parse(stored);
+    } catch (_) {}
+    return embedded;
+  }
+
+  function savePlan() {
+    try {
+      localStorage.setItem(PLAN_ID_KEY, PLAN.id);
+      localStorage.setItem(PLAN_DATA_KEY, JSON.stringify(PLAN));
+    } catch(e) { console.warn('Save failed', e); }
+  }
+
+  let PLAN = loadPlan();
+
+  // ─── Macro / portion helpers ───────────────────────────────────────────
+  function scaleMacros(macros, factor) {
+    if (!macros || factor === 1) return macros;
+    const out = {};
+    for (const k of METRICS) {
+      out[k] = (macros[k] == null) ? null : Math.round(macros[k] * factor);
+    }
+    return out;
+  }
+  function scaleMeal(meal, factor, isShared) {
+    if (!meal || factor === 1) return meal;
+    const out = Object.assign({}, meal, { portion: (meal.portion || 1) * factor });
+    if (isShared) {
+      out.macros_jakub = scaleMacros(meal.macros_jakub, factor);
+      out.macros_partnerka = scaleMacros(meal.macros_partnerka, factor);
+    } else {
+      out.macros = scaleMacros(meal.macros, factor);
+    }
+    return out;
+  }
+  function getPersonScaleFactor(fromPerson, toPerson) {
+    if (fromPerson === toPerson) return 1;
+    if (fromPerson === 'shared' || toPerson === 'shared') return 1;
+    const fromKcal = PLAN.persons[fromPerson].targets.kcal;
+    const toKcal = PLAN.persons[toPerson].targets.kcal;
+    return toKcal / fromKcal;
+  }
+  function addMacros(target, src) {
+    if (!src) return;
+    for (const k of METRICS) {
+      if (src[k] != null) target[k] = (target[k] || 0) + src[k];
+    }
+  }
+  function dayHasPlaceholder(day) {
+    return PLAN.slots.some(s => {
+      const slot = day.meals[s] || {};
+      if (slot.shared && slot.shared.type === 'placeholder') return true;
+      if (slot.jakub && slot.jakub.type === 'placeholder') return true;
+      if (slot.partnerka && slot.partnerka.type === 'placeholder') return true;
+      return false;
+    });
+  }
+  function computeDayTotals(day) {
+    const totals = {
+      jakub:     {kcal:0,p:0,c:0,f:0,fiber:0},
+      partnerka: {kcal:0,p:0,c:0,f:0,fiber:0}
+    };
+    Object.values(day.meals).forEach(slot => {
+      if (slot.shared) {
+        addMacros(totals.jakub, slot.shared.macros_jakub);
+        addMacros(totals.partnerka, slot.shared.macros_partnerka);
+      } else {
+        if (slot.jakub) addMacros(totals.jakub, slot.jakub.macros);
+        if (slot.partnerka) addMacros(totals.partnerka, slot.partnerka.macros);
+      }
+    });
+    return totals;
+  }
+  function computeWeekAverages() {
+    const totals = {
+      jakub:     {kcal:0,p:0,c:0,f:0,fiber:0},
+      partnerka: {kcal:0,p:0,c:0,f:0,fiber:0}
+    };
+    PLAN.days.forEach(d => {
+      const dt = computeDayTotals(d);
+      for (const person of ['jakub','partnerka']) {
+        for (const k of METRICS) totals[person][k] += dt[person][k] || 0;
+      }
+    });
+    const n = PLAN.days.length;
+    const avg = {};
+    for (const person of ['jakub','partnerka']) {
+      avg[person] = {};
+      for (const k of METRICS) avg[person][k] = totals[person][k] / n;
+    }
+    return avg;
+  }
+
+  // Identify which meal in a given day contributed most to a given macro
+  // for a given person. Skips placeholder meals (they have no macro data).
+  function topMacroContributor(day, personKey, macroKey) {
+    if (!day || !day.meals) return null;
+    let top = null;
+    for (const slotKey of PLAN.slots) {
+      const slot = day.meals[slotKey];
+      if (!slot) continue;
+      let meal = null, macros = null;
+      if (slot.shared) {
+        if (slot.shared.type === 'placeholder') continue;
+        meal = slot.shared;
+        macros = personKey === 'jakub' ? meal.macros_jakub : meal.macros_partnerka;
+      } else if (slot[personKey]) {
+        if (slot[personKey].type === 'placeholder') continue;
+        meal = slot[personKey];
+        macros = meal.macros;
+      }
+      if (!meal || !macros || macros[macroKey] == null) continue;
+      const value = macros[macroKey];
+      if (!top || value > top.value) {
+        top = { slotKey, name: meal.name, value };
+      }
+    }
+    return top;
+  }
+
+  // Build a one-line reduction tip when a macro target is exceeded.
+  // Heuristic: identify the top contributor and propose either a percentage
+  // reduction or, if the surplus exceeds ~60 % of the top meal, suggest
+  // swapping for a different dish.
+  function reductionTipHTML(day, personKey, macroKey, surplus, unitWithSpace) {
+    const top = topMacroContributor(day, personKey, macroKey);
+    if (!top || surplus <= 0) return '';
+    const slotLabel = (PLAN.slot_labels && PLAN.slot_labels[top.slotKey]) || top.slotKey;
+    const rawPct = (surplus / top.value) * 100;
+    if (rawPct >= 60) {
+      return `<div class="metric-tip">💡 Hlavní zdroj: <strong>${top.name}</strong> (${slotLabel}, ${top.value}${unitWithSpace}). Zkus jiný pokrm v tomto chodu.</div>`;
+    }
+    const roundedPct = Math.max(5, Math.round(rawPct / 5) * 5);
+    return `<div class="metric-tip">💡 Tip: zmenšit <strong>${top.name}</strong> (${slotLabel}) o ~${roundedPct}&nbsp;%.</div>`;
+  }
+
+  // Czech plural for "day" — 1 den, 2-4 dny, 5+ dní
+  function czechDayPlural(n) {
+    if (n === 1) return 'den';
+    if (n >= 2 && n <= 4) return 'dny';
+    return 'dní';
+  }
+
+  // Returns the macros actively tracked in this plan, in canonical order.
+  // A macro is "active" if at least one person's targets defines a positive value for it.
+  // This lets the template gracefully skip e.g. fiber when nobody tracks it.
+  const ALL_METRICS = [
+    {key: 'kcal',  cls: 'kcal', label: 'kalorie',   labelShort: 'kcal',  unit: ''},
+    {key: 'p',     cls: 'p',    label: 'bílkoviny', labelShort: 'B',     unit: ' g'},
+    {key: 'c',     cls: 'c',    label: 'sacharidy', labelShort: 'S',     unit: ' g'},
+    {key: 'f',     cls: 'f',    label: 'tuky',      labelShort: 'T',     unit: ' g'},
+    {key: 'fiber', cls: 'fb',   label: 'vláknina',  labelShort: 'vlák.', unit: ' g'},
+  ];
+  function activeMetrics() {
+    return ALL_METRICS.filter(m => {
+      for (const personKey of ['jakub','partnerka']) {
+        const t = PLAN.persons[personKey] && PLAN.persons[personKey].targets || {};
+        if (typeof t[m.key] === 'number' && t[m.key] > 0) return true;
+      }
+      return false;
+    });
+  }
+
+  // ─── Rendering helpers ────────────────────────────────────────────────
+  function macroChipsHTML(macros) {
+    if (!macros) return '';
+    // Only render chips for macros that are actually tracked + present
+    const chips = [];
+    for (const m of activeMetrics()) {
+      if (m.key === 'kcal') continue;   // kcal shown separately as the "hero" number
+      const val = macros[m.key];
+      if (val == null) continue;
+      chips.push(`<span class="macro-chip ${m.cls}" title="${m.label}"><i></i>${val}g</span>`);
+    }
+    if (chips.length === 0) return '';
+    return `<span class="macro-chips">${chips.join('')}</span>`;
+  }
+
+  function metricRowHTML(label, current, target, klass, day, personKey, macroKey) {
+    // Visual scale: 100% bar width = 125% of target. Target line at 80% of bar.
+    const SCALE_MAX = 1.25;
+    const targetLinePct = 100 / SCALE_MAX;   // 80%
+    const ratio = target ? current / target : 0;
+    const totalFillPct = Math.min(100, ratio * targetLinePct);
+    const goodFillPct  = Math.min(targetLinePct, totalFillPct);
+    const overFillPct  = Math.max(0, totalFillPct - targetLinePct);
+
+    const over = target && current > target * 1.05;
+    const surplus = over ? Math.round(current - target) : 0;
+    const unit = klass === 'kcal' ? '' : ' g';
+    const surplusUnit = klass === 'kcal' ? '' : ' g';
+
+    // Optional reduction tip when over-target and we know the day context
+    const tipHtml = (over && day && personKey && macroKey)
+      ? reductionTipHTML(day, personKey, macroKey, surplus, unit)
+      : '';
+
+    return `<div class="metric-row${over ? ' is-over' : ''}">
+      <div class="metric-top">
+        <span class="metric-label"><span class="metric-dot ${klass}"></span>${label}</span>
+        <span class="metric-value${over ? ' is-over' : ''}">${Math.round(current)}<span class="target"> / ${Math.round(target)}${unit}</span>${over ? `<span class="metric-surplus">+${surplus}${surplusUnit}</span>` : ''}</span>
+      </div>
+      <span class="metric-bar${over ? ' is-over' : ''}">
+        <span class="metric-fill ${klass}" style="width:${goodFillPct.toFixed(1)}%"></span>
+        ${overFillPct > 0 ? `<span class="metric-fill-over" style="left:${targetLinePct}%; width:${overFillPct.toFixed(1)}%"></span>` : ''}
+        <span class="metric-target-line" style="left:${targetLinePct}%"></span>
+      </span>
+      ${tipHtml}
+    </div>`;
+  }
+
+  function renderMealRow(opts) {
+    const { dayIdx, slot, personKey, personLabel, name, note, macros, macrosLeft, macrosRight, isShared, isPlaceholder, portion } = opts;
+    const cls = 'meal' + (isPlaceholder ? ' placeholder' : '');
+    const flagCls = isPlaceholder ? ' is-flagged' : '';
+    const labelLeft  = PLAN.persons.jakub.label;
+    const labelRight = PLAN.persons.partnerka.label;
+    let metaHtml = '';
+
+    if (isPlaceholder) {
+      if (isShared) {
+        const kJ = macrosLeft && macrosLeft.kcal != null ? macrosLeft.kcal : '?';
+        const kP = macrosRight && macrosRight.kcal != null ? macrosRight.kcal : '?';
+        metaHtml = `
+          <div class="meal-meta-row">
+            <span class="meal-person-tag">${labelLeft}</span>
+            <span class="meal-kcal">${kJ}<span class="unit">kcal</span></span>
+            <span class="placeholder-note">jen kalorický prostor</span>
+          </div>
+          <div class="meal-meta-row">
+            <span class="meal-person-tag">${labelRight}</span>
+            <span class="meal-kcal">${kP}<span class="unit">kcal</span></span>
+          </div>`;
+      } else {
+        const k = macros && macros.kcal != null ? macros.kcal : '?';
+        metaHtml = `
+          <div class="meal-meta-row">
+            <span class="meal-kcal">${k}<span class="unit">kcal</span></span>
+            <span class="placeholder-note">jen kalorický prostor</span>
+          </div>`;
+      }
+    } else if (isShared) {
+      const kJ = macrosLeft ? macrosLeft.kcal : 0;
+      const kP = macrosRight ? macrosRight.kcal : 0;
+      metaHtml = `
+        <div class="meal-meta-row">
+          <span class="meal-person-tag">${labelLeft}</span>
+          <span class="meal-kcal">${kJ}<span class="unit">kcal</span></span>
+          ${macroChipsHTML(macrosLeft)}
+        </div>
+        <div class="meal-meta-row">
+          <span class="meal-person-tag">${labelRight}</span>
+          <span class="meal-kcal">${kP}<span class="unit">kcal</span></span>
+          ${macroChipsHTML(macrosRight)}
+        </div>`;
+    } else {
+      const k = macros ? macros.kcal : 0;
+      metaHtml = `
+        <div class="meal-meta-row">
+          <span class="meal-kcal">${k}<span class="unit">kcal</span></span>
+          ${macroChipsHTML(macros)}
+        </div>`;
+    }
+
+    const portionBadge = (portion && Math.abs(portion - 1) > 0.01)
+      ? `<div class="meal-meta-row"><span class="meal-portion">${portion.toFixed(2)}× porce — gramáž přepočtena</span></div>`
+      : '';
+
+    const noteHtml = note ? `<span class="meal-note">${note}</span>` : '';
+
+    return `<div class="${cls}" data-day-index="${dayIdx}" data-slot="${slot}" data-person-key="${personKey}">
+      <span class="person">${personLabel}</span>
+      <span class="meal-content">
+        <span class="meal-name" contenteditable="false" draggable="false">${name}</span>
+        ${noteHtml}
+        <span class="meal-meta">${metaHtml}${portionBadge}</span>
+      </span>
+      <span class="meal-drag-handle no-print" role="button" aria-label="Přesunout pokrm"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <button class="meal-edit-btn no-print" type="button" aria-label="Upravit text pokrmu">✎</button>
+      <button class="meal-flag-btn no-print${flagCls}" type="button" aria-label="${isPlaceholder ? 'Vrátit běžný pokrm' : 'Restaurace / návštěva'}" title="${isPlaceholder ? 'Vrátit běžný pokrm' : 'Restaurace / návštěva — jen kalorický prostor'}">${isPlaceholder ? '↺' : '🍽'}</button>
+    </div>`;
+  }
+
+  function renderTargets() {
+    const root = document.getElementById('targets');
+    const metrics = activeMetrics();
+    let html = '';
+    for (const personKey of ['jakub','partnerka']) {
+      const p = PLAN.persons[personKey];
+      const t = p.targets;
+      const items = metrics.map(m => {
+        if (m.key === 'kcal') {
+          return `<span><span class="metric-dot kcal"></span><strong>${t.kcal}</strong> kalorie</span>`;
+        }
+        return `<span><span class="metric-dot ${m.cls}"></span><strong>${t[m.key]}</strong> g ${m.label}</span>`;
+      }).join('');
+      html += `<div class="target-pill">
+        <h3>${p.name}</h3>
+        <div class="target-macros-line">${items}</div>
+      </div>`;
+    }
+    root.innerHTML = html;
+  }
+
+  function renderWeek() {
+    const root = document.getElementById('week');
+    let html = '';
+    PLAN.days.forEach((day, dayIdx) => {
+      const dayTotals = computeDayTotals(day);
+      const placeholderDay = dayHasPlaceholder(day);
+
+      html += `<article class="day" data-day-index="${dayIdx}">
+        <header class="day-header">
+          <span class="day-name">${day.name}</span>
+          <span class="day-date">${day.date || ''}</span>
+          ${day.note ? `<span class="day-note">${day.note}</span>` : ''}
+        </header>`;
+
+      PLAN.slots.forEach(slotKey => {
+        const slot = day.meals[slotKey] || {};
+        html += `<div class="slot" data-slot="${slotKey}">
+          <span class="slot-label">${PLAN.slot_labels[slotKey]}</span>`;
+
+        if (slot.shared) {
+          const m = slot.shared;
+          html += renderMealRow({
+            dayIdx, slot: slotKey, personKey: 'shared',
+            personLabel: `${PLAN.persons.jakub.label}·${PLAN.persons.partnerka.label}`,
+            name: m.name,
+            note: m.note,
+            macrosLeft: m.macros_jakub,
+            macrosRight: m.macros_partnerka,
+            isShared: true,
+            isPlaceholder: m.type === 'placeholder',
+            portion: m.portion
+          });
+        } else {
+          for (const personKey of ['jakub','partnerka']) {
+            const m = slot[personKey];
+            if (!m) continue;
+            html += renderMealRow({
+              dayIdx, slot: slotKey, personKey,
+              personLabel: PLAN.persons[personKey].label,
+              name: m.name,
+              note: m.note,
+              macros: m.macros,
+              isShared: false,
+              isPlaceholder: m.type === 'placeholder',
+              portion: m.portion
+            });
+          }
+        }
+        html += `</div>`;
+      });
+
+      // Day totals card — render BOTH full (stacked with bars) and compact (chip row)
+      // variants. CSS container query picks one based on the day card's width.
+      // Iterates activeMetrics() so missing macros (e.g. no fiber tracked) are skipped.
+      const metrics = activeMetrics();
+      html += `<div class="day-totals">`;
+      for (const personKey of ['jakub','partnerka']) {
+        const t = dayTotals[personKey];
+        const targets = PLAN.persons[personKey].targets;
+
+        // Compact chips — one per active metric
+        const chipsHtml = metrics.map(m => {
+          const val = t[m.key] || 0;
+          const tgt = targets[m.key] || 0;
+          const over = tgt && val > tgt * 1.05;
+          const surplus = over ? Math.round(val - tgt) : 0;
+          return `<span class="dt-chip ${m.cls}${over ? ' is-over' : ''}"><i></i>${Math.round(val)}${over ? `<small>+${surplus}</small>` : ''}</span>`;
+        }).join('');
+
+        // First over-target tip (if any) shown below chips
+        let firstTipHtml = '';
+        for (const m of metrics) {
+          const val = t[m.key] || 0;
+          const tgt = targets[m.key] || 0;
+          if (tgt && val > tgt * 1.05) {
+            const surplus = Math.round(val - tgt);
+            const inner = reductionTipHTML(day, personKey, m.key, surplus, m.unit).replace(/^<div class="metric-tip">|<\/div>$/g, '');
+            if (inner) {
+              firstTipHtml = `<div class="dt-tip">${inner}</div>`;
+              break;
+            }
+          }
+        }
+
+        // Full stacked rows — one per active metric
+        const fullRowsHtml = metrics.map(m => {
+          return metricRowHTML(m.label, t[m.key] || 0, targets[m.key], m.cls, day, personKey, m.key);
+        }).join('\n            ');
+
+        html += `<div class="day-totals-person">
+          <div class="day-totals-name">${PLAN.persons[personKey].name}</div>
+          <div class="day-totals-full">
+            ${fullRowsHtml}
+          </div>
+          <div class="day-totals-compact">
+            <div class="dt-row">${chipsHtml}</div>
+            ${firstTipHtml}
+          </div>
+        </div>`;
+      }
+      if (placeholderDay) {
+        html += `<div class="day-totals-warn">⚠ V tento den je restaurace/návštěva — makra neúplná.</div>`;
+      }
+      html += `</div></article>`;
+    });
+    root.innerHTML = html;
+    attachMealHandlers();
+    attachEditHandlers();
+    attachFlagHandlers();
+    clearSelection();
+  }
+
+  function renderWeeklySummary() {
+    const root = document.getElementById('weekly-summary');
+    const avg = computeWeekAverages();
+    let html = '';
+    for (const personKey of ['jakub','partnerka']) {
+      const a = avg[personKey];
+      const targets = PLAN.persons[personKey].targets;
+      const metrics = activeMetrics();
+      const rows = metrics.map(m => metricRowHTML(m.label, a[m.key] || 0, targets[m.key], m.cls)).join('\n        ');
+      html += `<div class="weekly-card">
+        <h3>${PLAN.persons[personKey].name}</h3>
+        ${rows}
+        <div class="footnote">Průměr za ${PLAN.days.length} ${czechDayPlural(PLAN.days.length)}. Pokud je v období restaurace/návštěva, započítává se pouze přibližná kcal hodnota.</div>
+      </div>`;
+    }
+    root.innerHTML = html;
+  }
+
+  // ─── Print sheet: dedicated compact A4 landscape layout ─────────────────
+  // Renders a separate table-based view that replaces the screen layout on print.
+  function renderPrintSheet() {
+    const root = document.querySelector('.print-sheet');
+    if (!root) return;
+
+    const title = PLAN.plan_title || 'Jídelníček';
+    const period = PLAN.week_label || '';
+    const dates = PLAN.date_range || '';
+    const personsLine = `${PLAN.persons.jakub.name} &amp; ${PLAN.persons.partnerka.name}`;
+    const labelJ = PLAN.persons.jakub.label;
+    const labelP = PLAN.persons.partnerka.label;
+    const targetsLine = `Cíle ${labelJ} ${PLAN.persons.jakub.targets.kcal} / ${labelP} ${PLAN.persons.partnerka.targets.kcal} kcal`;
+
+    let html = `
+      <header class="ps-header">
+        <h1 class="ps-title">${title}</h1>
+        <div class="ps-meta">
+          <span>${period ? `<strong>${period}</strong>` : ''}${period && dates ? ' · ' : ''}${dates}</span>
+          <span>${personsLine} · ${targetsLine}</span>
+        </div>
+      </header>
+      <table class="ps-grid">
+        <thead>
+          <tr>
+            <th class="ps-th-corner"></th>
+            ${PLAN.days.map(d => `<th>${d.name}${d.date ? `<small>${d.date}</small>` : ''}${d.note ? `<div class="ps-day-note">${d.note}</div>` : ''}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>`;
+
+    // One row per slot, cells contain that slot's meals for each day
+    for (const slotKey of PLAN.slots) {
+      const slotLabel = (PLAN.slot_labels && PLAN.slot_labels[slotKey]) || slotKey;
+      html += `<tr class="ps-slot-row"><th>${slotLabel}</th>`;
+      for (const day of PLAN.days) {
+        const slot = day.meals[slotKey] || {};
+        let cell = '';
+
+        if (slot.shared) {
+          const isPh = slot.shared.type === 'placeholder';
+          const mJ = slot.shared.macros_jakub || {};
+          const mP = slot.shared.macros_partnerka || {};
+          const kJ = mJ.kcal != null ? mJ.kcal : '?';
+          const kP = mP.kcal != null ? mP.kcal : '?';
+          cell += `<div class="ps-meal${isPh ? ' ps-placeholder' : ''}">
+            <span class="ps-tag">${labelJ}·${labelP}</span><span class="ps-meal-name">${slot.shared.name}</span>
+            ${slot.shared.note ? `<span class="ps-note">${slot.shared.note}</span>` : ''}
+            <span class="ps-kcal">${labelJ} ${kJ} · ${labelP} ${kP}</span>
+          </div>`;
+        } else {
+          for (const personKey of ['jakub','partnerka']) {
+            const meal = slot[personKey];
+            if (!meal) continue;
+            const isPh = meal.type === 'placeholder';
+            const k = meal.macros && meal.macros.kcal != null ? meal.macros.kcal : '?';
+            const label = PLAN.persons[personKey].label;
+            cell += `<div class="ps-meal${isPh ? ' ps-placeholder' : ''}">
+              <span class="ps-tag">${label}</span><span class="ps-meal-name">${meal.name}</span>
+              ${meal.note ? `<span class="ps-note">${meal.note}</span>` : ''}
+              <span class="ps-kcal">${k} kcal</span>
+            </div>`;
+          }
+        }
+        html += `<td>${cell}</td>`;
+      }
+      html += `</tr>`;
+    }
+
+    // Daily totals rows — one per person, all tracked macros (kcal + B/S/T [+V])
+    const metricsForTotals = activeMetrics();
+    for (const personKey of ['jakub','partnerka']) {
+      const person = PLAN.persons[personKey];
+      const tgts = person.targets;
+      html += `<tr class="ps-totals-row"><th>${person.name}</th>`;
+      for (const day of PLAN.days) {
+        const t = computeDayTotals(day)[personKey];
+        const k = Math.round(t.kcal);
+        const kOver = tgts.kcal && k > tgts.kcal * 1.05;
+        // Macro bits (skip kcal, that's the hero number)
+        const macroBits = metricsForTotals
+          .filter(m => m.key !== 'kcal')
+          .map(m => {
+            const v = Math.round(t[m.key] || 0);
+            const tgt = tgts[m.key];
+            const over = tgt && v > tgt * 1.05;
+            return `<span class="${over ? 'ps-over' : ''}">${v} ${m.labelShort}</span>`;
+          })
+          .join(' · ');
+        html += `<td>
+          <div class="ps-tot-kcal ${kOver ? 'ps-over' : ''}">${k} kcal</div>
+          <div class="ps-tot-macros">${macroBits}</div>
+        </td>`;
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody></table>`;
+
+    html += `<div class="ps-footer">Vygenerováno BEN · ${PLAN.id}</div>`;
+
+    root.innerHTML = html;
+  }
+
+  function renderAll() {
+    document.getElementById('plan-id').textContent = PLAN.id;
+
+    // Masthead — fully driven by JSON so BEN can customize title and period
+    const titleEl = document.getElementById('plan-title');
+    if (titleEl) {
+      // plan_title may contain inline HTML for accent — supported
+      titleEl.innerHTML = PLAN.plan_title || 'Jídelníček';
+    }
+    const periodEl = document.getElementById('plan-period');
+    if (periodEl) {
+      const periodText = PLAN.week_label || '';
+      periodEl.textContent = periodText;
+      periodEl.style.display = periodText ? '' : 'none';
+    }
+    const datesEl = document.getElementById('plan-dates');
+    if (datesEl) datesEl.textContent = PLAN.date_range || '';
+    const personsEl = document.getElementById('plan-persons');
+    if (personsEl) personsEl.textContent = `${PLAN.persons.jakub.name} & ${PLAN.persons.partnerka.name}`;
+
+    // Macro legend — dynamic, only shows metrics that are actually tracked
+    const legendEl = document.getElementById('macro-legend');
+    if (legendEl) {
+      const cssClassFor = m => m.key === 'kcal' ? 'k' : m.cls;
+      legendEl.innerHTML = activeMetrics()
+        .map(m => `<span class="${cssClassFor(m)}"><i></i>${m.key === 'kcal' ? 'kcal' : m.label}</span>`)
+        .join('');
+    }
+
+    renderTargets();
+    renderWeek();
+    renderWeeklySummary();
+    renderPrintSheet();
+  }
+
+  // ─── Swap logic ────────────────────────────────────────────────────────
+  let selectedMeal = null;
+  function getMealRef(el) {
+    return {
+      dayIdx: parseInt(el.dataset.dayIndex, 10),
+      slot: el.dataset.slot,
+      personKey: el.dataset.personKey
+    };
+  }
+  function sameMeal(a, b) {
+    return a.dayIdx === b.dayIdx && a.slot === b.slot && a.personKey === b.personKey;
+  }
+  function canSwap(a, b) {
+    if (sameMeal(a, b)) return false;
+    const aShared = a.personKey === 'shared';
+    const bShared = b.personKey === 'shared';
+    if (aShared !== bShared) return false;
+    return true;
+  }
+  function swapMeals(refA, refB) {
+    const slotA = PLAN.days[refA.dayIdx].meals[refA.slot];
+    const slotB = PLAN.days[refB.dayIdx].meals[refB.slot];
+
+    if (refA.personKey === 'shared' && refB.personKey === 'shared') {
+      const tmp = slotA.shared;
+      slotA.shared = slotB.shared;
+      slotB.shared = tmp;
+    } else {
+      let mealA = slotA[refA.personKey];
+      let mealB = slotB[refB.personKey];
+      // Scale on cross-person swap
+      const factorAtoB = getPersonScaleFactor(refA.personKey, refB.personKey);
+      const factorBtoA = getPersonScaleFactor(refB.personKey, refA.personKey);
+      if (factorAtoB !== 1) mealA = scaleMeal(mealA, factorAtoB, false);
+      if (factorBtoA !== 1) mealB = scaleMeal(mealB, factorBtoA, false);
+      slotA[refA.personKey] = mealB;
+      slotB[refB.personKey] = mealA;
+    }
+    savePlan();
+    renderAll();
+  }
+  function clearSelection() {
+    document.querySelectorAll('.meal.selected').forEach(el => el.classList.remove('selected'));
+    selectedMeal = null;
+  }
+
+  // ─── Tap & Pointer drag ────────────────────────────────────────────────
+  function attachMealHandlers() {
+    // Tap-to-select-then-swap
+    document.querySelectorAll('.meal').forEach(row => {
+      row.addEventListener('click', e => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        if (e.target.closest('.meal-edit-btn')) return;
+        if (e.target.closest('.meal-flag-btn')) return;
+        if (e.target.closest('.meal-drag-handle')) return;
+        if (e.target.closest('.meal-name[contenteditable="true"]')) return;
+        const ref = getMealRef(row);
+        if (!selectedMeal) {
+          selectedMeal = ref;
+          row.classList.add('selected');
+          return;
+        }
+        if (sameMeal(selectedMeal, ref)) { clearSelection(); return; }
+        if (canSwap(selectedMeal, ref)) {
+          const a = selectedMeal, b = ref;
+          selectedMeal = null;
+          setTimeout(() => swapMeals(a, b), 0);
+        } else {
+          row.classList.add('shake');
+          setTimeout(() => row.classList.remove('shake'), 340);
+        }
+      });
+    });
+
+    // Pointer-based drag from the 6-dot grip
+    document.querySelectorAll('.meal-drag-handle').forEach(handle => {
+      let drag = null;
+      function highlight(targetMeal) {
+        document.querySelectorAll('.meal.drag-over, .meal.drag-over-invalid')
+          .forEach(el => el.classList.remove('drag-over', 'drag-over-invalid'));
+        if (!targetMeal || !drag || targetMeal === drag.srcMeal) return;
+        const tref = getMealRef(targetMeal);
+        if (canSwap(drag.srcRef, tref)) targetMeal.classList.add('drag-over');
+        else targetMeal.classList.add('drag-over-invalid');
+      }
+      function findTargetUnder(x, y) {
+        if (!drag) return null;
+        const prevVis = drag.ghost.style.visibility;
+        drag.ghost.style.visibility = 'hidden';
+        const e = document.elementFromPoint(x, y);
+        drag.ghost.style.visibility = prevVis;
+        return e && e.closest('.meal');
+      }
+      function cleanup() {
+        if (!drag) return;
+        if (drag.ghost && drag.ghost.parentNode) drag.ghost.parentNode.removeChild(drag.ghost);
+        if (drag.srcMeal) drag.srcMeal.classList.remove('dragging');
+        handle.classList.remove('is-dragging');
+        document.querySelectorAll('.meal.drag-over, .meal.drag-over-invalid')
+          .forEach(el => el.classList.remove('drag-over', 'drag-over-invalid'));
+        try { handle.releasePointerCapture(drag.pointerId); } catch(_){}
+        drag = null;
+      }
+      handle.addEventListener('pointerdown', e => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        const srcMeal = handle.closest('.meal');
+        if (!srcMeal) return;
+        const srcRef = getMealRef(srcMeal);
+        const ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        const nameEl = srcMeal.querySelector('.meal-name');
+        const personEl = srcMeal.querySelector('.person');
+        ghost.innerHTML = `<div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;line-height:1.35;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;color:var(--accent);font-weight:700;margin-right:6px;letter-spacing:0.04em;">${personEl ? personEl.textContent : ''}</span>
+          ${nameEl ? nameEl.textContent : ''}
+        </div>`;
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
+        document.body.appendChild(ghost);
+        srcMeal.classList.add('dragging');
+        handle.classList.add('is-dragging');
+        clearSelection();
+        drag = { srcRef, srcMeal, ghost, pointerId: e.pointerId };
+        try { handle.setPointerCapture(e.pointerId); } catch(_){}
+      });
+      handle.addEventListener('pointermove', e => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        e.preventDefault();
+        drag.ghost.style.left = e.clientX + 'px';
+        drag.ghost.style.top = e.clientY + 'px';
+        highlight(findTargetUnder(e.clientX, e.clientY));
+      });
+      handle.addEventListener('pointerup', e => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        e.preventDefault();
+        const targetMeal = findTargetUnder(e.clientX, e.clientY);
+        if (targetMeal && targetMeal !== drag.srcMeal) {
+          const tref = getMealRef(targetMeal);
+          if (canSwap(drag.srcRef, tref)) {
+            const a = drag.srcRef, b = tref;
+            cleanup();
+            setTimeout(() => swapMeals(a, b), 0);
+            return;
+          }
+        }
+        cleanup();
+      });
+      handle.addEventListener('pointercancel', () => cleanup());
+      handle.addEventListener('lostpointercapture', () => cleanup());
+    });
+  }
+
+  // ─── Edit text via pencil button ───────────────────────────────────────
+  function attachEditHandlers() {
+    document.querySelectorAll('.meal-edit-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        clearSelection();
+        const mealName = btn.closest('.meal').querySelector('.meal-name');
+        if (!mealName) return;
+        mealName.setAttribute('contenteditable', 'true');
+        mealName.focus();
+        const range = document.createRange();
+        range.selectNodeContents(mealName);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+    });
+    document.querySelectorAll('.meal-name').forEach(el => {
+      el.addEventListener('click', e => {
+        if (el.getAttribute('contenteditable') === 'true') e.stopPropagation();
+      });
+      el.addEventListener('blur', () => {
+        if (el.getAttribute('contenteditable') !== 'true') return;
+        el.setAttribute('contenteditable', 'false');
+        const parent = el.closest('.meal');
+        const dayIdx = parseInt(parent.dataset.dayIndex, 10);
+        const slot = parent.dataset.slot;
+        const personKey = parent.dataset.personKey;
+        const newName = el.textContent.trim();
+        const slotData = PLAN.days[dayIdx].meals[slot];
+        if (personKey === 'shared' && slotData.shared) {
+          if (slotData.shared.name !== newName) {
+            slotData.shared.name = newName;
+            slotData.shared.source = (slotData.shared.source || '') + ' [edited]';
+          }
+        } else if (slotData[personKey]) {
+          if (slotData[personKey].name !== newName) {
+            slotData[personKey].name = newName;
+            slotData[personKey].source = (slotData[personKey].source || '') + ' [edited]';
+          }
+        }
+        savePlan();
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); el.blur(); renderAll(); }
+      });
+    });
+  }
+
+  // ─── Restaurant / guest placeholder via ≈ button ───────────────────────
+  function attachFlagHandlers() {
+    document.querySelectorAll('.meal-flag-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        clearSelection();
+        const meal = btn.closest('.meal');
+        const ref = getMealRef(meal);
+        togglePlaceholder(ref);
+      });
+    });
+  }
+  function togglePlaceholder(ref) {
+    const slot = PLAN.days[ref.dayIdx].meals[ref.slot];
+    const isShared = ref.personKey === 'shared';
+    const item = isShared ? slot.shared : slot[ref.personKey];
+    if (!item) return;
+
+    if (item.type === 'placeholder') {
+      // revert from backup if present
+      if (item._backup) {
+        if (isShared) slot.shared = item._backup;
+        else slot[ref.personKey] = item._backup;
+      } else {
+        delete item.type;
+      }
+      savePlan(); renderAll();
+      return;
+    }
+
+    // Convert to placeholder
+    const defaultKcal = isShared
+      ? (item.macros_jakub && item.macros_jakub.kcal) || 600
+      : (item.macros && item.macros.kcal) || 500;
+    const input = prompt(`Restaurace / návštěva — orientační kcal pro tento chod (pro ${PLAN.persons.jakub.name}; porce pro ${PLAN.persons.partnerka.name} se přepočítá):`, defaultKcal);
+    if (input === null) return;
+    const kcal = parseInt(input, 10);
+    if (isNaN(kcal) || kcal <= 0) { alert('Neplatná hodnota kcal.'); return; }
+    const nameInput = prompt('Popis (volitelně, např. „Návštěva u Karla" nebo „Restaurace U Krčmáře"):', '🍽 Restaurace / Návštěva');
+    const name = (nameInput && nameInput.trim()) || '🍽 Restaurace / Návštěva';
+
+    const placeholder = {
+      name,
+      type: 'placeholder',
+      source: '[placeholder]',
+      _backup: JSON.parse(JSON.stringify(item))
+    };
+    if (isShared) {
+      const ratio = PLAN.persons.partnerka.targets.kcal / PLAN.persons.jakub.targets.kcal;
+      placeholder.macros_jakub = { kcal, p:null, c:null, f:null, fiber:null };
+      placeholder.macros_partnerka = { kcal: Math.round(kcal * ratio), p:null, c:null, f:null, fiber:null };
+      slot.shared = placeholder;
+    } else {
+      placeholder.macros = { kcal, p:null, c:null, f:null, fiber:null };
+      slot[ref.personKey] = placeholder;
+    }
+    savePlan(); renderAll();
+  }
+
+  // Click outside any meal clears selection
+  document.addEventListener('click', e => {
+    if (!document.body.classList.contains('edit-mode')) return;
+    if (!e.target.closest('.meal')) clearSelection();
+  });
+
+  // ─── Controls ──────────────────────────────────────────────────────────
+  document.querySelector('[data-action="edit"]').addEventListener('click', e => {
+    document.body.classList.toggle('edit-mode');
+    e.target.classList.toggle('active');
+    clearSelection();
+  });
+  document.querySelector('[data-action="print"]').addEventListener('click', () => window.print());
+  document.querySelector('[data-action="export"]').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(PLAN, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `jidelnicek_${PLAN.id}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+  document.querySelector('[data-action="reset"]').addEventListener('click', () => {
+    if (!confirm('Obnovit původní plán a zahodit úpravy?')) return;
+    localStorage.removeItem(PLAN_ID_KEY);
+    localStorage.removeItem(PLAN_DATA_KEY);
+    PLAN = JSON.parse(document.getElementById('plan-data').textContent);
+    renderAll();
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  PWA MANIFEST — generated at runtime as a Blob URL so the whole app
+  //  stays in a single file (no separate manifest.json needed).
+  //  Android Chrome will offer "Add to Home Screen" once manifest loads.
+  //  iOS Safari ignores manifest but uses the apple-* meta tags in <head>.
+  // ═══════════════════════════════════════════════════════════════════
+  (function setupManifest() {
+    const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <rect width="512" height="512" fill="#f6f8f4" rx="96"/>
+      <text x="256" y="340" font-family="Plus Jakarta Sans,sans-serif" font-size="280" font-weight="600" fill="#3e9b66" text-anchor="middle">J</text>
+    </svg>`;
+    const iconDataUrl = 'data:image/svg+xml;base64,' + btoa(iconSvg);
+    const manifest = {
+      name: 'Jídelníček',
+      short_name: 'Jídelníček',
+      description: 'Týdenní jídelníček s odhadem maker z fotky',
+      start_url: window.location.pathname,
+      scope: window.location.pathname.replace(/[^/]+$/, ''),
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#f6f8f4',
+      theme_color: '#3e9b66',
+      icons: [
+        { src: iconDataUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        { src: iconDataUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = URL.createObjectURL(blob);
+    document.head.appendChild(link);
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  SETTINGS (API key + model)  ────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════
+  const API_KEY_KEY = 'claude_api_key';
+  const MODEL_KEY = 'claude_model';
+  const DEFAULT_MODEL = 'claude-sonnet-4-5';
+
+  function getApiKey() { return localStorage.getItem(API_KEY_KEY) || ''; }
+  function getModel() { return localStorage.getItem(MODEL_KEY) || DEFAULT_MODEL; }
+
+  function openSettings() {
+    document.getElementById('api-key-input').value = getApiKey();
+    document.getElementById('model-input').value = getModel();
+    document.getElementById('settings-modal').classList.remove('hidden');
+  }
+  function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+  }
+  document.querySelector('[data-action="settings"]').addEventListener('click', openSettings);
+  document.querySelector('[data-action="close-settings"]').addEventListener('click', closeSettings);
+  document.querySelector('[data-action="save-settings"]').addEventListener('click', () => {
+    const key = document.getElementById('api-key-input').value.trim();
+    const model = document.getElementById('model-input').value;
+    if (key) localStorage.setItem(API_KEY_KEY, key);
+    else localStorage.removeItem(API_KEY_KEY);
+    localStorage.setItem(MODEL_KEY, model);
+    closeSettings();
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  PHOTO → CLAUDE API  ─────────────────────────────────────────────
+  //  Flow: tap "Foto pokrmu" → camera → photo selected → preview shown
+  //  → API call → result displayed → optionally insert into plan grid
+  // ═══════════════════════════════════════════════════════════════════
+  let lastPhotoResult = null;  // {name, macros, confidence, notes}
+
+  const photoModal = document.getElementById('photo-modal');
+  const photoInput = document.getElementById('photo-input');
+
+  document.querySelector('[data-action="camera"]').addEventListener('click', () => {
+    if (!getApiKey()) {
+      alert('Nejdřív zadej Claude API klíč v Nastavení (⚙).');
+      openSettings();
+      return;
+    }
+    photoInput.click();
+  });
+
+  photoInput.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';  // reset so re-selecting same photo works
+    if (!file) return;
+    await handlePhoto(file);
+  });
+
+  document.querySelector('[data-action="close-photo"]').addEventListener('click', () => {
+    photoModal.classList.add('hidden');
+  });
+
+  async function handlePhoto(file) {
+    // Reset modal state
+    lastPhotoResult = null;
+    document.getElementById('photo-result').style.display = 'none';
+    document.querySelector('[data-action="insert-photo"]').disabled = true;
+    showPhotoStatus('Načítám obrázek…', false);
+
+    // Show preview
+    const previewEl = document.getElementById('photo-preview');
+    const previewUrl = URL.createObjectURL(file);
+    previewEl.src = previewUrl;
+    previewEl.style.display = 'block';
+
+    photoModal.classList.remove('hidden');
+
+    // Convert to base64
+    let imageData;
+    try {
+      imageData = await fileToBase64(file);
+    } catch (err) {
+      showPhotoStatus('Chyba při čtení obrázku: ' + err.message, true);
+      return;
+    }
+
+    // Call Claude API
+    showPhotoStatus('Claude analyzuje fotku…', false);
+    try {
+      const result = await analyzeFood(imageData);
+      lastPhotoResult = result;
+      renderPhotoResult(result);
+      populateTargetSelectors();
+      document.querySelector('[data-action="insert-photo"]').disabled = false;
+      hidePhotoStatus();
+    } catch (err) {
+      showPhotoStatus('API chyba: ' + err.message, true);
+    }
+  }
+
+  function showPhotoStatus(text, isError) {
+    const el = document.getElementById('photo-status');
+    el.className = 'photo-status' + (isError ? ' error' : '');
+    el.innerHTML = isError ? text : `<span class="photo-spinner"></span> ${text}`;
+    el.style.display = 'flex';
+  }
+  function hidePhotoStatus() {
+    document.getElementById('photo-status').style.display = 'none';
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const dataUrl = r.result;
+        const commaIdx = dataUrl.indexOf(',');
+        const meta = dataUrl.slice(0, commaIdx);
+        const data = dataUrl.slice(commaIdx + 1);
+        const mediaMatch = meta.match(/data:([^;]+);/);
+        const mediaType = mediaMatch ? mediaMatch[1] : 'image/jpeg';
+        resolve({mediaType, data});
+      };
+      r.onerror = () => reject(new Error('FileReader selhal'));
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function analyzeFood({mediaType, data}) {
+    const apiKey = getApiKey();
+    const model = getModel();
+
+    const prompt = `Analyzuj toto jídlo z fotky a odhadni nutriční hodnoty pro JEDNU porci.
+
+Postup:
+1. Identifikuj viditelné komponenty (suroviny). Pokud je na fotce více porcí, počítej jen jednu.
+2. Odhadni gramáže — porovnej s talířem, příborem, balením, rukama (typický talíř má ~26 cm).
+3. Spočítej kcal, bílkoviny (g), sacharidy (g), tuky (g) pro tu jednu porci.
+
+Vrať POUZE čistý JSON, žádný markdown, žádné fence:
+{
+  "name": "stručný popis s gramážemi, např. 'Losos 250g + rýže 150g + brokolice 100g'",
+  "macros": {"kcal": 0, "p": 0, "c": 0, "f": 0},
+  "confidence": "low" nebo "medium" nebo "high",
+  "notes": "1-2 věty: co je na odhadu nejistý (např. typ tuku, množství omáčky)"
+}`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: data } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      let errMsg = `HTTP ${response.status}`;
+      try {
+        const errBody = await response.json();
+        if (errBody.error && errBody.error.message) errMsg += ' — ' + errBody.error.message;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+
+    const data_ = await response.json();
+    if (!data_.content || !data_.content[0] || !data_.content[0].text) {
+      throw new Error('Neočekávaná odpověď API (chybí content)');
+    }
+    let text = data_.content[0].text.trim();
+    // Strip code fences if model wraps despite instruction
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      throw new Error('Nelze parsovat odpověď jako JSON: ' + text.slice(0, 100));
+    }
+    // Sanity-check the structure
+    if (!parsed.name || !parsed.macros || typeof parsed.macros.kcal !== 'number') {
+      throw new Error('Neúplná data v odpovědi');
+    }
+    return parsed;
+  }
+
+  function renderPhotoResult(r) {
+    document.getElementById('photo-name').textContent = r.name;
+    const m = r.macros;
+    document.getElementById('photo-macros').innerHTML = `
+      <span><strong>${Math.round(m.kcal)}</strong> kcal</span>
+      <span><strong>${Math.round(m.p || 0)}</strong> g B</span>
+      <span><strong>${Math.round(m.c || 0)}</strong> g S</span>
+      <span><strong>${Math.round(m.f || 0)}</strong> g T</span>
+    `;
+    const conf = (r.confidence || 'medium').toLowerCase();
+    const confEl = document.getElementById('photo-confidence');
+    confEl.className = 'photo-result-confidence ' + conf;
+    const confLabel = {low: 'Nízká jistota', medium: 'Střední jistota', high: 'Vysoká jistota'}[conf] || conf;
+    confEl.textContent = confLabel;
+    document.getElementById('photo-notes').textContent = r.notes || '';
+    document.getElementById('photo-result').style.display = 'block';
+  }
+
+  function populateTargetSelectors() {
+    const daySel = document.getElementById('target-day');
+    const slotSel = document.getElementById('target-slot');
+    daySel.innerHTML = PLAN.days.map((d, i) => `<option value="${i}">${d.name}${d.date ? ' ' + d.date : ''}</option>`).join('');
+    slotSel.innerHTML = PLAN.slots.map(s => `<option value="${s}">${PLAN.slot_labels[s] || s}</option>`).join('');
+    // Set sensible defaults: today's day (best guess) and current meal slot heuristic
+    daySel.value = '0';
+    slotSel.value = PLAN.slots[0] || 'snidane';
+  }
+
+  document.querySelector('[data-action="insert-photo"]').addEventListener('click', () => {
+    if (!lastPhotoResult) return;
+    const dayIdx = parseInt(document.getElementById('target-day').value, 10);
+    const slotKey = document.getElementById('target-slot').value;
+    const personKey = document.getElementById('target-person').value;
+
+    const slot = PLAN.days[dayIdx].meals[slotKey];
+    if (!slot) {
+      alert('Slot neexistuje v plánu.');
+      return;
+    }
+    // If slot was shared, demote it to individual format (photo result is per-person)
+    if (slot.shared) {
+      const sharedMeal = slot.shared;
+      slot.jakub = {
+        name: sharedMeal.name,
+        macros: sharedMeal.macros_jakub
+      };
+      slot.partnerka = {
+        name: sharedMeal.name,
+        macros: sharedMeal.macros_partnerka
+      };
+      delete slot.shared;
+    }
+    const m = lastPhotoResult.macros;
+    slot[personKey] = {
+      name: lastPhotoResult.name,
+      note: 'odhad z fotky',
+      macros: {
+        kcal: Math.round(m.kcal),
+        p: m.p != null ? Math.round(m.p) : null,
+        c: m.c != null ? Math.round(m.c) : null,
+        f: m.f != null ? Math.round(m.f) : null
+      }
+    };
+    savePlan();
+    renderAll();
+    photoModal.classList.add('hidden');
+  });
+
+  // Close modals on backdrop click
+  [document.getElementById('settings-modal'), document.getElementById('photo-modal')].forEach(modal => {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
+  });
+
+  renderAll();
+})();
+</script>
+
+</body>
+</html>

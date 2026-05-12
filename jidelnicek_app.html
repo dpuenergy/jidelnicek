@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Jídelníček</title>
+
+<!-- PWA chrome — looks/behaves like a native app once installed -->
+<meta name="theme-color" content="#3e9b66">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jídelníček">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'&gt;&lt;rect width='512' height='512' fill='%23f6f8f4' rx='96'/&gt;&lt;text x='256' y='340' font-family='-apple-system,sans-serif' font-size='280' font-weight='600' fill='%233e9b66' text-anchor='middle'&gt;J&lt;/text&gt;&lt;/svg&gt;">
+<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'&gt;&lt;rect width='512' height='512' fill='%23f6f8f4' rx='96'/&gt;&lt;text x='256' y='340' font-family='sans-serif' font-size='280' font-weight='600' fill='%233e9b66' text-anchor='middle'&gt;J&lt;/text&gt;&lt;/svg&gt;">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #f6f8f4;
+  --bg-card: #ffffff;
+  --ink: #1c2421;
+  --ink-soft: #5a6660;
+  --ink-faint: #97a09a;
+  --rule: #e5ebe3;
+  --rule-soft: #eef2ec;
+  --accent: #3e9b66;
+  --accent-warm: #c8924c;
+  --c-protein: #4d8cac;
+  --c-carbs: #d9a02e;
+  --c-fat: #db7e5d;
+  --c-over: #c44a4a;
+  --c-over-soft: #fae0e0;
+  --shadow-card: 0 1px 3px rgba(28,36,33,0.06);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.25);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+body {
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── App bar ───────────────────────────────── */
+.appbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 0.5px solid var(--rule);
+}
+.appbar-title {
+  flex: 1;
+  font-weight: 600; font-size: 16px;
+  line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.appbar-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--ink);
+  padding: 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-width: 40px; min-height: 40px;
+  display: flex; align-items: center; justify-content: center;
+}
+.appbar-btn:active { background: var(--rule-soft); }
+
+/* ── Main scroll area ──────────────────────── */
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  padding-bottom: 80px; /* space for day pager */
+}
+
+/* ── Plan list view ────────────────────────── */
+.plan-list { display: grid; gap: 12px; }
+.plan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.plan-card:active { transform: scale(0.98); }
+.plan-card h3 {
+  margin: 0 0 4px;
+  font-size: 17px; font-weight: 600;
+}
+.plan-card .plan-meta {
+  font-size: 13px; color: var(--ink-soft);
+  margin-top: 2px;
+}
+.plan-card .plan-id {
+  font-size: 11px; color: var(--ink-faint);
+  margin-top: 6px;
+  font-family: ui-monospace, monospace;
+}
+.plan-card .plan-progress {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 6px;
+  font-weight: 500;
+}
+.add-plan-btn {
+  background: var(--bg-card);
+  border: 1.5px dashed var(--rule);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  font-size: 14px; font-weight: 500;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+}
+.add-plan-btn:active { background: var(--rule-soft); }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-soft);
+}
+.empty-state h2 {
+  font-size: 18px; font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.empty-state p { margin: 0 0 20px; font-size: 14px; }
+
+/* ── Day view ──────────────────────────────── */
+.day-note {
+  background: #fff4e0;
+  color: var(--accent-warm);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 14px;
+}
+.slot {
+  margin-bottom: 18px;
+}
+.slot-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+.meal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-card);
+  transition: background 0.15s ease;
+}
+.meal-card.eaten {
+  background: #f0f6f1;
+  border-color: #cfe0d4;
+}
+.meal-card.eaten .meal-name {
+  color: var(--ink-soft);
+}
+.meal-card.placeholder {
+  background: #fff8ec;
+  border-style: dashed;
+  border-color: #f0d8a8;
+}
+.meal-person {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  padding: 2px 7px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.meal-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+.meal-note {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.meal-macros {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
+}
+.meal-macros strong { color: var(--ink); font-weight: 700; }
+.meal-actions {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+}
+.meal-actions button {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 12px; font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.meal-actions button:active { background: var(--rule-soft); }
+.meal-actions button.eaten-btn.is-eaten {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Day totals card */
+.day-totals {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 16px;
+  box-shadow: var(--shadow-card);
+}
+.day-totals-person {
+  margin-bottom: 12px;
+}
+.day-totals-person:last-child { margin-bottom: 0; }
+.day-totals-name {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.metric-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.metric-label { width: 70px; color: var(--ink-soft); }
+.metric-bar {
+  flex: 1; height: 6px;
+  background: var(--rule-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.metric-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.metric-fill.over { background: var(--c-over); }
+.metric-fill.kcal { background: var(--ink); }
+.metric-fill.p { background: var(--c-protein); }
+.metric-fill.c { background: var(--c-carbs); }
+.metric-fill.f { background: var(--c-fat); }
+.metric-value {
+  width: 75px; text-align: right;
+  color: var(--ink);
+  font-weight: 500;
+}
+.metric-value.over { color: var(--c-over); font-weight: 700; }
+
+/* ── Day pager (fixed bottom) ──────────────── */
+.day-pager {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-card);
+  border-top: 0.5px solid var(--rule);
+  padding: 10px 14px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 10px;
+  z-index: 90;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+}
+.day-pager.hidden { display: none; }
+.day-pager-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  width: 40px; height: 40px;
+  font-size: 18px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.day-pager-btn:disabled { opacity: 0.3; }
+.day-pager-info {
+  flex: 1;
+  text-align: center;
+  font-size: 14px; font-weight: 600;
+}
+.day-pager-info .day-counter {
+  display: block;
+  font-size: 10px; font-weight: 500;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+/* ── Modals ────────────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(28,36,33,0.5);
+  z-index: 1000;
+  display: flex; align-items: flex-end;
+  backdrop-filter: blur(2px);
+}
+.modal-backdrop.hidden { display: none; }
+.modal {
+  background: var(--bg-card);
+  width: 100%;
+  border-radius: 18px 18px 0 0;
+  padding: 22px 18px;
+  padding-bottom: calc(22px + env(safe-area-inset-bottom));
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal h3 {
+  margin: 0 0 4px;
+  font-size: 18px; font-weight: 600;
+}
+.modal-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+.modal label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+  margin-top: 14px;
+}
+.modal input, .modal select, .modal textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px; /* prevent iOS zoom on focus */
+  color: var(--ink);
+  background: var(--bg);
+  resize: vertical;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+.modal textarea { min-height: 110px; }
+.modal-hint {
+  font-size: 11px; color: var(--ink-faint);
+  margin-top: 6px; line-height: 1.4;
+}
+.modal-actions {
+  display: flex; gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.modal-actions button {
+  font-family: inherit;
+  font-size: 13px; font-weight: 500;
+  padding: 11px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  min-height: 40px;
+}
+.modal-actions button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.modal-actions button:disabled { opacity: 0.4; }
+
+/* Photo modal specifics */
+.photo-preview {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: var(--bg);
+  margin-bottom: 12px;
+}
+.photo-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.photo-status.error {
+  color: var(--c-over);
+  background: var(--c-over-soft);
+}
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--rule);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.photo-result {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--bg);
+  margin-bottom: 14px;
+}
+.photo-result-conf {
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.photo-result-conf.low { background: var(--c-over-soft); color: var(--c-over); }
+.photo-result-conf.medium { background: #fff4e0; color: var(--accent-warm); }
+.photo-result-conf.high { background: #e0f0e7; color: var(--accent); }
+
+/* Chat modal specifics */
+.chat-context {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  border-left: 3px solid var(--accent);
+}
+.chat-context strong { color: var(--ink); }
+.chat-history {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.chat-msg {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+.chat-msg.user {
+  background: var(--accent);
+  color: white;
+  margin-left: 20%;
+}
+.chat-msg.assistant {
+  background: var(--rule-soft);
+  color: var(--ink);
+  margin-right: 20%;
+}
+.chat-msg.error {
+  background: var(--c-over-soft);
+  color: var(--c-over);
+}
+.chat-input-row {
+  display: flex; gap: 8px;
+}
+.chat-input-row textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 120px;
+  font-size: 15px;
+  padding: 11px 13px;
+}
+.chat-send-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  width: 44px; height: 44px;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.chat-send-btn:disabled { opacity: 0.4; }
+
+/* Action sheet style for "Foto pokrmu" picker */
+.action-sheet button {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+}
+.action-sheet button:active { background: var(--rule-soft); }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <button class="appbar-btn" id="back-btn" style="display:none">←</button>
+  <div class="appbar-title" id="appbar-title">Jídelníčky</div>
+  <button class="appbar-btn" id="settings-btn" title="Nastavení">⚙</button>
+</header>
+
+<main id="main"></main>
+
+<nav class="day-pager hidden" id="day-pager">
+  <button class="day-pager-btn" id="prev-day">←</button>
+  <div class="day-pager-info">
+    <span class="day-counter" id="day-counter"></span>
+    <span id="day-label"></span>
+  </div>
+  <button class="day-pager-btn" id="next-day">→</button>
+</nav>
+
+<!-- Hidden file inputs: separate for gallery and camera -->
+<input type="file" id="gallery-input" accept="image/*" hidden>
+<input type="file" id="camera-input" accept="image/*" capture="environment" hidden>
+
+<!-- Settings modal -->
+<div class="modal-backdrop hidden" id="settings-modal">
+  <div class="modal">
+    <h3>Nastavení</h3>
+    <p class="modal-sub">Claude API klíč pro analýzu fotek a chat.</p>
+    <label for="settings-key">API klíč</label>
+    <input type="password" id="settings-key" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+    <p class="modal-hint">Klíč se ukládá pouze ve tvém prohlížeči (localStorage). Posílá se výhradně na <code>api.anthropic.com</code>.</p>
+    <label for="settings-model">Model</label>
+    <select id="settings-model">
+      <option value="claude-sonnet-4-5">claude-sonnet-4-5 (doporučeno)</option>
+      <option value="claude-opus-4-5">claude-opus-4-5 (přesnější, dražší)</option>
+      <option value="claude-haiku-4-5">claude-haiku-4-5 (rychlejší, levnější)</option>
+    </select>
+    <div class="modal-actions">
+      <button data-close="settings-modal">Zavřít</button>
+      <button id="settings-save" class="primary">Uložit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add plan modal -->
+<div class="modal-backdrop hidden" id="addplan-modal">
+  <div class="modal">
+    <h3>Přidat plán</h3>
+    <p class="modal-sub">Vlož JSON plánu z BEN-a. <a href="#" id="addplan-help" style="color:var(--accent)">Jak ho získat?</a></p>
+    <label for="addplan-json">JSON plánu</label>
+    <textarea id="addplan-json" placeholder='{"id":"2026-W19", "plan_title":"Jídelníček", ...}'></textarea>
+    <div id="addplan-err" style="display:none;color:var(--c-over);font-size:12px;margin-top:8px"></div>
+    <div class="modal-actions">
+      <button data-close="addplan-modal">Zrušit</button>
+      <button id="addplan-import" class="primary">Importovat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo source picker (action sheet) -->
+<div class="modal-backdrop hidden" id="photosrc-modal">
+  <div class="modal action-sheet">
+    <h3>Foto pokrmu</h3>
+    <p class="modal-sub">Odkud chceš fotku?</p>
+    <button id="photosrc-camera">📷 Vyfotit</button>
+    <button id="photosrc-gallery">🖼 Z galerie</button>
+    <div class="modal-actions">
+      <button data-close="photosrc-modal">Zrušit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo analysis result modal -->
+<div class="modal-backdrop hidden" id="photo-modal">
+  <div class="modal">
+    <h3>Analýza fotky</h3>
+    <img id="photo-preview" class="photo-preview" alt="" style="display:none">
+    <div id="photo-status" class="photo-status" style="display:none"></div>
+    <div id="photo-result-wrap" style="display:none">
+      <div class="photo-result">
+        <div class="photo-result-conf" id="photo-conf">—</div>
+        <div style="font-size:15px;font-weight:500;line-height:1.4;margin-bottom:8px" id="photo-name">—</div>
+        <div style="font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums" id="photo-macros">—</div>
+        <div style="font-size:11px;color:var(--ink-faint);margin-top:8px" id="photo-notes"></div>
+      </div>
+      <p class="modal-sub" id="photo-target-hint" style="margin:0">Použít jako pokrm v plánu?</p>
+    </div>
+    <div class="modal-actions">
+      <button data-close="photo-modal">Zavřít</button>
+      <button id="photo-apply" class="primary" disabled>Použít jako pokrm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat modal (per-meal Q&A) -->
+<div class="modal-backdrop hidden" id="chat-modal">
+  <div class="modal">
+    <h3>Otázka k pokrmu</h3>
+    <div class="chat-context" id="chat-context"></div>
+    <div class="chat-history" id="chat-history"></div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" placeholder="Napiš dotaz (např. 'co když sním půlku rýže?')" rows="1"></textarea>
+      <button class="chat-send-btn" id="chat-send" title="Odeslat">↑</button>
+    </div>
+    <div class="modal-actions">
+      <button data-close="chat-modal">Zavřít</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  STATE & PERSISTENCE
+// ════════════════════════════════════════════════════════════
+const KEY_PLANS = 'app_plans_v1';           // {planId: planJson}
+const KEY_CURRENT = 'app_current_plan_v1';  // planId
+const KEY_DAY = 'app_current_day_v1';       // dayIdx (int)
+const KEY_ATE = 'app_ate_meals_v1';         // {planId:dayIdx:slot:person: true}
+const KEY_CHAT = 'app_chats_v1';            // {planId:dayIdx:slot:person: [{role,content}]}
+const KEY_API = 'claude_api_key';
+const KEY_MODEL = 'claude_model';
+const DEFAULT_MODEL = 'claude-sonnet-4-5';
+
+const STATE = {
+  plans: {},
+  currentPlanId: null,
+  currentDayIdx: 0,
+  view: 'planList',          // 'planList' | 'planDetail'
+  ate: {},
+  chats: {},
+  // current photo context (which meal slot to apply to)
+  photoTarget: null,         // {planId, dayIdx, slot, personKey, mode: 'replace'|'newOrphan'}
+  chatTarget: null,          // {planId, dayIdx, slot, personKey, meal}
+  lastPhotoResult: null,
+};
+
+function loadState() {
+  try { STATE.plans = JSON.parse(localStorage.getItem(KEY_PLANS) || '{}'); } catch(_) {}
+  STATE.currentPlanId = localStorage.getItem(KEY_CURRENT);
+  const dayIdx = parseInt(localStorage.getItem(KEY_DAY) || '0', 10);
+  STATE.currentDayIdx = isNaN(dayIdx) ? 0 : dayIdx;
+  try { STATE.ate = JSON.parse(localStorage.getItem(KEY_ATE) || '{}'); } catch(_) {}
+  try { STATE.chats = JSON.parse(localStorage.getItem(KEY_CHAT) || '{}'); } catch(_) {}
+
+  if (STATE.currentPlanId && STATE.plans[STATE.currentPlanId]) {
+    STATE.view = 'planDetail';
+    const plan = STATE.plans[STATE.currentPlanId];
+    if (STATE.currentDayIdx >= plan.days.length) STATE.currentDayIdx = 0;
+  } else {
+    STATE.view = 'planList';
+    STATE.currentPlanId = null;
+  }
+}
+function persistPlans() { localStorage.setItem(KEY_PLANS, JSON.stringify(STATE.plans)); }
+function persistCurrent() {
+  if (STATE.currentPlanId) localStorage.setItem(KEY_CURRENT, STATE.currentPlanId);
+  else localStorage.removeItem(KEY_CURRENT);
+  localStorage.setItem(KEY_DAY, String(STATE.currentDayIdx));
+}
+function persistAte() { localStorage.setItem(KEY_ATE, JSON.stringify(STATE.ate)); }
+function persistChats() { localStorage.setItem(KEY_CHAT, JSON.stringify(STATE.chats)); }
+
+function getApiKey() { return localStorage.getItem(KEY_API) || ''; }
+function getModel() { return localStorage.getItem(KEY_MODEL) || DEFAULT_MODEL; }
+
+// ════════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════════
+function czechDayPlural(n) {
+  if (n === 1) return 'den';
+  if (n >= 2 && n <= 4) return 'dny';
+  return 'dní';
+}
+function mealKey(planId, dayIdx, slot, personKey) {
+  return `${planId}:${dayIdx}:${slot}:${personKey}`;
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function activeMetricsFor(plan) {
+  const all = [
+    {key:'kcal', label:'kcal',      labelShort:'kcal'},
+    {key:'p',    label:'bílkoviny', labelShort:'B'},
+    {key:'c',    label:'sacharidy', labelShort:'S'},
+    {key:'f',    label:'tuky',      labelShort:'T'},
+    {key:'fiber',label:'vláknina',  labelShort:'V'},
+  ];
+  return all.filter(m => {
+    for (const pk of ['jakub','partnerka']) {
+      const t = plan.persons[pk] && plan.persons[pk].targets || {};
+      if (typeof t[m.key] === 'number' && t[m.key] > 0) return true;
+    }
+    return false;
+  });
+}
+function computeDayTotals(plan, day) {
+  const out = { jakub:{kcal:0,p:0,c:0,f:0,fiber:0}, partnerka:{kcal:0,p:0,c:0,f:0,fiber:0} };
+  for (const slotKey of plan.slots) {
+    const slot = day.meals[slotKey] || {};
+    if (slot.shared) {
+      for (const pk of ['jakub','partnerka']) {
+        const m = slot.shared['macros_'+pk] || {};
+        for (const k of Object.keys(out[pk])) if (typeof m[k] === 'number') out[pk][k] += m[k];
+      }
+    } else {
+      for (const pk of ['jakub','partnerka']) {
+        const meal = slot[pk];
+        if (!meal || !meal.macros) continue;
+        for (const k of Object.keys(out[pk])) if (typeof meal.macros[k] === 'number') out[pk][k] += meal.macros[k];
+      }
+    }
+  }
+  return out;
+}
+function planProgress(planId) {
+  const plan = STATE.plans[planId];
+  if (!plan) return null;
+  let total = 0, eaten = 0;
+  plan.days.forEach((day, dayIdx) => {
+    for (const slotKey of plan.slots) {
+      const slot = day.meals[slotKey] || {};
+      if (slot.shared) {
+        // count as 2 (one per person)
+        for (const pk of ['jakub','partnerka']) {
+          total++;
+          if (STATE.ate[mealKey(planId, dayIdx, slotKey, pk)]) eaten++;
+        }
+      } else {
+        for (const pk of ['jakub','partnerka']) {
+          if (slot[pk]) {
+            total++;
+            if (STATE.ate[mealKey(planId, dayIdx, slotKey, pk)]) eaten++;
+          }
+        }
+      }
+    }
+  });
+  return { total, eaten };
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDERING
+// ════════════════════════════════════════════════════════════
+function render() {
+  updateAppbar();
+  if (STATE.view === 'planList') renderPlanList();
+  else if (STATE.view === 'planDetail') renderPlanDetail();
+  updateDayPager();
+}
+function updateAppbar() {
+  const back = document.getElementById('back-btn');
+  const title = document.getElementById('appbar-title');
+  if (STATE.view === 'planList') {
+    back.style.display = 'none';
+    title.textContent = 'Jídelníčky';
+  } else if (STATE.view === 'planDetail') {
+    back.style.display = '';
+    const plan = STATE.plans[STATE.currentPlanId];
+    title.textContent = plan ? (plan.plan_title || 'Jídelníček') : '—';
+  }
+}
+
+function renderPlanList() {
+  const main = document.getElementById('main');
+  const ids = Object.keys(STATE.plans);
+  if (ids.length === 0) {
+    main.innerHTML = `
+      <div class="empty-state">
+        <h2>Žádný plán</h2>
+        <p>Importuj jídelníček, který ti BEN vygeneroval.</p>
+        <button class="add-plan-btn" id="empty-add">+ Přidat plán</button>
+      </div>`;
+    document.getElementById('empty-add').addEventListener('click', () => openModal('addplan-modal'));
+    return;
+  }
+  let html = '<div class="plan-list">';
+  for (const id of ids) {
+    const p = STATE.plans[id];
+    const progress = planProgress(id);
+    const pct = progress.total > 0 ? Math.round(100 * progress.eaten / progress.total) : 0;
+    html += `<div class="plan-card" data-plan-id="${escapeHtml(id)}">
+      <h3>${escapeHtml(p.plan_title || 'Jídelníček')}</h3>
+      <div class="plan-meta">${escapeHtml(p.date_range || '')}${p.date_range ? ' · ' : ''}${p.days.length} ${czechDayPlural(p.days.length)}</div>
+      <div class="plan-meta">${escapeHtml(p.persons.jakub.name)} &amp; ${escapeHtml(p.persons.partnerka.name)}</div>
+      <div class="plan-progress">${progress.eaten}/${progress.total} pokrmů snědeno · ${pct}%</div>
+      <div class="plan-id">${escapeHtml(id)}</div>
+    </div>`;
+  }
+  html += `<button class="add-plan-btn" id="list-add">+ Přidat plán</button></div>`;
+  main.innerHTML = html;
+  document.querySelectorAll('.plan-card').forEach(card => {
+    card.addEventListener('click', () => openPlan(card.dataset.planId));
+    let pressTimer;
+    card.addEventListener('pointerdown', () => {
+      pressTimer = setTimeout(() => {
+        if (confirm('Smazat tento plán?')) {
+          delete STATE.plans[card.dataset.planId];
+          persistPlans();
+          render();
+        }
+      }, 800);
+    });
+    card.addEventListener('pointerup', () => clearTimeout(pressTimer));
+    card.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+  });
+  document.getElementById('list-add').addEventListener('click', () => openModal('addplan-modal'));
+}
+
+function openPlan(planId) {
+  STATE.currentPlanId = planId;
+  STATE.currentDayIdx = 0;
+  STATE.view = 'planDetail';
+  persistCurrent();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderPlanDetail() {
+  const plan = STATE.plans[STATE.currentPlanId];
+  if (!plan) { STATE.view = 'planList'; render(); return; }
+  const day = plan.days[STATE.currentDayIdx];
+  const main = document.getElementById('main');
+
+  let html = '';
+  if (day.note) html += `<div class="day-note">${escapeHtml(day.note)}</div>`;
+
+  for (const slotKey of plan.slots) {
+    const slot = day.meals[slotKey] || {};
+    const label = (plan.slot_labels && plan.slot_labels[slotKey]) || slotKey;
+    html += `<div class="slot"><div class="slot-label">${escapeHtml(label)}</div>`;
+
+    if (slot.shared) {
+      // Shared: render two cards (one per person) sharing the same name/note
+      for (const pk of ['jakub','partnerka']) {
+        const macros = slot.shared['macros_'+pk] || {};
+        html += renderMealCard(plan, slotKey, pk, {
+          name: slot.shared.name,
+          note: slot.shared.note,
+          macros: macros,
+          type: slot.shared.type,
+          _shared: true,
+        });
+      }
+    } else {
+      for (const pk of ['jakub','partnerka']) {
+        const meal = slot[pk];
+        if (!meal) continue;
+        html += renderMealCard(plan, slotKey, pk, meal);
+      }
+    }
+    html += `</div>`;
+  }
+
+  // Day totals
+  const totals = computeDayTotals(plan, day);
+  const metrics = activeMetricsFor(plan);
+  html += `<div class="day-totals">`;
+  for (const pk of ['jakub','partnerka']) {
+    const t = totals[pk];
+    const targets = plan.persons[pk].targets;
+    html += `<div class="day-totals-person">
+      <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)}</div>`;
+    for (const m of metrics) {
+      const v = Math.round(t[m.key] || 0);
+      const tg = targets[m.key] || 0;
+      const ratio = tg ? Math.min(v / tg, 1.25) : 0;
+      const pct = ratio * 80;  // 80% bar width = at target
+      const over = tg && v > tg * 1.05;
+      html += `<div class="metric-row">
+        <span class="metric-label">${escapeHtml(m.label)}</span>
+        <span class="metric-bar"><span class="metric-fill ${m.key} ${over ? 'over' : ''}" style="width:${pct}%"></span></span>
+        <span class="metric-value ${over ? 'over' : ''}">${v}${tg ? ' / ' + tg : ''}${m.key === 'kcal' ? '' : ' g'}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  main.innerHTML = html;
+  attachMealHandlers();
+}
+
+function renderMealCard(plan, slotKey, personKey, meal) {
+  const key = mealKey(STATE.currentPlanId, STATE.currentDayIdx, slotKey, personKey);
+  const isEaten = !!STATE.ate[key];
+  const isPlaceholder = meal.type === 'placeholder';
+  const person = plan.persons[personKey];
+  const m = meal.macros || {};
+  const metricsLine = [
+    m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
+    m.p != null ? `<strong>${m.p}</strong> B` : '',
+    m.c != null ? `<strong>${m.c}</strong> S` : '',
+    m.f != null ? `<strong>${m.f}</strong> T` : '',
+  ].filter(Boolean).join(' · ');
+
+  return `<div class="meal-card${isEaten ? ' eaten' : ''}${isPlaceholder ? ' placeholder' : ''}" data-key="${key}">
+    <span class="meal-person">${escapeHtml(person.name)}</span>
+    <div class="meal-name">${escapeHtml(meal.name)}</div>
+    ${meal.note ? `<div class="meal-note">${escapeHtml(meal.note)}</div>` : ''}
+    <div class="meal-macros">${metricsLine}</div>
+    <div class="meal-actions">
+      <button class="eaten-btn${isEaten ? ' is-eaten' : ''}" data-act="eat" data-key="${key}">${isEaten ? '✓ Snědeno' : 'Snědeno'}</button>
+      <button data-act="photo" data-slot="${slotKey}" data-person="${personKey}">📷 Foto</button>
+      <button data-act="chat" data-slot="${slotKey}" data-person="${personKey}">💬 Otázka</button>
+    </div>
+  </div>`;
+}
+
+function attachMealHandlers() {
+  document.querySelectorAll('[data-act="eat"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      if (STATE.ate[key]) delete STATE.ate[key];
+      else STATE.ate[key] = true;
+      persistAte();
+      render();
+    });
+  });
+  document.querySelectorAll('[data-act="photo"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      STATE.photoTarget = {
+        planId: STATE.currentPlanId,
+        dayIdx: STATE.currentDayIdx,
+        slot: btn.dataset.slot,
+        personKey: btn.dataset.person,
+        mode: 'replace',
+      };
+      openPhotoSource();
+    });
+  });
+  document.querySelectorAll('[data-act="chat"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slot = btn.dataset.slot;
+      const pk = btn.dataset.person;
+      const plan = STATE.plans[STATE.currentPlanId];
+      const day = plan.days[STATE.currentDayIdx];
+      const slotData = day.meals[slot] || {};
+      const meal = slotData.shared
+        ? { name: slotData.shared.name, macros: slotData.shared['macros_'+pk] }
+        : slotData[pk];
+      if (!meal) return;
+      openChat({ planId: STATE.currentPlanId, dayIdx: STATE.currentDayIdx, slot, personKey: pk, meal });
+    });
+  });
+}
+
+function updateDayPager() {
+  const pager = document.getElementById('day-pager');
+  if (STATE.view !== 'planDetail') {
+    pager.classList.add('hidden');
+    return;
+  }
+  const plan = STATE.plans[STATE.currentPlanId];
+  if (!plan) { pager.classList.add('hidden'); return; }
+  pager.classList.remove('hidden');
+  const day = plan.days[STATE.currentDayIdx];
+  document.getElementById('day-counter').textContent = `Den ${STATE.currentDayIdx + 1} / ${plan.days.length}`;
+  document.getElementById('day-label').textContent = `${day.name}${day.date ? ' ' + day.date : ''}`;
+  document.getElementById('prev-day').disabled = STATE.currentDayIdx === 0;
+  document.getElementById('next-day').disabled = STATE.currentDayIdx >= plan.days.length - 1;
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.close));
+});
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.add('hidden'); });
+});
+
+// ════════════════════════════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════════════════════════════
+document.getElementById('settings-btn').addEventListener('click', () => {
+  document.getElementById('settings-key').value = getApiKey();
+  document.getElementById('settings-model').value = getModel();
+  openModal('settings-modal');
+});
+document.getElementById('settings-save').addEventListener('click', () => {
+  const k = document.getElementById('settings-key').value.trim();
+  const m = document.getElementById('settings-model').value;
+  if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
+  localStorage.setItem(KEY_MODEL, m);
+  closeModal('settings-modal');
+});
+
+// ════════════════════════════════════════════════════════════
+//  ADD PLAN
+// ════════════════════════════════════════════════════════════
+document.getElementById('addplan-help').addEventListener('click', e => {
+  e.preventDefault();
+  alert('1. V počítači otevři jídelníček generovaný BEN-em\n2. Stiskni „Stáhnout" → uloží JSON\n3. Otevři JSON v textovém editoru, zkopíruj celý obsah\n4. Vlož sem.\n\nNebo BEN ti pošle JSON přímo (e-mail / Slack) a ty ho zkopíruješ.');
+});
+document.getElementById('addplan-import').addEventListener('click', () => {
+  const txt = document.getElementById('addplan-json').value.trim();
+  const errEl = document.getElementById('addplan-err');
+  errEl.style.display = 'none';
+  if (!txt) { errEl.textContent = 'Vlož JSON plánu.'; errEl.style.display = 'block'; return; }
+  let plan;
+  try { plan = JSON.parse(txt); }
+  catch(e) { errEl.textContent = 'Neplatný JSON: ' + e.message; errEl.style.display = 'block'; return; }
+  // Sanity-check the schema
+  if (!plan.id || !plan.persons || !plan.slots || !plan.days || !Array.isArray(plan.days)) {
+    errEl.textContent = 'Chybí povinná pole (id, persons, slots, days).';
+    errEl.style.display = 'block';
+    return;
+  }
+  STATE.plans[plan.id] = plan;
+  persistPlans();
+  closeModal('addplan-modal');
+  document.getElementById('addplan-json').value = '';
+  // Auto-open the just-imported plan
+  openPlan(plan.id);
+});
+
+// ════════════════════════════════════════════════════════════
+//  BACK NAVIGATION
+// ════════════════════════════════════════════════════════════
+document.getElementById('back-btn').addEventListener('click', () => {
+  if (STATE.view === 'planDetail') {
+    STATE.view = 'planList';
+    STATE.currentPlanId = null;
+    persistCurrent();
+    render();
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+//  DAY PAGER
+// ════════════════════════════════════════════════════════════
+document.getElementById('prev-day').addEventListener('click', () => {
+  if (STATE.currentDayIdx > 0) {
+    STATE.currentDayIdx--;
+    persistCurrent();
+    render();
+    window.scrollTo(0, 0);
+  }
+});
+document.getElementById('next-day').addEventListener('click', () => {
+  const plan = STATE.plans[STATE.currentPlanId];
+  if (plan && STATE.currentDayIdx < plan.days.length - 1) {
+    STATE.currentDayIdx++;
+    persistCurrent();
+    render();
+    window.scrollTo(0, 0);
+  }
+});
+
+// Swipe gesture on main area for day navigation
+let touchStartX = null, touchStartY = null;
+document.getElementById('main').addEventListener('touchstart', e => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.getElementById('main').addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  // Horizontal swipe, low vertical movement
+  if (Math.abs(dx) > 60 && Math.abs(dy) < 50 && STATE.view === 'planDetail') {
+    if (dx > 0) document.getElementById('prev-day').click();
+    else document.getElementById('next-day').click();
+  }
+  touchStartX = null;
+}, { passive: true });
+
+// ════════════════════════════════════════════════════════════
+//  PHOTO CAPTURE & CLAUDE API
+// ════════════════════════════════════════════════════════════
+function openPhotoSource() {
+  if (!getApiKey()) {
+    alert('Nejdřív zadej Claude API klíč v Nastavení (⚙).');
+    document.getElementById('settings-btn').click();
+    return;
+  }
+  openModal('photosrc-modal');
+}
+document.getElementById('photosrc-camera').addEventListener('click', () => {
+  closeModal('photosrc-modal');
+  document.getElementById('camera-input').click();
+});
+document.getElementById('photosrc-gallery').addEventListener('click', () => {
+  closeModal('photosrc-modal');
+  document.getElementById('gallery-input').click();
+});
+document.getElementById('camera-input').addEventListener('change', e => handlePhotoFile(e.target.files[0], e.target));
+document.getElementById('gallery-input').addEventListener('change', e => handlePhotoFile(e.target.files[0], e.target));
+
+async function handlePhotoFile(file, inputEl) {
+  inputEl.value = '';
+  if (!file) return;
+  STATE.lastPhotoResult = null;
+  document.getElementById('photo-result-wrap').style.display = 'none';
+  document.getElementById('photo-apply').disabled = true;
+
+  // Show preview
+  const prev = document.getElementById('photo-preview');
+  prev.src = URL.createObjectURL(file);
+  prev.style.display = 'block';
+  setPhotoStatus('Načítám…', false);
+  openModal('photo-modal');
+
+  let img;
+  try { img = await fileToBase64(file); }
+  catch(e) { setPhotoStatus('Chyba čtení obrázku: ' + e.message, true); return; }
+
+  setPhotoStatus('Claude analyzuje…', false);
+  try {
+    const result = await callClaudeVision(img);
+    STATE.lastPhotoResult = result;
+    showPhotoResult(result);
+    document.getElementById('photo-apply').disabled = false;
+    hidePhotoStatus();
+  } catch (e) {
+    setPhotoStatus('API chyba: ' + e.message, true);
+  }
+}
+
+function setPhotoStatus(text, isError) {
+  const el = document.getElementById('photo-status');
+  el.className = 'photo-status' + (isError ? ' error' : '');
+  el.innerHTML = isError ? escapeHtml(text) : `<span class="spinner"></span> ${escapeHtml(text)}`;
+  el.style.display = 'flex';
+}
+function hidePhotoStatus() { document.getElementById('photo-status').style.display = 'none'; }
+
+function showPhotoResult(r) {
+  document.getElementById('photo-name').textContent = r.name;
+  const m = r.macros;
+  document.getElementById('photo-macros').innerHTML = `
+    <strong>${Math.round(m.kcal)}</strong> kcal
+    ${m.p != null ? `· <strong>${Math.round(m.p)}</strong> B` : ''}
+    ${m.c != null ? `· <strong>${Math.round(m.c)}</strong> S` : ''}
+    ${m.f != null ? `· <strong>${Math.round(m.f)}</strong> T` : ''}
+  `;
+  const conf = (r.confidence || 'medium').toLowerCase();
+  const confEl = document.getElementById('photo-conf');
+  confEl.className = 'photo-result-conf ' + conf;
+  confEl.textContent = ({low:'Nízká jistota', medium:'Střední jistota', high:'Vysoká jistota'})[conf] || conf;
+  document.getElementById('photo-notes').textContent = r.notes || '';
+  document.getElementById('photo-result-wrap').style.display = 'block';
+  // Adjust target hint based on context
+  const hint = document.getElementById('photo-target-hint');
+  if (STATE.photoTarget && STATE.photoTarget.mode === 'replace') {
+    const plan = STATE.plans[STATE.photoTarget.planId];
+    const personName = plan.persons[STATE.photoTarget.personKey].name;
+    hint.textContent = `Nahradit pokrm ${personName} v plánu touto analýzou?`;
+  } else {
+    hint.textContent = 'Použít jako pokrm v plánu?';
+  }
+}
+
+document.getElementById('photo-apply').addEventListener('click', () => {
+  if (!STATE.lastPhotoResult || !STATE.photoTarget) return;
+  const { planId, dayIdx, slot, personKey } = STATE.photoTarget;
+  const plan = STATE.plans[planId];
+  const slotData = plan.days[dayIdx].meals[slot] || (plan.days[dayIdx].meals[slot] = {});
+  // If shared, demote to individual format so we can replace just one side
+  if (slotData.shared) {
+    const sh = slotData.shared;
+    slotData.jakub = { name: sh.name, note: sh.note, macros: sh.macros_jakub || {} };
+    slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+    delete slotData.shared;
+  }
+  const r = STATE.lastPhotoResult;
+  const m = r.macros;
+  slotData[personKey] = {
+    name: r.name,
+    note: 'odhad z fotky',
+    macros: {
+      kcal: Math.round(m.kcal),
+      p: m.p != null ? Math.round(m.p) : null,
+      c: m.c != null ? Math.round(m.c) : null,
+      f: m.f != null ? Math.round(m.f) : null,
+    },
+  };
+  persistPlans();
+  closeModal('photo-modal');
+  render();
+});
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const url = r.result;
+      const i = url.indexOf(',');
+      const meta = url.slice(0, i);
+      const data = url.slice(i + 1);
+      const mt = (meta.match(/data:([^;]+);/) || [])[1] || 'image/jpeg';
+      resolve({ mediaType: mt, data });
+    };
+    r.onerror = () => reject(new Error('FileReader fail'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function callClaudeVision({ mediaType, data }) {
+  const prompt = `Analyzuj toto jídlo z fotky a odhadni nutriční hodnoty pro JEDNU porci.
+
+Postup:
+1. Identifikuj viditelné komponenty (suroviny).
+2. Odhadni gramáže — porovnej s talířem (typický 26 cm), příborem, rukama, balením.
+3. Spočítej kcal, bílkoviny (g), sacharidy (g), tuky (g) pro jednu porci.
+
+Vrať POUZE čistý JSON, žádný markdown, žádné code fences:
+{
+  "name": "stručný popis s gramážemi, např. 'Losos 250g + rýže 150g + brokolice 100g'",
+  "macros": {"kcal": 0, "p": 0, "c": 0, "f": 0},
+  "confidence": "low" nebo "medium" nebo "high",
+  "notes": "1-2 věty: co je na odhadu nejistý"
+}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': getApiKey(),
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: getModel(),
+      max_tokens: 1024,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data } },
+          { type: 'text', text: prompt },
+        ],
+      }],
+    }),
+  });
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { const j = await res.json(); if (j.error && j.error.message) msg += ' — ' + j.error.message; } catch(_){}
+    throw new Error(msg);
+  }
+  const j = await res.json();
+  let text = (j.content && j.content[0] && j.content[0].text || '').trim();
+  text = text.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/i,'');
+  const parsed = JSON.parse(text);
+  if (!parsed.name || !parsed.macros || typeof parsed.macros.kcal !== 'number') {
+    throw new Error('Neúplná data v odpovědi');
+  }
+  return parsed;
+}
+
+// ════════════════════════════════════════════════════════════
+//  CHAT (per-meal Q&A)
+// ════════════════════════════════════════════════════════════
+function openChat(target) {
+  if (!getApiKey()) {
+    alert('Nejdřív zadej Claude API klíč v Nastavení (⚙).');
+    document.getElementById('settings-btn').click();
+    return;
+  }
+  STATE.chatTarget = target;
+  const ctxEl = document.getElementById('chat-context');
+  const m = target.meal.macros || {};
+  ctxEl.innerHTML = `<strong>${escapeHtml(target.meal.name)}</strong><br>
+    ${m.kcal != null ? m.kcal + ' kcal' : '?'} ·
+    ${m.p != null ? m.p + ' B' : '?'} ·
+    ${m.c != null ? m.c + ' S' : '?'} ·
+    ${m.f != null ? m.f + ' T' : '?'}`;
+  renderChatHistory();
+  openModal('chat-modal');
+  setTimeout(() => document.getElementById('chat-input').focus(), 100);
+}
+function chatKey() {
+  const t = STATE.chatTarget;
+  return mealKey(t.planId, t.dayIdx, t.slot, t.personKey);
+}
+function renderChatHistory() {
+  const hist = STATE.chats[chatKey()] || [];
+  const el = document.getElementById('chat-history');
+  el.innerHTML = hist.map(msg =>
+    `<div class="chat-msg ${msg.role === 'user' ? 'user' : 'assistant'}${msg.error ? ' error' : ''}">${escapeHtml(msg.content)}</div>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+document.getElementById('chat-send').addEventListener('click', sendChat);
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !STATE.chatTarget) return;
+  const key = chatKey();
+  if (!STATE.chats[key]) STATE.chats[key] = [];
+  STATE.chats[key].push({ role: 'user', content: text });
+  persistChats();
+  input.value = '';
+  renderChatHistory();
+
+  const sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+  // Show thinking placeholder
+  STATE.chats[key].push({ role: 'assistant', content: '…' });
+  renderChatHistory();
+
+  try {
+    const reply = await callClaudeChat(STATE.chats[key].slice(0, -1));
+    STATE.chats[key].pop();  // remove placeholder
+    STATE.chats[key].push({ role: 'assistant', content: reply });
+  } catch (e) {
+    STATE.chats[key].pop();
+    STATE.chats[key].push({ role: 'assistant', content: 'Chyba: ' + e.message, error: true });
+  }
+  persistChats();
+  renderChatHistory();
+  sendBtn.disabled = false;
+}
+
+async function callClaudeChat(history) {
+  const t = STATE.chatTarget;
+  const m = t.meal.macros || {};
+  const system = `Jsi výživový asistent. Uživatel se ptá na pokrm ze svého jídelníčku.
+Aktuální pokrm:
+  Název: ${t.meal.name}
+  Makra (pro jednu porci): ${m.kcal} kcal, ${m.p}g bílkoviny, ${m.c}g sacharidy, ${m.f}g tuky
+
+Odpovídej stručně, v češtině. Při změně porce vypočítej nové hodnoty a uveď je přehledně. Pokud máš nejistotu (např. odhad gramáže ingredience), upozorni.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': getApiKey(),
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: getModel(),
+      max_tokens: 800,
+      system,
+      messages: history.map(msg => ({ role: msg.role, content: msg.content })),
+    }),
+  });
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { const j = await res.json(); if (j.error && j.error.message) msg += ' — ' + j.error.message; } catch(_){}
+    throw new Error(msg);
+  }
+  const j = await res.json();
+  return (j.content && j.content[0] && j.content[0].text || '').trim();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PWA MANIFEST (runtime Blob URL — single-file deliverable)
+// ════════════════════════════════════════════════════════════
+(function () {
+  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#f6f8f4" rx="96"/><text x="256" y="340" font-family="Plus Jakarta Sans,sans-serif" font-size="280" font-weight="600" fill="#3e9b66" text-anchor="middle">J</text></svg>`;
+  const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSvg);
+  const manifest = {
+    name: 'Jídelníček',
+    short_name: 'Jídelníček',
+    description: 'Mobilní aplikace pro jídelníček',
+    start_url: window.location.pathname,
+    scope: window.location.pathname.replace(/[^/]+$/, ''),
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#f6f8f4',
+    theme_color: '#3e9b66',
+    icons: [
+      { src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+      { src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
+    ],
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+})();
+
+// ════════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════════
+loadState();
+render();
+</script>
+</body>
+</html>
