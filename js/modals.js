@@ -1,6 +1,6 @@
 import {
   STATE, persistPlans, persistChats,
-  getApiKey, getModel, KEY_API, KEY_MODEL,
+  getApiKey, getModel, KEY_MODEL,
 } from './state.js';
 import { escapeHtml, mealKey } from './helpers.js';
 
@@ -24,15 +24,11 @@ export function initModalDismiss() {
 export function initSettings() {
   document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('settings-save').addEventListener('click', () => {
-    const k = document.getElementById('settings-key').value.trim();
-    const m = document.getElementById('settings-model').value;
-    if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
-    localStorage.setItem(KEY_MODEL, m);
+    localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
     closeModal('settings-modal');
   });
 }
 export function openSettings() {
-  document.getElementById('settings-key').value   = getApiKey();
   document.getElementById('settings-model').value = getModel();
   openModal('settings-modal');
 }
@@ -162,10 +158,7 @@ export function initPhoto(rerender) {
 }
 
 export function openPhotoSource() {
-  if (!getApiKey()) {
-    alert('Nejdřív zadej Claude API klíč v Nastavení (⚙).');
-    openSettings(); return;
-  }
+  if (!getApiKey()) { alert('Claude API klíč není nastaven — spusť node scripts/gen_config.js.'); return; }
   openModal('photosrc-modal');
 }
 
@@ -278,7 +271,7 @@ export function initChat() {
 }
 
 export function openChat(target) {
-  if (!getApiKey()) { alert('Nejdřív zadej Claude API klíč v Nastavení (⚙).'); openSettings(); return; }
+  if (!getApiKey()) { alert('Claude API klíč není nastaven — spusť node scripts/gen_config.js.'); return; }
   STATE.chatTarget = target;
   const m = target.meal.macros || {};
   document.getElementById('chat-context').innerHTML =

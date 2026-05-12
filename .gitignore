@@ -2,3 +2,4 @@
 *.local.json
 node_modules/
 dist/
+js/config.js

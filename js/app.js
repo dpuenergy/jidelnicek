@@ -56,7 +56,16 @@ function autoInitTimeline() {
   STATE.currentDayIdx = target.dayIdx;
 }
 
-function boot() {
+async function applyConfig() {
+  try {
+    const cfg = await import('./config.js');
+    if (cfg.CLAUDE_KEY)   localStorage.setItem('claude_api_key', cfg.CLAUDE_KEY);
+    if (cfg.CLAUDE_MODEL) localStorage.setItem('claude_model',   cfg.CLAUDE_MODEL);
+  } catch { /* config.js not present — use localStorage settings */ }
+}
+
+async function boot() {
+  await applyConfig();
   loadState();
   autoInitTimeline();
 
@@ -79,4 +88,4 @@ function boot() {
   render();
 }
 
-boot();
+boot().catch(console.error);
