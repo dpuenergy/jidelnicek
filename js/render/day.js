@@ -149,7 +149,10 @@ function dayTotalsHTML(plan, day, persons) {
       const over = tg && v > tg * 1.05;
       html += `<div class="metric-row">
         <span class="metric-label">${escapeHtml(m.label)}</span>
-        <span class="metric-bar"><span class="metric-fill ${m.key}${over ? ' over' : ''}" style="width:${pct.toFixed(1)}%"></span></span>
+        <span class="metric-bar">
+          <span class="metric-fill ${m.key}${over ? ' over' : ''}" style="width:${pct.toFixed(1)}%"></span>
+          ${tg ? '<span class="metric-target-line"></span>' : ''}
+        </span>
         <span class="metric-value${over ? ' over' : ''}">${v}${tg ? ' / '+tg : ''}${m.key === 'kcal' ? '' : ' g'}</span>
       </div>`;
     }

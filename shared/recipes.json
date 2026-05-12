@@ -252,6 +252,224 @@
       "ingredients": [],
       "steps": [],
       "notes": "Celozrnné těsto. Sůl 9.7 g — sledovat. Listové těsto výhradně Albert."
-    }
+    },
+
+    { "id": "bf_jk_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 321, "p": 25, "c": 40, "f": 7 },
+      "ingredients": [
+        { "item": "Tuňák v oleji (slitý)", "amount": "100 g" },
+        { "item": "Lučina", "amount": "30 g" },
+        { "item": "Cibule", "amount": "20 g" },
+        { "item": "Chléb tmavý", "amount": "80 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "bf_jk_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 405, "p": 22, "c": 41, "f": 18 },
+      "ingredients": [
+        { "item": "Olomoucké tvarůžky", "amount": "50 g" },
+        { "item": "Máslo nesolené", "amount": "20 g" },
+        { "item": "Cibule", "amount": "20 g" },
+        { "item": "Hořčice", "amount": "5 g" },
+        { "item": "Chléb tmavý", "amount": "80 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "bf_jk_03", "name": "Slaný závin", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 380, "p": 14, "c": 30, "f": 22 },
+      "ingredients": [
+        { "item": "Listové těsto (Albert)", "amount": "150 g" },
+        { "item": "Špenát (mražený rozmražený)", "amount": "80 g" },
+        { "item": "Feta nebo sýr", "amount": "50 g" },
+        { "item": "Vejce", "amount": "1 ks" }
+      ], "steps": [], "notes": "Vyžaduje troubu — nevhodné na cestách." },
+
+    { "id": "bf_jk_04", "name": "Volské oko / hemenex + chléb", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 453, "p": 25, "c": 30, "f": 25 },
+      "ingredients": [
+        { "item": "Vejce", "amount": "2 ks" },
+        { "item": "Šunka přírodní", "amount": "50 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Tuk na smažení", "amount": "10 g" }
+      ], "steps": [], "notes": "Vyžaduje sporák — nevhodné na cestách." },
+
+    { "id": "bf_jk_05", "name": "Chléb s paštiku + microgreens", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 391, "p": 16, "c": 40, "f": 19 },
+      "ingredients": [
+        { "item": "Domácí kuřecí paštika", "amount": "80 g" },
+        { "item": "Chléb tmavý", "amount": "80 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "bf_jk_06", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 412, "p": 24, "c": 40, "f": 18 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "60 g" },
+        { "item": "Jamon serrano", "amount": "50 g" },
+        { "item": "Chléb tmavý", "amount": "80 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "bf_jk_07", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "snídaně", "person": "Kuba",
+      "macros_per_serving": { "kcal": 584, "p": 24, "c": 41, "f": 37 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "60 g" },
+        { "item": "Fuet", "amount": "60 g" },
+        { "item": "Chléb tmavý", "amount": "80 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "bf_vr_01", "name": "Jogurt set", "category": "snídaně", "person": "Verča",
+      "macros_per_serving": { "kcal": 416, "p": 12, "c": 62, "f": 16 },
+      "ingredients": [
+        { "item": "Hollandia krémový jogurt bílý 0,01% laktózy", "amount": "180 g" },
+        { "item": "Banán", "amount": "150 g" },
+        { "item": "Borůvky", "amount": "100 g" },
+        { "item": "Vlašské ořechy", "amount": "15 g" }
+      ], "steps": [], "notes": "Pevná snídaně — vždy stejná kombinace." },
+
+    { "id": "sn_jk_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 248, "p": 20, "c": 30, "f": 5 },
+      "ingredients": [
+        { "item": "Tuňák v oleji (slitý)", "amount": "80 g" },
+        { "item": "Lučina", "amount": "20 g" },
+        { "item": "Cibule", "amount": "15 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "Synchronizováno s Verčou (sn_vr_01)." },
+
+    { "id": "sn_jk_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 316, "p": 18, "c": 33, "f": 14 },
+      "ingredients": [
+        { "item": "Olomoucké tvarůžky", "amount": "40 g" },
+        { "item": "Máslo nesolené", "amount": "15 g" },
+        { "item": "Cibule", "amount": "15 g" },
+        { "item": "Hořčice", "amount": "5 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_jk_03", "name": "Slaný závin", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 380, "p": 14, "c": 30, "f": 22 },
+      "ingredients": [
+        { "item": "Listové těsto (Albert)", "amount": "150 g" },
+        { "item": "Špenát (mražený rozmražený)", "amount": "80 g" },
+        { "item": "Feta nebo sýr", "amount": "50 g" },
+        { "item": "Vejce", "amount": "1 ks" }
+      ], "steps": [], "notes": "Vyžaduje troubu — nevhodné na cestách." },
+
+    { "id": "sn_jk_04", "name": "Chléb s paštiku + microgreens", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 294, "p": 11, "c": 30, "f": 15 },
+      "ingredients": [
+        { "item": "Domácí kuřecí paštika", "amount": "60 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_jk_05", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 325, "p": 19, "c": 31, "f": 15 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "50 g" },
+        { "item": "Jamon serrano", "amount": "40 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_jk_06", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 472, "p": 20, "c": 31, "f": 31 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "50 g" },
+        { "item": "Fuet", "amount": "50 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_jk_07", "name": "Sendvič: chléb + kozí sýr + sušené datle", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 356, "p": 14, "c": 44, "f": 15 },
+      "ingredients": [
+        { "item": "Kozí sýr čerstvý", "amount": "80 g" },
+        { "item": "Sušené datle", "amount": "20 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_jk_08", "name": "Sendvič: chléb + Parenica + sušené datle", "category": "svačina", "person": "Kuba",
+      "macros_per_serving": { "kcal": 505, "p": 34, "c": 45, "f": 23 },
+      "ingredients": [
+        { "item": "Milsy Lacti-No Parenica neuzená bez laktózy", "amount": "110 g" },
+        { "item": "Sušené datle", "amount": "20 g" },
+        { "item": "Chléb tmavý", "amount": "60 g" }
+      ], "steps": [], "notes": "Celé balení Parenica najednou." },
+
+    { "id": "sn_vr_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 188, "p": 16, "c": 21, "f": 4 },
+      "ingredients": [
+        { "item": "Tuňák v oleji (slitý)", "amount": "60 g" },
+        { "item": "Lučina", "amount": "15 g" },
+        { "item": "Cibule", "amount": "10 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 247, "p": 14, "c": 21, "f": 13 },
+      "ingredients": [
+        { "item": "Olomoucké tvarůžky", "amount": "35 g" },
+        { "item": "Máslo nesolené", "amount": "12 g" },
+        { "item": "Cibule", "amount": "10 g" },
+        { "item": "Hořčice", "amount": "4 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_03", "name": "Slaný závin", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 253, "p": 9, "c": 20, "f": 15 },
+      "ingredients": [
+        { "item": "Listové těsto (Albert)", "amount": "100 g" },
+        { "item": "Špenát (mražený rozmražený)", "amount": "60 g" },
+        { "item": "Feta nebo sýr", "amount": "35 g" },
+        { "item": "Vejce", "amount": "1 ks" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_04", "name": "Chléb s paštiku + microgreens", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 222, "p": 10, "c": 20, "f": 12 },
+      "ingredients": [
+        { "item": "Domácí kuřecí paštika", "amount": "50 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_05", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 228, "p": 14, "c": 20, "f": 10 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "35 g" },
+        { "item": "Jamon serrano", "amount": "30 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_06", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 326, "p": 14, "c": 21, "f": 21 },
+      "ingredients": [
+        { "item": "Lučina", "amount": "35 g" },
+        { "item": "Fuet", "amount": "35 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" },
+        { "item": "Microgreens", "amount": "10 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_07", "name": "Sendvič: chléb + kozí sýr + sušené datle", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 269, "p": 10, "c": 34, "f": 11 },
+      "ingredients": [
+        { "item": "Kozí sýr čerstvý", "amount": "60 g" },
+        { "item": "Sušené datle", "amount": "20 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" }
+      ], "steps": [], "notes": "" },
+
+    { "id": "sn_vr_08", "name": "Sendvič: chléb + Parenica + sušené datle", "category": "svačina", "person": "Verča",
+      "macros_per_serving": { "kcal": 458, "p": 33, "c": 35, "f": 23 },
+      "ingredients": [
+        { "item": "Milsy Lacti-No Parenica neuzená bez laktózy", "amount": "110 g" },
+        { "item": "Sušené datle", "amount": "20 g" },
+        { "item": "Chléb tmavý", "amount": "40 g" }
+      ], "steps": [], "notes": "" }
   ]
 }
