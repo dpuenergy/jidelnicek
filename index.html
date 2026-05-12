@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Jídelníček">
+  <meta name="theme-color" content="#3e9b66">
+  <title>Jídelníček</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+  <!-- App bar -->
+  <header class="appbar">
+    <span class="appbar-title">Jídelníček</span>
+    <button class="appbar-btn" id="settings-btn" title="Nastavení">⚙️</button>
+  </header>
+
+  <!-- Week strip (hidden when no plan / not on day tab) -->
+  <div id="week-strip-wrap" class="week-strip-wrap hidden">
+    <div id="week-strip" class="week-strip"></div>
+  </div>
+
+  <!-- Main content -->
+  <main id="main"></main>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" data-tab="day">
+      📅<span>Den</span>
+    </button>
+    <button class="bnav-btn" data-tab="week">
+      📊<span>Týden</span>
+    </button>
+    <button class="bnav-btn bnav-fab" id="fab-btn">＋</button>
+    <button class="bnav-btn" data-tab="recipes">
+      🍴<span>Recepty</span>
+    </button>
+    <button class="bnav-btn" data-tab="menu">
+      ☰<span>Menu</span>
+    </button>
+  </nav>
+
+  <!-- ── Modal: Action sheet (FAB) ────────────────────────────── -->
+  <div id="action-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Co chceš udělat?</h3>
+      <p class="modal-sub">Přidej pokrm z fotky nebo importuj nový plán.</p>
+      <button class="action-sheet-btn" id="action-foto">
+        <span class="asb-emoji">📷</span>
+        <span class="asb-text">
+          Foto jídla
+          <span class="asb-sub">Claude odhadne makra z fotky</span>
+        </span>
+      </button>
+      <button class="action-sheet-btn" id="action-import">
+        <span class="asb-emoji">➕</span>
+        <span class="asb-text">
+          Importovat plán
+          <span class="asb-sub">Sync z GitHubu nebo vložit JSON</span>
+        </span>
+      </button>
+      <div class="modal-actions">
+        <button data-close="action-modal">Zrušit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Settings ──────────────────────────────────────── -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Nastavení</h3>
+      <p class="modal-sub">API klíč a model pro AI funkce (foto analýza, chat).</p>
+      <label for="settings-key">Claude API klíč</label>
+      <input type="password" id="settings-key" placeholder="sk-ant-…" autocomplete="off">
+      <p class="modal-hint">Klíč se ukládá jen lokálně v prohlížeči. Nikam se neodesílá.</p>
+      <label for="settings-model">Model</label>
+      <select id="settings-model">
+        <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (rychlý, levný)</option>
+        <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6 (doporučeno)</option>
+        <option value="claude-opus-4-7">Claude Opus 4.7 (nejlepší, drahý)</option>
+      </select>
+      <div class="modal-actions">
+        <button data-close="settings-modal">Zrušit</button>
+        <button class="primary" id="settings-save">Uložit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Add plan ──────────────────────────────────────── -->
+  <div id="addplan-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Přidat plán</h3>
+      <p class="modal-sub">
+        Sync stáhne nejnovější plány z GitHubu. Nebo vlož JSON přímo.
+        <a href="#" id="addplan-help" style="color:var(--accent)">Jak na to?</a>
+      </p>
+      <button class="modal-sync-btn" id="addplan-sync">↓ Sync z GitHubu</button>
+      <div id="addplan-sync-list" class="sync-list-hidden"></div>
+      <label for="addplan-json">JSON plánu (manuální)</label>
+      <textarea id="addplan-json" placeholder='{"id":"…","persons":{…},"slots":[…],"days":[…]}'></textarea>
+      <div id="addplan-err" style="display:none;color:var(--c-over);font-size:13px;margin-top:6px"></div>
+      <div class="modal-actions">
+        <button data-close="addplan-modal">Zrušit</button>
+        <button class="primary" id="addplan-import">Importovat JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Photo source picker ──────────────────────────── -->
+  <div id="photosrc-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Přidat foto jídla</h3>
+      <p class="modal-sub">Claude odhadne název a makra z fotky.</p>
+      <div class="modal-actions" style="justify-content:stretch;gap:10px">
+        <button class="primary" id="photosrc-camera" style="flex:1">📷 Fotoaparát</button>
+        <button id="photosrc-gallery" style="flex:1">🖼 Galerie</button>
+      </div>
+      <div class="modal-actions">
+        <button data-close="photosrc-modal">Zrušit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Photo result ──────────────────────────────────── -->
+  <div id="photo-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Analýza fotky</h3>
+      <img id="photo-preview" class="photo-preview" style="display:none" alt="náhled">
+      <div id="photo-status" class="photo-status" style="display:none"></div>
+      <div id="photo-result-wrap" style="display:none">
+        <div class="photo-result">
+          <span id="photo-conf" class="photo-result-conf"></span>
+          <div id="photo-name" style="font-size:15px;font-weight:600;margin-bottom:4px"></div>
+          <div id="photo-macros" style="font-size:13px;color:var(--ink-soft);margin-bottom:6px"></div>
+          <div id="photo-notes" style="font-size:12px;color:var(--ink-faint)"></div>
+        </div>
+        <div id="photo-target-hint" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px"></div>
+      </div>
+      <div class="modal-actions">
+        <button data-close="photo-modal">Zavřít</button>
+        <button class="primary" id="photo-apply" disabled>Použít</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Chat ───────────────────────────────────────────── -->
+  <div id="chat-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Dotaz k pokrmu</h3>
+      <div id="chat-context" class="chat-context"></div>
+      <div id="chat-history" class="chat-history"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" class="chat-input" placeholder="Zeptej se na složení, alternativy…" rows="2"></textarea>
+        <button id="chat-send" class="chat-send-btn">↑</button>
+      </div>
+      <div class="modal-actions">
+        <button data-close="chat-modal">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file inputs -->
+  <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="gallery-input" accept="image/*" style="display:none">
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
