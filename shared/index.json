@@ -1,0 +1,11 @@
+{
+  "plans": [
+    {
+      "id": "2026-jidla-1105-1605",
+      "title": "Jídelníček",
+      "date_range": "11. – 16. května 2026",
+      "file": "shared/sample-plan.json",
+      "generated_at": "2026-05-12"
+    }
+  ]
+}
