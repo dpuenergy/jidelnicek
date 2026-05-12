@@ -274,9 +274,12 @@ main {
   position: relative;
 }
 .metric-fill {
+  position: absolute;
+  top: 0; left: 0;
   height: 100%;
   background: var(--accent);
   border-radius: 999px;
+  transition: width 0.3s ease;
 }
 .metric-fill.over { background: var(--c-over); }
 .metric-fill.kcal { background: var(--ink); }
@@ -289,6 +292,57 @@ main {
   font-weight: 500;
 }
 .metric-value.over { color: var(--c-over); font-weight: 700; }
+
+/* ── Person filter bar ──────────────────────── */
+.person-filter {
+  display: flex; gap: 6px;
+  padding: 10px 14px 8px;
+  background: var(--bg-card);
+  border-bottom: 0.5px solid var(--rule);
+  position: sticky; top: 48px; z-index: 10;
+}
+.pf-btn {
+  flex: 1; padding: 7px 0;
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: transparent; color: var(--ink-soft);
+  cursor: pointer;
+}
+.pf-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── GitHub sync list ───────────────────────── */
+.sync-plan-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--rule);
+  font-size: 13px;
+}
+.sync-plan-item:last-child { border-bottom: none; }
+.sync-plan-item .sync-info { flex: 1; min-width: 0; }
+.sync-plan-item .sync-info strong { display: block; }
+.sync-plan-item .sync-info small { color: var(--ink-soft); }
+.sync-import-btn {
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: 999px;
+  border: none; background: var(--accent); color: #fff;
+  cursor: pointer; white-space: nowrap;
+}
+.sync-import-btn:disabled { opacity: 0.4; }
+.sync-list-hidden { display: none; margin-bottom: 14px; }
+.sync-list-visible { display: block; margin-bottom: 14px; }
+.modal-sync-btn {
+  display: block; width: 100%; margin-bottom: 14px;
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 10px; border-radius: 8px;
+  border: 1px solid var(--accent); background: transparent;
+  color: var(--accent); cursor: pointer;
+}
+.modal-sync-btn:disabled { opacity: 0.4; }
 
 /* ── Day pager (fixed bottom) ──────────────── */
 .day-pager {
@@ -591,7 +645,9 @@ main {
 <div class="modal-backdrop hidden" id="addplan-modal">
   <div class="modal">
     <h3>Přidat plán</h3>
-    <p class="modal-sub">Vlož JSON plánu z BEN-a. <a href="#" id="addplan-help" style="color:var(--accent)">Jak ho získat?</a></p>
+    <button type="button" class="modal-sync-btn" id="addplan-sync">↓ Sync z GitHubu</button>
+    <div id="addplan-sync-list" class="sync-list-hidden"></div>
+    <p class="modal-sub">Nebo vlož JSON ručně. <a href="#" id="addplan-help" style="color:var(--accent)">Jak ho získat?</a></p>
     <label for="addplan-json">JSON plánu</label>
     <textarea id="addplan-json" placeholder='{"id":"2026-W19", "plan_title":"Jídelníček", ...}'></textarea>
     <div id="addplan-err" style="display:none;color:var(--c-over);font-size:12px;margin-top:8px"></div>
@@ -671,6 +727,7 @@ const STATE = {
   currentPlanId: null,
   currentDayIdx: 0,
   view: 'planList',          // 'planList' | 'planDetail'
+  personFilter: 'both',      // 'both' | 'jakub' | 'partnerka'
   ate: {},
   chats: {},
   // current photo context (which meal slot to apply to)
@@ -866,8 +923,16 @@ function renderPlanDetail() {
   if (!plan) { STATE.view = 'planList'; render(); return; }
   const day = plan.days[STATE.currentDayIdx];
   const main = document.getElementById('main');
+  const pf = STATE.personFilter;
+  const persons = pf === 'both' ? ['jakub','partnerka'] : [pf];
+  const kName = escapeHtml(plan.persons.jakub.name);
+  const pName = escapeHtml(plan.persons.partnerka.name);
 
-  let html = '';
+  let html = `<div class="person-filter">
+    <button class="pf-btn${pf === 'both' ? ' active' : ''}" data-pf="both">Oba</button>
+    <button class="pf-btn${pf === 'jakub' ? ' active' : ''}" data-pf="jakub">${kName}</button>
+    <button class="pf-btn${pf === 'partnerka' ? ' active' : ''}" data-pf="partnerka">${pName}</button>
+  </div>`;
   if (day.note) html += `<div class="day-note">${escapeHtml(day.note)}</div>`;
 
   for (const slotKey of plan.slots) {
@@ -876,8 +941,7 @@ function renderPlanDetail() {
     html += `<div class="slot"><div class="slot-label">${escapeHtml(label)}</div>`;
 
     if (slot.shared) {
-      // Shared: render two cards (one per person) sharing the same name/note
-      for (const pk of ['jakub','partnerka']) {
+      for (const pk of persons) {
         const macros = slot.shared['macros_'+pk] || {};
         html += renderMealCard(plan, slotKey, pk, {
           name: slot.shared.name,
@@ -888,7 +952,7 @@ function renderPlanDetail() {
         });
       }
     } else {
-      for (const pk of ['jakub','partnerka']) {
+      for (const pk of persons) {
         const meal = slot[pk];
         if (!meal) continue;
         html += renderMealCard(plan, slotKey, pk, meal);
@@ -897,11 +961,11 @@ function renderPlanDetail() {
     html += `</div>`;
   }
 
-  // Day totals
+  // Day totals — only for visible persons
   const totals = computeDayTotals(plan, day);
   const metrics = activeMetricsFor(plan);
   html += `<div class="day-totals">`;
-  for (const pk of ['jakub','partnerka']) {
+  for (const pk of persons) {
     const t = totals[pk];
     const targets = plan.persons[pk].targets;
     html += `<div class="day-totals-person">
@@ -914,7 +978,7 @@ function renderPlanDetail() {
       const over = tg && v > tg * 1.05;
       html += `<div class="metric-row">
         <span class="metric-label">${escapeHtml(m.label)}</span>
-        <span class="metric-bar"><span class="metric-fill ${m.key} ${over ? 'over' : ''}" style="width:${pct}%"></span></span>
+        <span class="metric-bar"><span class="metric-fill ${m.key} ${over ? 'over' : ''}" style="width:${pct.toFixed(1)}%"></span></span>
         <span class="metric-value ${over ? 'over' : ''}">${v}${tg ? ' / ' + tg : ''}${m.key === 'kcal' ? '' : ' g'}</span>
       </div>`;
     }
@@ -923,6 +987,14 @@ function renderPlanDetail() {
   html += `</div>`;
 
   main.innerHTML = html;
+
+  main.querySelectorAll('.pf-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      STATE.personFilter = btn.dataset.pf;
+      render();
+    });
+  });
+
   attachMealHandlers();
 }
 
@@ -1039,7 +1111,56 @@ document.getElementById('settings-save').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 document.getElementById('addplan-help').addEventListener('click', e => {
   e.preventDefault();
-  alert('1. V počítači otevři jídelníček generovaný BEN-em\n2. Stiskni „Stáhnout" → uloží JSON\n3. Otevři JSON v textovém editoru, zkopíruj celý obsah\n4. Vlož sem.\n\nNebo BEN ti pošle JSON přímo (e-mail / Slack) a ty ho zkopíruješ.');
+  alert('1. V počítači otevři jídelníček generovaný BEN-em\n2. Stiskni „Stáhnout" → uloží JSON\n3. Otevři JSON v textovém editoru, zkopíruj celý obsah\n4. Vlož sem.\n\nNebo použij „Sync z GitHubu" — plány se načtou automaticky.');
+});
+
+const GITHUB_INDEX = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/shared/index.json';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/';
+
+document.getElementById('addplan-sync').addEventListener('click', async function() {
+  const btn = this;
+  const listEl = document.getElementById('addplan-sync-list');
+  btn.disabled = true;
+  btn.textContent = 'Načítám...';
+  listEl.className = 'sync-list-hidden';
+  try {
+    const res = await fetch(GITHUB_INDEX);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const index = await res.json();
+    const available = (index.plans || []).filter(p => !STATE.plans[p.id]);
+    if (available.length === 0) {
+      listEl.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;margin:0">Všechny plány jsou již importovány.</p>';
+    } else {
+      listEl.innerHTML = available.map(p => `
+        <div class="sync-plan-item">
+          <div class="sync-info">
+            <strong>${escapeHtml(p.title || p.id)}</strong>
+            <small>${escapeHtml(p.date_range || '')}</small>
+          </div>
+          <button type="button" class="sync-import-btn" data-file="${escapeHtml(p.file)}">Importovat</button>
+        </div>`).join('');
+      listEl.querySelectorAll('.sync-import-btn').forEach(b => {
+        b.addEventListener('click', async function() {
+          this.disabled = true; this.textContent = 'Načítám...';
+          try {
+            const planRes = await fetch(GITHUB_RAW_BASE + this.dataset.file);
+            if (!planRes.ok) throw new Error(`HTTP ${planRes.status}`);
+            const plan = await planRes.json();
+            STATE.plans[plan.id] = plan;
+            persistPlans();
+            closeModal('addplan-modal');
+            openPlan(plan.id);
+          } catch(e) { this.textContent = 'Chyba'; this.disabled = false; }
+        });
+      });
+    }
+    listEl.className = 'sync-list-visible';
+  } catch(e) {
+    listEl.innerHTML = `<p style="color:var(--c-over);font-size:12px;margin:0">Chyba: ${escapeHtml(e.message)}</p>`;
+    listEl.className = 'sync-list-visible';
+  }
+  btn.disabled = false;
+  btn.textContent = '↓ Sync z GitHubu';
 });
 document.getElementById('addplan-import').addEventListener('click', () => {
   const txt = document.getElementById('addplan-json').value.trim();

@@ -94,3 +94,18 @@ fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, injected, 'utf8');
 
 console.log(`inject-plan: wrote ${path.relative(ROOT, outFile)}`);
+
+// ── Update shared/index.json ──────────────────────────────────────────────────
+const indexPath = path.join(ROOT, 'shared', 'index.json');
+let index = { plans: [] };
+try { index = JSON.parse(fs.readFileSync(indexPath, 'utf8')); } catch(_) {}
+index.plans = (index.plans || []).filter(p => p.id !== plan.id);
+index.plans.unshift({
+  id:           plan.id,
+  title:        plan.plan_title || plan.id,
+  date_range:   plan.date_range || '',
+  file:         `shared/${path.basename(planPath)}`,
+  generated_at: new Date().toISOString().split('T')[0],
+});
+fs.writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\n', 'utf8');
+console.log(`inject-plan: updated shared/index.json (${index.plans.length} plan${index.plans.length !== 1 ? 's' : ''})`);
