@@ -108,13 +108,17 @@
       </div>
       <div class="settings-sync-section">
         <div class="settings-targets-label">Synchronizace</div>
-        <p class="modal-hint">Klikni <strong>Sync teď</strong> — vytvoří se kód. Zkopíruj ho a pošli partnerovi, ten ho vloží do pole níže a klikne Připojit.</p>
+        <p class="modal-hint">Potřebuješ Firebase Realtime Database (zdarma, 2 min):<br>
+          1. Jdi na <em>console.firebase.google.com</em> → Přidat projekt → Build → Realtime Database → Vytvořit databázi → Test mode → Aktivovat.<br>
+          2. Zkopíruj URL databáze (vypadá jako <em>https://xxx-rtdb.firebaseio.com</em>).<br>
+          3. Vlož URL sem a klikni Připojit. Verče pošli stejnou URL — ona ji taky Připojí.
+        </p>
         <div class="sync-id-row">
           <span id="sync-id-display" class="sync-id-text">—</span>
           <button type="button" id="sync-copy-btn" class="sync-small-btn">Kopírovat</button>
         </div>
         <div class="sync-connect-row">
-          <input type="text" id="sync-connect-input" placeholder="Kód od partnera…" autocomplete="off" spellcheck="false">
+          <input type="text" id="sync-connect-input" placeholder="https://xxx-rtdb.firebaseio.com" autocomplete="off" spellcheck="false">
           <button type="button" id="sync-connect-btn" class="sync-small-btn">Připojit</button>
         </div>
         <div class="sync-now-row">

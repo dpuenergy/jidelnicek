@@ -121,11 +121,18 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
-  const syncId = _sync.getSyncId();
+  const syncUrl = _sync.getSyncId();
   const syncDisplay = document.getElementById('sync-id-display');
-  if (syncDisplay) syncDisplay.textContent = syncId || '(klikni Sync teď)';
+  if (syncDisplay) {
+    if (syncUrl) {
+      try { syncDisplay.textContent = new URL(syncUrl).hostname; }
+      catch { syncDisplay.textContent = syncUrl; }
+    } else {
+      syncDisplay.textContent = '—';
+    }
+  }
   const syncInput = document.getElementById('sync-connect-input');
-  if (syncInput) syncInput.value = '';
+  if (syncInput) syncInput.value = syncUrl;
   openModal('settings-modal');
 }
 

@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v12';
+const CACHE = 'jidelnicek-v13';
 
 // Soubory předem cachované při instalaci (malé, stabilní)
 const PRECACHE = [
@@ -40,7 +40,8 @@ self.addEventListener('fetch', e => {
     url.hostname === 'fonts.googleapis.com' ||
     url.hostname === 'fonts.gstatic.com' ||
     url.hostname === 'world.openfoodfacts.org' ||
-    url.hostname === 'jsonblob.com'
+    url.hostname.endsWith('.firebaseio.com') ||
+    url.hostname.endsWith('.firebasedatabase.app')
   ) {
     return;
   }
