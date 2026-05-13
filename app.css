@@ -861,3 +861,11 @@ main {
   padding: 6px 12px; border-radius: 999px; cursor: pointer; width: 100%;
 }
 .chat-record-btn:disabled { opacity: .5; cursor: default; }
+
+/* ─── Edit-macro gram preview ────────────────────────────────── */
+.em-preview {
+  margin-top: 8px; padding: 8px 12px;
+  background: var(--accent-soft); border-left: 3px solid var(--accent);
+  border-radius: 4px; font-size: 0.85rem; color: var(--accent);
+}
+.modal-hint { font-size: 12px; color: var(--ink-soft); margin: 8px 0 4px; }

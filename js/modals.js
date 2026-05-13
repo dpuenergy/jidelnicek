@@ -364,7 +364,9 @@ export function initReplace(rerender) {
     const grams = macroData && macroData.unit === '/100g'
       ? (parseFloat(document.getElementById('replace-weight').value) || 200)
       : null;
-    slotData[pk] = { name: r.name + (grams ? ` ${Math.round(grams)}g` : ''), macros };
+    const placed = { name: r.name + (grams ? ` ${Math.round(grams)}g` : ''), macros, recipe_id: r.id };
+    if (r.macros_per_100g) placed.macros_per_100g = r.macros_per_100g;
+    slotData[pk] = placed;
     persistPlans();
     closeModal('replace-modal');
     rerender();
@@ -420,29 +422,91 @@ export function openReplace(target) {
   openModal('replace-modal');
 }
 
-// ── Edit macros ────────────────────────────────────────────────
+// ── Edit portion weight ────────────────────────────────────────
 let _editMacroCtx = null;
+let _editMacroPer100g = null;
+
+function _findPer100g(meal) {
+  if (meal.macros_per_100g) return meal.macros_per_100g;
+  const all = getAllRecipes();
+  if (meal.recipe_id) {
+    const r = all.find(x => x.id === meal.recipe_id);
+    if (r && r.macros_per_100g) return r.macros_per_100g;
+  }
+  // Name match — try substring
+  if (meal.name) {
+    const nameLower = meal.name.toLowerCase();
+    const r = all.find(x => x.macros_per_100g && nameLower.includes(x.name.toLowerCase()));
+    if (r) return r.macros_per_100g;
+  }
+  // Back-calc from grams embedded in name
+  if (meal.macros && meal.name) {
+    const m = meal.macros;
+    const gm = meal.name.match(/(\d+)\s*g/);
+    const g = gm ? parseInt(gm[1]) : 0;
+    if (g >= 10 && m.kcal > 0) {
+      return {
+        kcal: Math.round(m.kcal / g * 100),
+        p: Math.round((m.p || 0) / g * 100 * 10) / 10,
+        c: Math.round((m.c || 0) / g * 100 * 10) / 10,
+        f: Math.round((m.f || 0) / g * 100 * 10) / 10,
+      };
+    }
+  }
+  return null;
+}
+
+function _calcFromGrams(per100g, grams) {
+  const f = grams / 100;
+  return {
+    kcal: Math.round((per100g.kcal || 0) * f),
+    p:    Math.round((per100g.p    || 0) * f * 10) / 10,
+    c:    Math.round((per100g.c    || 0) * f * 10) / 10,
+    f:    Math.round((per100g.f    || 0) * f * 10) / 10,
+  };
+}
+
+function _updateEmPreview(grams) {
+  const prev = document.getElementById('em-preview');
+  if (!_editMacroPer100g || !(grams >= 10)) { prev.classList.add('hidden'); return; }
+  const m = _calcFromGrams(_editMacroPer100g, grams);
+  prev.textContent = `→ ${m.kcal} kcal · B ${m.p} g · S ${m.c} g · T ${m.f} g`;
+  prev.classList.remove('hidden');
+}
 
 export function initEditMacro() {
+  document.getElementById('em-grams').addEventListener('input', e => {
+    _updateEmPreview(parseFloat(e.target.value));
+  });
+
   document.getElementById('editmacro-save').addEventListener('click', () => {
     if (!_editMacroCtx) return;
     const { planId, dayIdx, slot, pk, rerender } = _editMacroCtx;
     const plan = STATE.plans[planId];
-    const slotData = plan.days[dayIdx].meals[slot] || {};
+    if (!plan.days[dayIdx].meals[slot]) plan.days[dayIdx].meals[slot] = {};
+    const slotData = plan.days[dayIdx].meals[slot];
     if (slotData.shared) {
       const sh = slotData.shared;
       slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
       slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
       delete slotData.shared;
-      plan.days[dayIdx].meals[slot] = slotData;
     }
     const meal = slotData[pk] || {};
-    meal.macros = {
-      kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
-      p:    parseFloat(document.getElementById('em-p').value)    || 0,
-      c:    parseFloat(document.getElementById('em-c').value)    || 0,
-      f:    parseFloat(document.getElementById('em-f').value)    || 0,
-    };
+    const grams = parseFloat(document.getElementById('em-grams').value);
+    if (_editMacroPer100g && grams >= 10) {
+      const m = _calcFromGrams(_editMacroPer100g, grams);
+      // Update name: replace old gram number or append
+      const baseName = (meal.name || '').replace(/\s*\d+\s*g\b/, '').trim();
+      meal.name   = `${baseName} ${Math.round(grams)}g`;
+      meal.macros = m;
+    } else {
+      meal.macros = {
+        kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
+        p:    parseFloat(document.getElementById('em-p').value)    || 0,
+        c:    parseFloat(document.getElementById('em-c').value)    || 0,
+        f:    parseFloat(document.getElementById('em-f').value)    || 0,
+      };
+    }
     slotData[pk] = meal;
     persistPlans();
     closeModal('editmacro-modal');
@@ -452,12 +516,28 @@ export function initEditMacro() {
 
 export function openEditMacro({ planId, dayIdx, slot, pk, meal, rerender }) {
   _editMacroCtx = { planId, dayIdx, slot, pk, rerender };
+  _editMacroPer100g = _findPer100g(meal);
+
   document.getElementById('editmacro-name').textContent = meal.name;
-  const m = meal.macros || {};
-  document.getElementById('em-kcal').value = m.kcal ?? '';
-  document.getElementById('em-p').value    = m.p    ?? '';
-  document.getElementById('em-c').value    = m.c    ?? '';
-  document.getElementById('em-f').value    = m.f    ?? '';
+
+  // Pre-fill grams from name or from back-calc
+  const gramsMatch = meal.name && meal.name.match(/(\d+)\s*g/);
+  const currentGrams = gramsMatch ? parseInt(gramsMatch[1]) : 200;
+  document.getElementById('em-grams').value = currentGrams;
+
+  const fallback = document.getElementById('em-fallback');
+  if (_editMacroPer100g) {
+    fallback.classList.add('hidden');
+    _updateEmPreview(currentGrams);
+  } else {
+    fallback.classList.remove('hidden');
+    document.getElementById('em-preview').classList.add('hidden');
+    const m = meal.macros || {};
+    document.getElementById('em-kcal').value = m.kcal ?? '';
+    document.getElementById('em-p').value    = m.p    ?? '';
+    document.getElementById('em-c').value    = m.c    ?? '';
+    document.getElementById('em-f').value    = m.f    ?? '';
+  }
   openModal('editmacro-modal');
 }
 
@@ -512,7 +592,10 @@ export function openExtraMeal({ plan, planId, dayIdx, rerender }) {
 }
 
 // ── Chat ───────────────────────────────────────────────────────
-export function initChat() {
+let _chatRerender = null;
+
+export function initChat(rerender) {
+  _chatRerender = rerender || null;
   const input = document.getElementById('chat-input');
   // Auto-expand textarea
   input.addEventListener('input', () => {
@@ -574,6 +657,7 @@ function renderChatHistory() {
       slotData[t.personKey] = meal;
       plan.days[t.dayIdx].meals[t.slot] = slotData;
       persistPlans();
+      if (_chatRerender) _chatRerender();
       btn.textContent = '✓ Zaznamenáno';
       btn.disabled = true;
     });

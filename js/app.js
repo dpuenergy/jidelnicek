@@ -75,7 +75,7 @@ function boot() {
   initAddPlan(onPlanImported);
   initActionSheet(openAddPlan);
   initPhoto(render);
-  initChat();
+  initChat(render);
   initReplace(render);
   initEditMacro();
   initExtraMeal();
