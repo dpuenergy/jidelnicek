@@ -14,7 +14,7 @@
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=14c9e1f">
+  <link rel="stylesheet" href="app.css?v=15f2a8c">
 </head>
 <body>
 
@@ -288,8 +288,15 @@
   <div id="extra-modal" class="modal-backdrop hidden">
     <div class="modal">
       <h3>Doplnit jídlo</h3>
-      <p class="modal-sub">Dezert, ovoce, snack — cokoliv mimo plán.</p>
-      <label for="extra-name">Název</label>
+      <p class="modal-sub">Z receptů, databáze potravin nebo ručně.</p>
+      <input type="search" id="extra-search" placeholder="Hledat: jablko, tvaroh, lasagne…" autocomplete="off">
+      <div id="extra-search-results" class="extra-search-results hidden"></div>
+      <div id="extra-gram-wrap" class="hidden">
+        <label for="extra-grams">Gramáž <span class="label-hint">(makra se přepočítají)</span></label>
+        <input type="number" id="extra-grams" placeholder="100" min="1" max="2000" step="10">
+        <div id="extra-gram-preview" class="em-preview hidden"></div>
+      </div>
+      <label for="extra-name">Název <span class="label-hint">(nebo vyber z výsledků)</span></label>
       <input type="text" id="extra-name" placeholder="např. Jablko, Tvaroh, Dortík…" autocomplete="off">
       <div class="settings-targets-row" style="margin-top:12px">
         <div class="settings-target-field"><label for="extra-kcal">kcal</label><input type="number" id="extra-kcal" placeholder="0" min="0"></div>
@@ -309,7 +316,7 @@
   <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
-  <script type="module" src="js/app.js?v=14c9e1f"></script>
+  <script type="module" src="js/app.js?v=15f2a8c"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/jidelnicek/sw.js');

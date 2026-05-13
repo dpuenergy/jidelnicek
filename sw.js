@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v14c9e1f';
+const CACHE = 'jidelnicek-v15f2a8c';
 const SHELL = [
   '/jidelnicek/',
   '/jidelnicek/index.html',
@@ -40,7 +40,8 @@ self.addEventListener('fetch', e => {
     url.hostname === 'api.github.com' ||
     url.hostname === 'raw.githubusercontent.com' ||
     url.hostname === 'fonts.googleapis.com' ||
-    url.hostname === 'fonts.gstatic.com'
+    url.hostname === 'fonts.gstatic.com' ||
+    url.hostname === 'world.openfoodfacts.org'
   ) {
     return;
   }

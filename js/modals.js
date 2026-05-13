@@ -927,20 +927,156 @@ export function openEditMacro({ planId, dayIdx, slot, pk, meal, rerender }) {
 }
 
 // ── Extra meal ─────────────────────────────────────────────────
-let _extraCtx = null;
+let _extraCtx      = null;
+let _extraPer100g  = null;
+let _extraRecipes  = [];
+let _extraFoods    = null;   // null = loading, [] = empty, [...] = results
+let _extraDebounce = null;
+
+function _renderExtraResults() {
+  const el = document.getElementById('extra-search-results');
+  let html = '';
+
+  if (_extraRecipes.length > 0) {
+    html += `<div class="extra-res-section">Recepty</div>`;
+    html += _extraRecipes.map(r => {
+      const md  = getMacros(r);
+      const sub = md
+        ? `${Math.round(md.m.kcal || 0)} kcal ${md.unit}`
+        : (r.batch_note ? r.batch_note.split('—')[0].trim() : '');
+      return `<button class="extra-result-btn" data-type="recipe" data-id="${escapeHtml(r.id)}">
+        <span class="extra-res-name">${escapeHtml(r.name)}</span>
+        ${sub ? `<span class="extra-res-sub">${escapeHtml(sub)}</span>` : ''}
+      </button>`;
+    }).join('');
+  }
+
+  if (_extraFoods === null) {
+    html += `<div class="extra-res-loading">Hledám v databázi potravin…</div>`;
+  } else if (_extraFoods.length > 0) {
+    html += `<div class="extra-res-section">Potraviny <span class="extra-res-badge">Open Food Facts</span></div>`;
+    html += _extraFoods.map((f, i) =>
+      `<button class="extra-result-btn" data-type="food" data-fidx="${i}">
+        <span class="extra-res-name">${escapeHtml(f.name.slice(0, 60))}</span>
+        <span class="extra-res-sub">${Math.round(f.kcal_100g)} kcal/100g${f.brand ? ' · ' + escapeHtml(f.brand.split(',')[0].trim().slice(0, 30)) : ''}</span>
+      </button>`
+    ).join('');
+  }
+
+  if (!html) html = `<div class="extra-res-empty">Žádné výsledky</div>`;
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+
+  el.querySelectorAll('[data-type="recipe"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r = getAllRecipes().find(x => x.id === btn.dataset.id);
+      if (!r) return;
+      _selectExtraItem(r.name, getMacros(r));
+    });
+  });
+  el.querySelectorAll('[data-type="food"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = _extraFoods[parseInt(btn.dataset.fidx)];
+      if (!f) return;
+      _selectExtraItem(f.name, { unit: '/100g', m: { kcal: f.kcal_100g, p: f.p_100g, c: f.c_100g, f: f.f_100g } });
+    });
+  });
+}
+
+function _selectExtraItem(name, macroData) {
+  document.getElementById('extra-name').value = name;
+  document.getElementById('extra-search-results').classList.add('hidden');
+  const gramWrap = document.getElementById('extra-gram-wrap');
+  if (macroData && macroData.unit === '/100g') {
+    _extraPer100g = macroData.m;
+    gramWrap.classList.remove('hidden');
+    const gramEl = document.getElementById('extra-grams');
+    gramEl.value = '100';
+    gramEl.dispatchEvent(new Event('input'));
+  } else {
+    _extraPer100g = null;
+    gramWrap.classList.add('hidden');
+    if (macroData) {
+      document.getElementById('extra-kcal').value = Math.round(macroData.m.kcal || 0) || '';
+      document.getElementById('extra-p').value    = Math.round((macroData.m.p || 0) * 10) / 10 || '';
+      document.getElementById('extra-c').value    = Math.round((macroData.m.c || 0) * 10) / 10 || '';
+      document.getElementById('extra-f').value    = Math.round((macroData.m.f || 0) * 10) / 10 || '';
+    }
+  }
+}
+
+async function _searchFoods(query) {
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page_size=8&fields=product_name,nutriments,brands&action=process&search_simple=1`;
+    const res = await fetch(url);
+    if (!res.ok) { _extraFoods = []; _renderExtraResults(); return; }
+    const data = await res.json();
+    _extraFoods = (data.products || [])
+      .filter(p => p.product_name && p.nutriments?.['energy-kcal_100g'] != null)
+      .slice(0, 8)
+      .map(p => ({
+        name:      p.product_name,
+        brand:     p.brands || '',
+        kcal_100g: Math.round(p.nutriments['energy-kcal_100g'] || 0),
+        p_100g:    Math.round((p.nutriments['proteins_100g'] || 0) * 10) / 10,
+        c_100g:    Math.round((p.nutriments['carbohydrates_100g'] || 0) * 10) / 10,
+        f_100g:    Math.round((p.nutriments['fat_100g'] || 0) * 10) / 10,
+      }));
+    _renderExtraResults();
+  } catch (_) { _extraFoods = []; _renderExtraResults(); }
+}
 
 export function initExtraMeal() {
+  const searchEl = document.getElementById('extra-search');
+  const gramEl   = document.getElementById('extra-grams');
+
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.trim();
+    clearTimeout(_extraDebounce);
+    const resultsEl = document.getElementById('extra-search-results');
+    if (q.length < 2) { resultsEl.classList.add('hidden'); _extraRecipes = []; _extraFoods = null; return; }
+    _extraRecipes = getAllRecipes().filter(r => r.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6);
+    _extraFoods = null;
+    _renderExtraResults();
+    _extraDebounce = setTimeout(() => _searchFoods(q), 700);
+  });
+
+  gramEl.addEventListener('input', () => {
+    const g = parseFloat(gramEl.value);
+    const prevEl = document.getElementById('extra-gram-preview');
+    if (_extraPer100g && g > 0) {
+      const f = g / 100;
+      const m = {
+        kcal: Math.round((_extraPer100g.kcal || 0) * f),
+        p:    Math.round((_extraPer100g.p    || 0) * f * 10) / 10,
+        c:    Math.round((_extraPer100g.c    || 0) * f * 10) / 10,
+        f:    Math.round((_extraPer100g.f    || 0) * f * 10) / 10,
+      };
+      document.getElementById('extra-kcal').value = m.kcal || '';
+      document.getElementById('extra-p').value    = m.p    || '';
+      document.getElementById('extra-c').value    = m.c    || '';
+      document.getElementById('extra-f').value    = m.f    || '';
+      prevEl.textContent = `→ ${m.kcal} kcal · B ${m.p} g · S ${m.c} g · T ${m.f} g`;
+      prevEl.classList.remove('hidden');
+    } else {
+      prevEl.classList.add('hidden');
+    }
+  });
+
   document.getElementById('extra-add').addEventListener('click', () => {
     if (!_extraCtx) return;
     const name = document.getElementById('extra-name').value.trim();
     if (!name) { document.getElementById('extra-name').focus(); return; }
-    const { plan, planId, dayIdx, rerender } = _extraCtx;
+    const { plan, dayIdx, rerender } = _extraCtx;
     const day = plan.days[dayIdx];
     if (!day.extra_meals) day.extra_meals = [];
     const pkEl = document.querySelector('.extra-person-btn.active');
     const pk   = pkEl ? pkEl.dataset.pk : 'jakub';
+    const grams = parseFloat(document.getElementById('extra-grams').value);
+    const gramVisible = !document.getElementById('extra-gram-wrap').classList.contains('hidden');
+    const label = (gramVisible && _extraPer100g && grams > 0) ? `${name} ${Math.round(grams)}g` : name;
     day.extra_meals.push({
-      pk, name,
+      pk, name: label,
       macros: {
         kcal: parseFloat(document.getElementById('extra-kcal').value) || 0,
         p:    parseFloat(document.getElementById('extra-p').value)    || 0,
@@ -955,13 +1091,21 @@ export function initExtraMeal() {
 }
 
 export function openExtraMeal({ plan, planId, dayIdx, rerender }) {
-  _extraCtx = { plan, planId, dayIdx, rerender };
+  _extraCtx     = { plan, planId, dayIdx, rerender };
+  _extraPer100g = null;
+  _extraRecipes = [];
+  _extraFoods   = null;
+  clearTimeout(_extraDebounce);
+  document.getElementById('extra-search').value = '';
+  document.getElementById('extra-search-results').classList.add('hidden');
+  document.getElementById('extra-gram-wrap').classList.add('hidden');
+  document.getElementById('extra-grams').value = '';
+  document.getElementById('extra-gram-preview').classList.add('hidden');
   document.getElementById('extra-name').value  = '';
   document.getElementById('extra-kcal').value  = '';
   document.getElementById('extra-p').value     = '';
   document.getElementById('extra-c').value     = '';
   document.getElementById('extra-f').value     = '';
-  // Person picker
   const row = document.getElementById('extra-person-row');
   row.innerHTML = Object.entries(plan.persons).map(([pk, p]) =>
     `<button class="extra-person-btn${pk === 'jakub' ? ' active' : ''}" data-pk="${escapeHtml(pk)}">${escapeHtml(p.name)}</button>`
@@ -973,7 +1117,7 @@ export function openExtraMeal({ plan, planId, dayIdx, rerender }) {
     });
   });
   openModal('extra-modal');
-  setTimeout(() => document.getElementById('extra-name').focus(), 100);
+  setTimeout(() => document.getElementById('extra-search').focus(), 100);
 }
 
 // ── Chat ───────────────────────────────────────────────────────

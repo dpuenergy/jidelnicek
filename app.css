@@ -852,6 +852,38 @@ main {
 }
 .extra-person-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+/* ─── Extra meal search results ─────────────────────────────── */
+.extra-search-results {
+  max-height: 40vh; overflow-y: auto;
+  border: 1px solid var(--rule); border-radius: 10px;
+  margin: 4px 0 10px;
+}
+.extra-res-section {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ink-faint);
+  padding: 8px 12px 4px; background: var(--bg);
+  position: sticky; top: 0;
+}
+.extra-res-badge {
+  font-size: 9px; font-weight: 600; padding: 1px 5px;
+  border-radius: 4px; background: var(--accent-soft); color: var(--accent);
+  vertical-align: middle; margin-left: 4px; text-transform: none; letter-spacing: 0;
+}
+.extra-result-btn {
+  display: flex; flex-direction: column; align-items: flex-start;
+  width: 100%; padding: 9px 12px;
+  background: var(--bg-card); border: none;
+  border-bottom: 0.5px solid var(--rule-soft);
+  font-family: inherit; cursor: pointer; text-align: left; gap: 2px;
+}
+.extra-result-btn:last-child { border-bottom: none; }
+.extra-result-btn:active { background: var(--rule-soft); }
+.extra-res-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+.extra-res-sub  { font-size: 11px; color: var(--ink-faint); }
+.extra-res-loading, .extra-res-empty {
+  padding: 12px; font-size: 13px; color: var(--ink-faint); text-align: center;
+}
+
 /* ─── Chat auto-expand + Zaznamenat ─────────────────────────── */
 .chat-input-row textarea { resize: none; overflow-y: hidden; max-height: 200px; }
 .chat-record-btn {
