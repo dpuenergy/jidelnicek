@@ -897,3 +897,31 @@ main {
 }
 .secondary-btn:disabled { opacity: .5; cursor: default; }
 .secondary-btn:hover:not(:disabled) { background: var(--accent-soft); }
+
+/* ─── Photo feedback panel ───────────────────────────────────── */
+.photo-follow-up {
+  font-size: 13px; color: var(--ink-soft); margin: 10px 0 6px;
+  padding: 8px 10px; background: var(--surface);
+  border-left: 3px solid var(--accent); border-radius: 4px;
+}
+.photo-feedback-row {
+  display: flex; gap: 6px; margin-bottom: 4px;
+}
+.photo-feedback-row input {
+  flex: 1; padding: 8px 10px;
+  border: 1px solid var(--rule); border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: var(--ink); background: var(--bg);
+}
+.photo-feedback-row input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+.photo-feedback-row button {
+  padding: 8px 14px; border: none; border-radius: 8px;
+  background: var(--accent); color: #fff;
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.photo-feedback-row button:disabled { opacity: .5; cursor: default; }
+.photo-feedback-loading {
+  font-size: 12px; color: var(--ink-soft); padding: 4px 0;
+}
+.photo-feedback-error {
+  font-size: 12px; color: var(--danger, #c0392b); padding: 4px 0;
+}

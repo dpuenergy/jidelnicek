@@ -14,7 +14,7 @@
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=7f3c9a1">
+  <link rel="stylesheet" href="app.css?v=8d4e2b7">
 </head>
 <body>
 
@@ -163,6 +163,16 @@
         </div>
         <div id="photo-target-hint" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px"></div>
         <button id="photo-save-recipe" type="button" class="secondary-btn hidden">＋ Uložit do receptů</button>
+        <!-- Feedback / refinement -->
+        <div id="photo-feedback-wrap" class="hidden">
+          <p id="photo-follow-up" class="photo-follow-up"></p>
+          <div class="photo-feedback-row">
+            <input type="text" id="photo-feedback-input"
+                   placeholder="Odpověz nebo oprav: název, restaurace, ingredience…">
+            <button id="photo-feedback-send" type="button">Upřesnit</button>
+          </div>
+          <div id="photo-feedback-status" class="hidden"></div>
+        </div>
       </div>
       <div class="modal-actions">
         <button data-close="photo-modal">Zavřít</button>
@@ -299,7 +309,7 @@
   <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
-  <script type="module" src="js/app.js?v=7f3c9a1"></script>
+  <script type="module" src="js/app.js?v=8d4e2b7"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/jidelnicek/sw.js');

@@ -274,6 +274,18 @@ export function initPhoto(rerender) {
   document.getElementById('photo-save-recipe').addEventListener('click', () => {
     if (STATE.lastPhotoResult) savePhotoAsRecipe(STATE.lastPhotoResult);
   });
+
+  document.getElementById('photo-feedback-send').addEventListener('click', () => {
+    const text = document.getElementById('photo-feedback-input').value.trim();
+    if (!text || !STATE.lastPhotoImg) return;
+    refinePhotoAnalysis(text);
+  });
+  document.getElementById('photo-feedback-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const text = document.getElementById('photo-feedback-input').value.trim();
+      if (text && STATE.lastPhotoImg) refinePhotoAnalysis(text);
+    }
+  });
 }
 
 export function openPhotoSource() {
@@ -293,6 +305,7 @@ async function handlePhotoFile(file, inputEl, rerender) {
   let img;
   try {
     img = await resizeAndCompress(file);
+    STATE.lastPhotoImg = img;
     // Show preview from compressed data — original file no longer referenced
     const prev = document.getElementById('photo-preview');
     prev.src = `data:image/jpeg;base64,${img.data}`;
@@ -303,7 +316,7 @@ async function handlePhotoFile(file, inputEl, rerender) {
   try {
     const result = await callClaudeVision(img);
     STATE.lastPhotoResult = result;
-    showPhotoResult(result);
+    showPhotoResult(result, null);
     document.getElementById('photo-apply').disabled = false;
     hidePhotoStatus();
   } catch(e) {
@@ -319,7 +332,7 @@ function setPhotoStatus(text, isError) {
 }
 function hidePhotoStatus() { document.getElementById('photo-status').style.display = 'none'; }
 
-function showPhotoResult(r) {
+function showPhotoResult(r, previousName) {
   document.getElementById('photo-name').textContent = r.name;
   const m = r.macros;
   document.getElementById('photo-macros').innerHTML =
@@ -343,6 +356,25 @@ function showPhotoResult(r) {
   saveBtn.textContent = '＋ Uložit do receptů';
   saveBtn.disabled = false;
   saveBtn.classList.remove('hidden');
+  // Feedback panel
+  const fbWrap = document.getElementById('photo-feedback-wrap');
+  const fbInput = document.getElementById('photo-feedback-input');
+  const fbStatus = document.getElementById('photo-feedback-status');
+  fbInput.value = '';
+  fbStatus.className = 'hidden';
+  if (r.follow_up_question) {
+    document.getElementById('photo-follow-up').textContent = r.follow_up_question;
+    fbWrap.classList.remove('hidden');
+  } else if (conf === 'low' || conf === 'medium') {
+    document.getElementById('photo-follow-up').textContent = 'Nesedí výsledek? Oprav název, přidej název restaurace nebo ingredience.';
+    fbWrap.classList.remove('hidden');
+  } else {
+    fbWrap.classList.add('hidden');
+  }
+  // Save correction if this was a refinement
+  if (previousName && previousName !== r.name) {
+    _savePhotoCorrection(previousName, r.name);
+  }
 }
 
 function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
@@ -375,12 +407,88 @@ function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
   });
 }
 
+// ── Photo feedback storage ─────────────────────────────────────
+const KEY_PHOTO_FEEDBACK = 'photo_feedback_v1';
+
+function _getPhotoCorrections() {
+  try { return JSON.parse(localStorage.getItem(KEY_PHOTO_FEEDBACK) || '[]'); } catch(_) { return []; }
+}
+
+function _savePhotoCorrection(originalName, refinedName) {
+  const corrections = _getPhotoCorrections();
+  corrections.unshift({ from: originalName, to: refinedName, ts: Date.now() });
+  localStorage.setItem(KEY_PHOTO_FEEDBACK, JSON.stringify(corrections.slice(0, 30)));
+}
+
+function _fewShotBlock() {
+  const corrections = _getPhotoCorrections().slice(0, 3);
+  if (!corrections.length) return '';
+  return '\nPředchozí opravy (uč se z nich):\n'
+    + corrections.map(c => `- "${c.from}" → "${c.to}"`).join('\n') + '\n';
+}
+
+async function refinePhotoAnalysis(userFeedback) {
+  const img       = STATE.lastPhotoImg;
+  const prevResult = STATE.lastPhotoResult;
+  if (!img || !prevResult) return;
+
+  const fbStatus = document.getElementById('photo-feedback-status');
+  const fbSend   = document.getElementById('photo-feedback-send');
+  fbStatus.textContent = 'Upřesňuji…';
+  fbStatus.className = 'photo-feedback-loading';
+  fbSend.disabled = true;
+
+  const contextPrompt =
+    `Předchozí analýza: název="${prevResult.name}", jistota=${prevResult.confidence}.\n` +
+    `Uživatelova zpětná vazba: "${userFeedback}"\n\n` +
+    `Na základě fotky a zpětné vazby proveď novou analýzu. ` +
+    `Vrať POUZE čistý JSON (žádný markdown):\n` +
+    `{"name":"Název pokrmu v češtině","grams_estimate":350,"macros":{"kcal":0,"p":0,"c":0,"f":0},` +
+    `"ingredients":[{"item":"název","amount":"150 g"}],"confidence":"low|medium|high","notes":"1-2 věty",` +
+    `"follow_up_question":"Případná doplňující otázka nebo null"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: getModel(), max_tokens: 1024,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.data } },
+          { type: 'text', text: contextPrompt },
+        ]}],
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = await res.json();
+    let text = (j.content?.[0]?.text || '').trim()
+      .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+    const refined = JSON.parse(text);
+    const previousName = prevResult.name;
+    STATE.lastPhotoResult = refined;
+    document.getElementById('photo-apply').disabled = false;
+    fbStatus.className = 'hidden';
+    fbSend.disabled = false;
+    document.getElementById('photo-feedback-input').value = '';
+    showPhotoResult(refined, previousName);
+  } catch(e) {
+    fbStatus.textContent = 'Chyba: ' + e.message;
+    fbStatus.className = 'photo-feedback-error';
+    fbSend.disabled = false;
+  }
+}
+
 async function callClaudeVision({ mediaType, data }) {
+  const fewShot = _fewShotBlock();
   const prompt = `Analyzuj toto jídlo z fotky. Odhadni nutriční hodnoty pro CELOU porci viditelnou na fotce.
-Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáž každé komponenty. 3. Spočítej celková makra porce.
+Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáž každé komponenty. 3. Spočítej celková makra porce.${fewShot}
 Pokud na fotce NENÍ jídlo nebo ho nelze identifikovat, vrať: {"unrecognized":true,"notes":"krátký důvod"}
 Jinak vrať POUZE čistý JSON (žádný markdown):
-{"name":"Název pokrmu v češtině","grams_estimate":350,"macros":{"kcal":0,"p":0,"c":0,"f":0},"ingredients":[{"item":"název","amount":"150 g"}],"confidence":"low|medium|high","notes":"1-2 věty"}`;
+{"name":"Název pokrmu v češtině","grams_estimate":350,"macros":{"kcal":0,"p":0,"c":0,"f":0},"ingredients":[{"item":"název","amount":"150 g"}],"confidence":"low|medium|high","notes":"1-2 věty","follow_up_question":"Stručná doplňující otázka pro upřesnění, nebo null"}`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
