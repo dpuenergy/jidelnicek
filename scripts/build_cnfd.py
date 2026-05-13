@@ -6,6 +6,8 @@ Filters: countries_tags contains en:czechia or en:slovakia
 Output: shared/cnfd.json  (array of {name, kcal, p, c, f, cat})
 """
 import gzip, csv, json, sys, os, re, html
+sys.path.insert(0, os.path.dirname(__file__))
+from translate_sk_cs import translate, is_slovak
 csv.field_size_limit(10_000_000)
 
 CZ_CHARS = set('áéíóúůčřšžýěďťňÁÉÍÓÚŮČŘŠŽÝĚĎŤŇ')
@@ -13,7 +15,7 @@ CZ_CHARS = set('áéíóúůčřšžýěďťňÁÉÍÓÚŮČŘŠŽÝĚĎŤŇ')
 def has_czech(s):
     return any(c in CZ_CHARS for c in s)
 
-SRC  = r'c:\Users\jakub\cos\nove\en.openfoodfacts.org.products.csv.gz'
+SRC  = os.environ.get('CNFD_SRC', r'c:\Users\jakub\cos\nove\en.openfoodfacts.org.products.csv.gz')
 OUT  = os.path.join(os.path.dirname(__file__), '..', 'shared', 'cnfd.json')
 
 # Column indices (0-based), identified from header
@@ -101,14 +103,15 @@ with gzip.open(SRC, 'rt', encoding='utf-8', errors='replace') as f:
 
         cat = short_cat(row[COL_CAT])
 
+        translated = translate(name)
         results.append({
-            'name': name,
+            'name': translated,
             'kcal': round(kcal),
             'p':    round(prot, 1),
             'c':    round(carb, 1),
             'f':    round(fat, 1),
             'cat':  cat,
-            '_cz':  1 if has_czech(name) else 0,  # for sorting
+            '_cz':  1 if has_czech(translated) else 0,  # for sorting
         })
         seen_names.add(key)
         kept += 1
