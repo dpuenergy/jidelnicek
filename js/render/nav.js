@@ -22,7 +22,11 @@ export function renderWeekStrip(rerender) {
     const { day, planId, dayIdx } = entry;
     const active   = planId === STATE.currentPlanId && dayIdx === STATE.currentDayIdx;
     const name     = day.name ? day.name.slice(0, 2) : `D${dayIdx + 1}`;
-    const dateNum  = day.date ? day.date.replace(/\s*\..*/, '').trim() : String(dayIdx + 1);
+    const dateNum  = day.date
+      ? (/^\d{4}-\d{2}-\d{2}$/.test(day.date)
+          ? String(parseInt(day.date.slice(8), 10))
+          : day.date.replace(/\s*\..*/, '').trim())
+      : String(dayIdx + 1);
     const mo       = entry.date ? entry.date.getMonth() : -1;
     const newMonth = mo !== -1 && mo !== lastMonth;
     if (newMonth) lastMonth = mo;
