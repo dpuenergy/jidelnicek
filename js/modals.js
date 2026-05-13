@@ -290,7 +290,10 @@ async function handlePhotoFile(file, inputEl, rerender) {
   setPhotoStatus('Načítám…', false);
   openModal('photo-modal');
   let img;
-  try { img = await fileToBase64(file); }
+  try {
+    setPhotoStatus('Komprimuji…', false);
+    img = await resizeAndCompress(file);
+  }
   catch(e) { setPhotoStatus('Chyba čtení obrázku: ' + e.message, true); return; }
   setPhotoStatus('Claude analyzuje…', false);
   try {
@@ -336,16 +339,33 @@ function showPhotoResult(r) {
   saveBtn.classList.remove('hidden');
 }
 
-function fileToBase64(file) {
+function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
   return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => {
-      const url = r.result; const i = url.indexOf(',');
-      const mt  = (url.slice(0,i).match(/data:([^;]+);/) || [])[1] || 'image/jpeg';
-      resolve({ mediaType: mt, data: url.slice(i+1) });
+    const objUrl = URL.createObjectURL(file);
+    const image  = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objUrl);
+      let { width, height } = image;
+      if (width > maxPx || height > maxPx) {
+        if (width >= height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else                 { width  = Math.round(width  * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('canvas toBlob selhalo')); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          resolve({ mediaType: 'image/jpeg', data: dataUrl.slice(dataUrl.indexOf(',') + 1) });
+        };
+        reader.onerror = () => reject(new Error('FileReader fail'));
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
     };
-    r.onerror = () => reject(new Error('FileReader fail'));
-    r.readAsDataURL(file);
+    image.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('Nelze načíst obrázek')); };
+    image.src = objUrl;
   });
 }
 
