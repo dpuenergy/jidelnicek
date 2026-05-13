@@ -1,0 +1,273 @@
+{
+  "id": "tyden-2026-1105",
+  "plan_title": "Jídelníček 11.–16. 5. 2026",
+  "date_range": "11. – 16. 5. 2026",
+  "persons": {
+    "jakub":     { "label": "K", "name": "Kuba",  "targets": {"kcal": 2500, "p": 210, "c": 200, "f": 80} },
+    "partnerka": { "label": "V", "name": "Verča", "targets": {"kcal": 1700, "p": 100, "c": 150, "f": 65} }
+  },
+  "slots": ["snidane", "obed", "svacina", "vecere"],
+  "slot_labels": {
+    "snidane": "Snídaně",
+    "obed":    "Oběd",
+    "svacina": "Svačina",
+    "vecere":  "Večeře"
+  },
+  "days": [
+    {
+      "name": "Po 11. 5.", "date": "2026-05-11", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Sladkokyselá čína (bez paprik) 400g + rýže 250g", "note": "→ batch: Verča Út oběd", "macros":{"kcal":785,"p":67,"c":94,"f":13}},
+          "partnerka": {"name": "Sladkokyselá čína 200g + rýže 150g", "macros":{"kcal":425,"p":34,"c":54,"f":6}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + lučina 50g + fuet 50g + microgreens", "macros":{"kcal":472,"p":20,"c":31,"f":31}},
+          "partnerka": {"name": "Sendvič: chléb 40g + lučina 35g + fuet 35g", "macros":{"kcal":326,"p":14,"c":21,"f":21}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Losos 250g + wakame 50g + bylinkové máslo 25g", "macros":{"kcal":718,"p":52,"c":4,"f":58}},
+          "partnerka": {"name": "Losos 160g + wakame 50g + bylinkové máslo 15g", "macros":{"kcal":460,"p":34,"c":4,"f":34}}
+        }
+      }
+    },
+    {
+      "name": "Út 12. 5.", "date": "2026-05-12", "note": "Kuba v Kloboučku",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "🍽 Klobouček", "type": "placeholder", "note": "restaurace — odhad ~800 kcal", "macros":{"kcal":800,"p":null,"c":null,"f":null}},
+          "partnerka": {"name": "Sladkokyselá čína 220g + rýže 170g", "note": "z batch pondělí", "macros":{"kcal":474,"p":38,"c":61,"f":7}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + kozí sýr 80g + datle 20g", "macros":{"kcal":356,"p":14,"c":44,"f":15}},
+          "partnerka": {"name": "Sendvič: chléb 40g + kozí sýr 60g + datle 20g", "macros":{"kcal":269,"p":10,"c":34,"f":11}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Nivová omáčka s kuřecím 300g + těstoviny 200g", "note": "→ batch: St večeře + Pá krabička", "macros":{"kcal":650,"p":51,"c":56,"f":26}},
+          "partnerka": {"name": "Nivová omáčka s kuřecím 200g + těstoviny 150g", "macros":{"kcal":455,"p":35,"c":42,"f":17}}
+        }
+      }
+    },
+    {
+      "name": "St 13. 5.", "date": "2026-05-13", "note": "Verča v NGO",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Lasagne čerstvá 500g", "note": "→ batch: Kuba Čt oběd", "macros":{"kcal":825,"p":53,"c":60,"f":35}},
+          "partnerka": {"name": "🍽 NGO — červené kari s tofu", "type": "placeholder", "note": "netrackovatelné", "macros":{"kcal":600,"p":null,"c":null,"f":null}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + lučina 50g + jamon 40g + microgreens", "macros":{"kcal":325,"p":19,"c":30,"f":15}},
+          "partnerka": {"name": "Sendvič: chléb 40g + lučina 35g + jamon 30g", "macros":{"kcal":228,"p":14,"c":20,"f":10}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Nivová omáčka 350g + těstoviny 220g", "note": "z batch úterý", "macros":{"kcal":741,"p":59,"c":62,"f":30}},
+          "partnerka": {"name": "Nivová omáčka 200g + těstoviny 150g", "note": "z batch úterý", "macros":{"kcal":455,"p":35,"c":42,"f":17}}
+        }
+      }
+    },
+    {
+      "name": "Čt 14. 5.", "date": "2026-05-14", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Lasagne 450g", "note": "z batch středa", "macros":{"kcal":743,"p":47,"c":54,"f":32}},
+          "partnerka": {"name": "Kuřecí prsa 160g + brokolice a mrkev 200g + rýže 100g", "macros":{"kcal":384,"p":43,"c":38,"f":5}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + Parenica 110g + datle 20g", "macros":{"kcal":505,"p":34,"c":45,"f":23}},
+          "partnerka": {"name": "Sendvič: chléb 40g + Parenica 110g + datle 20g", "macros":{"kcal":458,"p":33,"c":35,"f":23}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Grilovaný hermelín 125g + 2× vejce tvrdé + chléb 60g + mrkev syrová 100g", "macros":{"kcal":668,"p":40,"c":40,"f":40}},
+          "partnerka": {"name": "Grilovaný hermelín 125g + chléb 40g + mrkev syrová 100g", "macros":{"kcal":465,"p":26,"c":29,"f":29}}
+        }
+      }
+    },
+    {
+      "name": "Pá 15. 5.", "date": "2026-05-15", "note": "Kuba na poradě (krabička) · večer hosté",
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "🧳 Krabička: nivová 200g + těstoviny 150g", "note": "z batch úterý", "macros":{"kcal":455,"p":35,"c":42,"f":17}},
+          "partnerka": {"name": "Kuřecí prsa 160g + brokolice 150g + rýže 100g", "macros":{"kcal":365,"p":43,"c":38,"f":5}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + fuet 50g + microgreens", "note": "na cestách", "macros":{"kcal":369,"p":16,"c":29,"f":21}},
+          "partnerka": {"name": "Sendvič: chléb 40g + fuet 40g + microgreens", "macros":{"kcal":277,"p":12,"c":20,"f":17}}
+        },
+        "vecere": {
+          "jakub":     {"name": "🍽 Hosté — volný kalorický prostor", "type": "placeholder", "note": "netrackovatelné", "macros":{"kcal":900,"p":null,"c":null,"f":null}},
+          "partnerka": {"name": "🍽 Hosté — volný kalorický prostor", "type": "placeholder", "note": "netrackovatelné", "macros":{"kcal":700,"p":null,"c":null,"f":null}}
+        }
+      }
+    },
+    {
+      "name": "So 16. 5.", "date": "2026-05-16", "note": null,
+      "meals": {
+        "snidane": {
+          "jakub":     {"name": "3× vejce tvrdé + chléb tmavý 80g + lučina 40g + microgreens", "macros":{"kcal":507,"p":28,"c":42,"f":25}},
+          "partnerka": {"name": "Hollandia jogurt 180g + banán 150g + borůvky 100g + vlašské ořechy 15g", "macros":{"kcal":416,"p":12,"c":62,"f":16}}
+        },
+        "obed": {
+          "jakub":     {"name": "Kuřecí stehna pečená 400g + kořenová zelenina 200g + chléb 80g", "macros":{"kcal":868,"p":85,"c":54,"f":34}},
+          "partnerka": {"name": "Kuřecí stehno 180g + kořenová zelenina 150g + chléb 60g", "macros":{"kcal":471,"p":41,"c":41,"f":16}}
+        },
+        "svacina": {
+          "jakub":     {"name": "Sendvič: chléb 60g + jamon 40g + kozí sýr 40g + microgreens", "macros":{"kcal":302,"p":20,"c":29,"f":12}},
+          "partnerka": {"name": "Sendvič: chléb 40g + jamon 30g + kozí sýr 40g", "macros":{"kcal":235,"p":16,"c":19,"f":11}}
+        },
+        "vecere": {
+          "jakub":     {"name": "Losos 280g + wakame 50g + bylinkové máslo 25g", "macros":{"kcal":780,"p":58,"c":4,"f":62}},
+          "partnerka": {"name": "Losos 180g + wakame 50g + bylinkové máslo 15g", "macros":{"kcal":501,"p":38,"c":4,"f":36}}
+        }
+      }
+    }
+  ],
+  "recipes": [
+    {
+      "id": "sladkokysela-cina",
+      "name": "Sladkokyselá čína s kuřecím",
+      "batch_note": "Po+Út — K Po oběd 400g, V Po oběd 200g, V Út oběd 220g",
+      "prep_time": 15,
+      "cook_time": 20,
+      "ingredients": [
+        {"item": "kuřecí prsa (bez kůže)", "amount": "600 g"},
+        {"item": "mrkev", "amount": "150 g"},
+        {"item": "brokolice", "amount": "200 g"},
+        {"item": "cuketa", "amount": "150 g"},
+        {"item": "ananas v šťávě (konzerva, odcezený)", "amount": "200 g"},
+        {"item": "rajčatový protlak", "amount": "3 lžíce (60 g)"},
+        {"item": "sójová omáčka", "amount": "3 lžíce (45 ml)"},
+        {"item": "rýžový ocet", "amount": "2 lžíce (30 ml)"},
+        {"item": "med", "amount": "1 lžíce (20 g)"},
+        {"item": "kukuřičný škrob + voda", "amount": "1 lžíce škrobu + 50 ml vody"},
+        {"item": "sezamový olej", "amount": "1 lžíce"},
+        {"item": "česnek", "amount": "2 stroužky"},
+        {"item": "zázvor čerstvý (strouhaný)", "amount": "1 lžička"},
+        {"item": "olej na restování", "amount": "2 lžíce"},
+        {"item": "rýže jasmínová (suchá)", "amount": "250 g"}
+      ],
+      "steps": [
+        "Kuřecí prsa nakrájej na kostky 2×2 cm, osolit a lehce obalit lžičkou škrobu.",
+        "Mrkev nakrájej na šikmé plátky, brokolici na růžičky, cuketu na půlměsíčky.",
+        "Omáčku smíchej: protlak, sójovku, ocet, med, škrob rozpuštěný ve vodě.",
+        "Na rozehřátém oleji opeč kuřecí kostky do zlatova (4–5 min), přesuň na talíř.",
+        "Na stejné pánvi restuj mrkev 3 min, přidej brokolici a cuketu, dalších 2 min.",
+        "Přidej česnek a zázvor, minutu mícháme.",
+        "Vlij omáčku a ananas, přivézt k varu — omáčka zhoustne.",
+        "Vrať kuře, promíchej, dokap sezamový olej. Dochutit sólí dle potřeby.",
+        "Rýži propláchni, vař v poměru 1 : 1,5 (250 g rýže + 375 ml vody), 12 min po přivedení k varu.",
+        "Rozděl: K — 400 g čína + 250 g rýže; V Po — 200 g + 150 g; V Út — 220 g + 170 g. Zbytek do dózy do lednice."
+      ],
+      "notes": "Bez paprik (Verča). Batch vydrží v lednici 2–3 dny. Rýže se vaří ke každé porci zvlášť nebo se ohřeje s trochou vody."
+    },
+    {
+      "id": "nivova-omacka-s-kurecim",
+      "name": "Nivová omáčka s kuřecím",
+      "batch_note": "Út–Pá — K Út 300g+200g těst, V Út 200g+150g, K St 350g+220g, V St 200g+150g, K Pá krabička 200g+150g",
+      "prep_time": 10,
+      "cook_time": 25,
+      "ingredients": [
+        {"item": "kuřecí prsa (bez kůže)", "amount": "700 g"},
+        {"item": "niva Madeta (30 % t.v.s.)", "amount": "120 g"},
+        {"item": "smetana ke vaření 15 %", "amount": "200 ml"},
+        {"item": "kuřecí vývar", "amount": "150 ml"},
+        {"item": "cibule", "amount": "1 ks (120 g)"},
+        {"item": "česnek", "amount": "2 stroužky"},
+        {"item": "máslo", "amount": "20 g"},
+        {"item": "hořčice dijonská", "amount": "1 lžička"},
+        {"item": "muškátový oříšek, sůl, pepř", "amount": "dle chuti"},
+        {"item": "bezlepkové penne Combino (suché)", "amount": "350 g"}
+      ],
+      "steps": [
+        "Kuřecí prsa nakrájej na plátky nebo kostky, osolit a opepřit.",
+        "Na másle osmaž cibuli do sklovita (3 min), přidej česnek, minutu restuj.",
+        "Přidej kuřecí plátky, opeč z obou stran do zlatova (3–4 min každá strana).",
+        "Přidej vývar, smetanu a nivu nakrájenou na kousky. Míchej do rozpuštění.",
+        "Vař na mírném plameni 10–15 min, dokud omáčka nezhoustne.",
+        "Vmíchej hořčici, dochut muškátovým oříškem. Osolí a opepr dle chuti.",
+        "Těstoviny vař al dente v osolené vodě dle doby na obalu.",
+        "Rozděl omáčku do dóz: K Út 300 g + V Út 200 g + K St 350 g + V St 200 g + K Pá 200 g.",
+        "Těstoviny vař vždy čerstvě — 200 g (K) nebo 150 g (V) uvařených ke každé porci."
+      ],
+      "notes": "Při ohřevu přidej lžíci vody nebo vývaru, aby omáčka nesehnula. Batch vydrží v lednici 3 dny."
+    },
+    {
+      "id": "lasagne-cerstava",
+      "name": "Lasagne čerstvá",
+      "batch_note": "St+Čt — K St oběd 500g, K Čt oběd 450g",
+      "prep_time": 25,
+      "cook_time": 45,
+      "ingredients": [
+        {"item": "mleté hovězí (10 % tuku)", "amount": "500 g"},
+        {"item": "lasagne plátky (suché, nevařit)", "amount": "200 g"},
+        {"item": "rajčatová passata", "amount": "400 g"},
+        {"item": "ricotta", "amount": "250 g"},
+        {"item": "mozzarella strouhaná", "amount": "125 g"},
+        {"item": "parmazán strouhaný", "amount": "50 g"},
+        {"item": "cibule", "amount": "1 ks"},
+        {"item": "česnek", "amount": "3 stroužky"},
+        {"item": "olivový olej", "amount": "2 lžíce"},
+        {"item": "oregano, bazalka, sůl, pepř, špetka cukru", "amount": "dle chuti"}
+      ],
+      "steps": [
+        "Troubu předehřej na 200 °C.",
+        "Cibuli a česnek nakrájej najemno, orestuj na oleji do sklovita.",
+        "Přidej mleté maso, restuj do hnědova (5–7 min). Přidej passatu, oregano, bazalku, sůl, pepř, špetku cukru. Dusit 15 min na mírném ohni.",
+        "Do zapékací mísy nalijeme tenkou vrstvu ragú. Přidej vrstvu lasagnových plátů (suchých).",
+        "Navrstvuj: ragú — plátky — ragú + ricotta — plátky — ragú + ricotta. Zakončit ragú.",
+        "Posyp mozzarellou a parmazánem.",
+        "Peč 40–45 min do zlatožluté kůrky. Nechej 10–15 min odpočinout před krájením.",
+        "Nakrájej na porce: K St — 500 g, K Čt — 450 g. Zbytek uložit do dózy do lednice."
+      ],
+      "notes": "Lasagnové plátky nepředvářej — absorbují vlhkost z ragú a passaty. Batch v lednici max 3 dny."
+    },
+    {
+      "id": "kure-stehna-pecena",
+      "name": "Kuřecí stehna pečená s kořenovou zeleninou",
+      "batch_note": "So oběd — K 400g masa + 200g zeleniny, V 180g + 150g",
+      "prep_time": 10,
+      "cook_time": 45,
+      "ingredients": [
+        {"item": "kuřecí stehna s kostí a kůží", "amount": "3 ks (~800 g brutto)"},
+        {"item": "mrkev", "amount": "200 g"},
+        {"item": "petržel (kořen)", "amount": "150 g"},
+        {"item": "celer (kořenový)", "amount": "150 g"},
+        {"item": "česnek", "amount": "4 stroužky (neoloupaný)"},
+        {"item": "olivový olej", "amount": "3 lžíce"},
+        {"item": "paprika sladká mletá", "amount": "1 lžička"},
+        {"item": "provensálské bylinky (nebo tymián)", "amount": "1 lžička"},
+        {"item": "citronová kůra", "amount": "½ citronu"},
+        {"item": "sůl, pepř", "amount": "dle chuti"}
+      ],
+      "steps": [
+        "Troubu předehřej na 200 °C.",
+        "Stehna osuš papírovým ubrouskem. Potři olejem, paprikou, bylinkami, citronovou kůrou, solí a pepřem.",
+        "Zeleninu nakrájej na kousky 3–4 cm. Smíchej s trochou oleje, solí a pepřem.",
+        "Zeleninu rozmístit na plech vyložený pečicím papírem, mezi ni přidej česnek v košilce.",
+        "Stehna polož na zeleninu kůží nahoru.",
+        "Peč 40–45 min — kůže musí být zlatavá a křupavá.",
+        "Nechej 5 min odpočinout. K porce: 400 g masa + 200 g zeleniny; V porce: 180 g masa + 150 g zeleniny."
+      ],
+      "notes": "Kůže nahoru vždy — jinak nevznikne kůrka. Česnek v košilce se po upečení vymáčkne jako krémová pasta k masu."
+    }
+  ]
+}

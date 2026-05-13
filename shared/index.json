@@ -1,18 +1,18 @@
 {
   "plans": [
     {
-      "id": "ben-recipes-v1",
-      "title": "BEN recepty (všechny)",
-      "date_range": "20 receptů · bez plánu",
-      "file": "shared/recipes.json",
-      "generated_at": "2026-05-12"
+      "id": "tyden-2026-1105",
+      "title": "Jídelníček 11.–16. 5. 2026",
+      "date_range": "11. – 16. 5. 2026",
+      "file": "shared/tyden-2026-1105.json",
+      "generated_at": "2026-05-13"
     },
     {
-      "id": "2026-jidla-1105-1605",
-      "title": "Jídelníček 11.–16. 5. 2026",
-      "date_range": "11. – 16. května 2026",
-      "file": "shared/sample-plan.json",
-      "generated_at": "2026-05-12"
+      "id": "ben-recipes-v1",
+      "title": "BEN recepty",
+      "date_range": "",
+      "file": "shared/recipes.json",
+      "generated_at": "2026-05-13"
     }
   ]
 }
