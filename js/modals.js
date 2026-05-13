@@ -86,9 +86,21 @@ export function initSettings() {
     setTimeout(() => { btn.textContent = 'Připojit'; btn.disabled = false; }, 3000);
   });
 
+  document.getElementById('sync-reset-btn')?.addEventListener('click', () => {
+    localStorage.removeItem('sync_gist_id');
+    const display = document.getElementById('sync-id-display');
+    if (display) display.textContent = '(vytváří se…)';
+    const status = document.getElementById('sync-status');
+    if (status) status.textContent = 'Gist smazán — při příštím Sync teď se vytvoří nový';
+    _sync.syncInit();
+  });
+
   document.getElementById('sync-now-btn')?.addEventListener('click', async () => {
     const btn = document.getElementById('sync-now-btn');
     const status = document.getElementById('sync-status');
+    // Uložit token z pole pokud je zadaný
+    const tokenVal = document.getElementById('sync-token-input')?.value.trim();
+    if (tokenVal) localStorage.setItem('github_token', tokenVal);
     btn.disabled = true;
     if (status) status.textContent = 'Odesílám…';
     const pushResult = await _sync.pushNow();

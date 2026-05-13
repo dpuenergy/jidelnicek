@@ -28,7 +28,7 @@ function ghHeaders() {
 export function hasToken() { return !!(localStorage.getItem('github_token') || '').trim(); }
 
 async function gistFetch(gistId) {
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: ghHeaders() });
+  const res = await fetch(`https://api.github.com/gists/${gistId}`);
   if (!res.ok) throw new Error(`gist fetch ${res.status}`);
   const data = await res.json();
   const raw = data.files[GIST_FILENAME]?.content;
@@ -43,7 +43,7 @@ async function gistCreate() {
     headers: ghHeaders(),
     body: JSON.stringify({
       description: 'Jídelníček sync',
-      public: false,
+      public: true,
       files: { [GIST_FILENAME]: { content: JSON.stringify(payload) } },
     }),
   });
