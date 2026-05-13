@@ -55,8 +55,6 @@ export function initSettings() {
       }
     }
     localStorage.setItem(KEY_TARGETS, JSON.stringify(overrides));
-    const ghToken = document.getElementById('sync-token-input')?.value.trim();
-    if (ghToken) localStorage.setItem('github_token', ghToken);
     _sync.schedulePush();
     closeModal('settings-modal');
   });
@@ -87,20 +85,16 @@ export function initSettings() {
   });
 
   document.getElementById('sync-reset-btn')?.addEventListener('click', () => {
-    localStorage.removeItem('sync_gist_id');
+    _sync.clearSyncId();
     const display = document.getElementById('sync-id-display');
-    if (display) display.textContent = '(vytváří se…)';
+    if (display) display.textContent = '(klikni Sync teď)';
     const status = document.getElementById('sync-status');
-    if (status) status.textContent = 'Gist smazán — při příštím Sync teď se vytvoří nový';
-    _sync.syncInit();
+    if (status) status.textContent = 'Kód smazán — Sync teď vytvoří nový';
   });
 
   document.getElementById('sync-now-btn')?.addEventListener('click', async () => {
     const btn = document.getElementById('sync-now-btn');
     const status = document.getElementById('sync-status');
-    // Uložit token z pole pokud je zadaný
-    const tokenVal = document.getElementById('sync-token-input')?.value.trim();
-    if (tokenVal) localStorage.setItem('github_token', tokenVal);
     btn.disabled = true;
     if (status) status.textContent = 'Odesílám…';
     const pushResult = await _sync.pushNow();
@@ -127,11 +121,9 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
-  const tokenEl = document.getElementById('sync-token-input');
-  if (tokenEl) tokenEl.value = localStorage.getItem('github_token') || '';
   const syncId = _sync.getSyncId();
   const syncDisplay = document.getElementById('sync-id-display');
-  if (syncDisplay) syncDisplay.textContent = syncId || (localStorage.getItem('github_token') ? '(vytváří se…)' : '(nejdřív zadej token)');
+  if (syncDisplay) syncDisplay.textContent = syncId || '(klikni Sync teď)';
   const syncInput = document.getElementById('sync-connect-input');
   if (syncInput) syncInput.value = '';
   openModal('settings-modal');
