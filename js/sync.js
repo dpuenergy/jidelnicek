@@ -27,15 +27,6 @@ function ghHeaders() {
 
 export function hasToken() { return !!(localStorage.getItem('github_token') || '').trim(); }
 
-async function gistFetch(gistId) {
-  const res = await fetch(`https://api.github.com/gists/${gistId}`);
-  if (!res.ok) throw new Error(`gist fetch ${res.status}`);
-  const data = await res.json();
-  const raw = data.files[GIST_FILENAME]?.content;
-  if (!raw) throw new Error('gist file missing');
-  return JSON.parse(raw);
-}
-
 async function gistCreate() {
   const payload = buildPayload();
   const res = await fetch('https://api.github.com/gists', {
@@ -50,16 +41,6 @@ async function gistCreate() {
   if (!res.ok) throw new Error(`gist create ${res.status}`);
   const data = await res.json();
   return data.id;
-}
-
-async function gistPatch(gistId, payload) {
-  await fetch(`https://api.github.com/gists/${gistId}`, {
-    method: 'PATCH',
-    headers: ghHeaders(),
-    body: JSON.stringify({
-      files: { [GIST_FILENAME]: { content: JSON.stringify(payload) } },
-    }),
-  });
 }
 
 // ── Payload build / apply ─────────────────────────────────────────
@@ -115,8 +96,13 @@ export async function pullSync() {
   const id = getSyncId();
   if (!id) return 'no-id';
   try {
-    const remote = await gistFetch(id);
-    applyRemote(remote);
+    const res = await fetch(`https://api.github.com/gists/${id}`);
+    if (res.status === 404) { clearSyncId(); return 'no-id'; }
+    if (!res.ok) return `error:HTTP ${res.status}`;
+    const data = await res.json();
+    const raw = data.files[GIST_FILENAME]?.content;
+    if (!raw) return 'error:gist file missing';
+    applyRemote(JSON.parse(raw));
     _lastSyncTs = Date.now();
     return 'ok';
   } catch (e) {
@@ -124,18 +110,34 @@ export async function pullSync() {
   }
 }
 
-/** Immediately push current state to Gist. Returns 'ok'|'no-id'|'skip'|'error'. */
+/** Immediately push current state to Gist. Returns 'ok'|'skip'|'no-token'|'error:…'. */
 export async function pushNow() {
-  const id = getSyncId();
-  if (!id) return 'no-id';
   if (!hasToken()) return 'no-token';
+  // Pokud ID chybí nebo Gist neexistuje (404), vytvoř nový
+  let id = getSyncId();
+  if (!id) {
+    id = await syncInit();
+    if (!id) return 'error:nepodařilo se vytvořit Gist';
+  }
   const payload = buildPayload();
   const serialized = JSON.stringify(payload);
   if (serialized === _lastPushed) return 'skip';
-  _lastPushed = serialized;
-  localStorage.setItem('sync_local_ts', String(payload.ts));
   try {
-    await gistPatch(id, payload);
+    const res = await fetch(`https://api.github.com/gists/${id}`, {
+      method: 'PATCH',
+      headers: ghHeaders(),
+      body: JSON.stringify({ files: { [GIST_FILENAME]: { content: serialized } } }),
+    });
+    if (res.status === 404) {
+      // Gist byl smazán — vytvoř nový
+      clearSyncId();
+      const newId = await syncInit();
+      if (!newId) return 'error:Gist smazán, nový se nepodařilo vytvořit';
+      return pushNow();  // rekurze s novým ID
+    }
+    if (!res.ok) return `error:HTTP ${res.status}`;
+    _lastPushed = serialized;
+    localStorage.setItem('sync_local_ts', String(payload.ts));
     _lastSyncTs = Date.now();
     return 'ok';
   } catch (e) {
