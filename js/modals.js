@@ -33,8 +33,6 @@ export function initSettings() {
   document.getElementById('settings-save').addEventListener('click', () => {
     const k = document.getElementById('settings-key').value.trim();
     if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
-    const gh = document.getElementById('settings-github-token').value.trim();
-    if (gh) localStorage.setItem(KEY_GITHUB_TOKEN, gh); else localStorage.removeItem(KEY_GITHUB_TOKEN);
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
     // Save target overrides
     const overrides = {};
@@ -51,9 +49,8 @@ export function initSettings() {
 }
 
 export function openSettings() {
-  document.getElementById('settings-key').value            = getApiKey();
-  document.getElementById('settings-github-token').value   = getGithubToken();
-  document.getElementById('settings-model').value          = getModel();
+  document.getElementById('settings-key').value   = getApiKey();
+  document.getElementById('settings-model').value = getModel();
   // Load target overrides
   const ov = getTargetOverrides();
   for (const [pk, keys] of TARGET_FIELDS) {
