@@ -1463,7 +1463,8 @@ function renderChatHistory() {
     let macroBtn = '';
     if (!isUser && msg.macroUpdate) {
       const m = msg.macroUpdate;
-      macroBtn = `<button class="chat-record-btn" data-macros='${JSON.stringify(m)}'>✓ Zaznamenat makra (${m.kcal} kcal · B${m.p} · S${m.c} · T${m.f})</button>`;
+      const nameLabel = m.name ? `„${m.name}" · ` : '';
+      macroBtn = `<button class="chat-record-btn" data-macros='${JSON.stringify(m)}'>✓ Zaznamenat (${nameLabel}${m.kcal} kcal · B${m.p} · S${m.c} · T${m.f})</button>`;
     }
     return `<div class="chat-msg ${isUser ? 'user' : 'assistant'}${msg.error ? ' error' : ''}">${escapeHtml(displayText)}${macroBtn}</div>`;
   }).join('');
@@ -1483,6 +1484,7 @@ function renderChatHistory() {
       }
       const meal = slotData[t.personKey] || {};
       meal.macros = { kcal: m.kcal, p: m.p, c: m.c, f: m.f };
+      if (m.name) meal.name = m.name;
       slotData[t.personKey] = meal;
       plan.days[t.dayIdx].meals[t.slot] = slotData;
       persistPlans();
@@ -1534,7 +1536,7 @@ async function sendChat() {
 
 async function callClaudeChat(history) {
   const t = STATE.chatTarget; const m = t.meal.macros || {};
-  const system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky. Pokud uživatel žádá o úpravu gramáže nebo maker pokrmu a ty navrhuješ konkrétní nové hodnoty, přidej na konec odpovědi (na samostatný řádek) token: MAKRA:{"kcal":X,"p":X,"c":X,"f":X}`;
+  const system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky. Pokud navrhuješ konkrétní úpravu pokrmu (gramáž, příloha, složení), přidej na konec odpovědi na samostatný řádek token: MAKRA:{"name":"celý nový název pokrmu včetně gramáží a příloh","kcal":X,"p":X,"c":X,"f":X} — pole name vždy vyplň; pokud se název nemění, použij původní.`;
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST',
     headers:{ 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01',
