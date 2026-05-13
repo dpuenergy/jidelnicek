@@ -338,21 +338,25 @@
       const showUpdateToast = () =>
         document.getElementById('update-toast').classList.remove('hidden');
 
-      // controllerchange = nový SW fakticky převzal stránku (po skipWaiting)
-      // hadController rozliší první instalaci od aktualizace
       const hadController = !!navigator.serviceWorker.controller;
+
+      // Primární signál: SW nám pošle zprávu po svém aktivování
+      navigator.serviceWorker.addEventListener('message', e => {
+        if (e.data?.type === 'SW_ACTIVATED' && hadController) showUpdateToast();
+      });
+
+      // Záloha: controllerchange (pokud zpráva nedorazí)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hadController) showUpdateToast();
       });
 
       navigator.serviceWorker.register('/jidelnicek/sw.js').then(reg => {
-        // Aktivní check: foreground + každých 30 s (TEST — pak změnit na 5 min)
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') reg.update();
         });
         setInterval(() => reg.update(), 30 * 1000);
 
-        // SW čeká a je to update (ne první instalace)
+        // SW byl v waiting ještě před načtením stránky
         if (reg.waiting && hadController) showUpdateToast();
       });
 
