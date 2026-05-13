@@ -12,9 +12,8 @@ import {
   initReplace, initEditMacro, initExtraMeal,
   openPhotoSource, openChat, openAddPlan, openSettings,
   openReplace, openEditMacro, openExtraMeal,
-  autoSync,
+  autoSync, setSyncFunctions,
 } from './modals.js';
-import { syncInit, pullSync, setSyncCallback, schedulePush } from './sync.js';
 
 export function render() {
   renderBottomNav();
@@ -92,24 +91,24 @@ function boot() {
 
   render();
 
-  // Gist sync: push hook + re-render callback
-  registerSyncPush(schedulePush);
-  setSyncCallback(() => { autoInitTimeline(); render(); });
-
-  // Silent background sync — plans from GitHub repo, then Gist state
+  // Silent background sync — plans z GitHub repo
   autoSync(() => { autoInitTimeline(); render(); });
-  syncInit();
 
-  // Pull Gist on foreground
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      pullSync().then(() => { autoInitTimeline(); render(); });
-    }
-  });
-  // Pull Gist every 2 minutes
-  setInterval(() => {
-    pullSync().then(() => { autoInitTimeline(); render(); });
-  }, 2 * 60 * 1000);
+  // Gist sync — dynamický import, nesmí crashnout app pokud se sync.js nenačte
+  import('./sync.js').then(sync => {
+    setSyncFunctions(sync);
+    registerSyncPush(sync.schedulePush);
+    sync.setSyncCallback(() => { autoInitTimeline(); render(); });
+    sync.syncInit();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        sync.pullSync().then(() => { autoInitTimeline(); render(); });
+      }
+    });
+    setInterval(() => {
+      sync.pullSync().then(() => { autoInitTimeline(); render(); });
+    }, 2 * 60 * 1000);
+  }).catch(() => { /* sync.js nedostupný — app funguje bez syncu */ });
 }
 
 boot();

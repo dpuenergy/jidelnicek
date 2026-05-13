@@ -4,12 +4,20 @@ import {
   KEY_API, KEY_MODEL, KEY_TARGETS,
   getTargetOverrides,
 } from './state.js';
-import { getSyncId, setSyncId, pullSync, schedulePush } from './sync.js';
 import { escapeHtml, mealKey } from './helpers.js';
 import { getAllRecipes, getMacros } from './render/recipes.js';
 
 const GITHUB_INDEX    = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/shared/index.json';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/';
+
+// Sync funkce — naplní app.js po úspěšném dynamic importu sync.js
+const _sync = {
+  getSyncId:    () => '',
+  setSyncId:    () => {},
+  pullSync:     async () => {},
+  schedulePush: () => {},
+};
+export function setSyncFunctions(fns) { Object.assign(_sync, fns); }
 
 // ── Generic ────────────────────────────────────────────────────
 export function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
@@ -45,13 +53,13 @@ export function initSettings() {
       }
     }
     localStorage.setItem(KEY_TARGETS, JSON.stringify(overrides));
-    schedulePush();  // targets changed — push to Gist
+    _sync.schedulePush();
     closeModal('settings-modal');
   });
 
   // Sync UI — elementy existují jen v nové verzi HTML
   document.getElementById('sync-copy-btn')?.addEventListener('click', () => {
-    const id = getSyncId();
+    const id = _sync.getSyncId();
     if (!id) return;
     navigator.clipboard.writeText(id).catch(() => {});
     const btn = document.getElementById('sync-copy-btn');
@@ -63,13 +71,13 @@ export function initSettings() {
     const input = document.getElementById('sync-connect-input');
     const id = input.value.trim();
     if (!id) return;
-    setSyncId(id);
+    _sync.setSyncId(id);
     input.value = '';
     document.getElementById('sync-id-display').textContent = id;
     const btn = document.getElementById('sync-connect-btn');
     btn.textContent = 'Synchronizuji…';
     btn.disabled = true;
-    await pullSync();
+    await _sync.pullSync();
     btn.textContent = 'Připojeno ✓';
     setTimeout(() => { btn.textContent = 'Připojit'; btn.disabled = false; }, 2000);
   });
@@ -85,7 +93,7 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
-  const syncId = getSyncId();
+  const syncId = _sync.getSyncId();
   const syncDisplay = document.getElementById('sync-id-display');
   if (syncDisplay) syncDisplay.textContent = syncId || '(vytváří se…)';
   const syncInput = document.getElementById('sync-connect-input');
