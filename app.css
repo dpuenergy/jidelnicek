@@ -869,3 +869,31 @@ main {
   border-radius: 4px; font-size: 0.85rem; color: var(--accent);
 }
 .modal-hint { font-size: 12px; color: var(--ink-soft); margin: 8px 0 4px; }
+
+/* ─── Multi-component gram editing ───────────────────────────── */
+#em-components { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.em-component {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 6px 10px;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+}
+.em-comp-name { flex: 1; font-size: 13px; color: var(--ink); }
+.em-comp-input-wrap { display: flex; align-items: center; gap: 4px; }
+.em-comp-grams {
+  width: 70px; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 6px;
+  font-size: 14px; font-family: inherit; color: var(--ink); background: var(--bg);
+  text-align: right;
+}
+.em-comp-grams:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+.em-comp-unit { font-size: 12px; color: var(--ink-soft); }
+.em-comp-nograms { font-size: 12px; color: var(--ink-faint); }
+
+/* ─── Secondary button ───────────────────────────────────────── */
+.secondary-btn {
+  display: block; width: 100%; margin-top: 8px;
+  background: transparent; border: 1px solid var(--accent);
+  color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 8px 12px; border-radius: 8px; cursor: pointer;
+}
+.secondary-btn:disabled { opacity: .5; cursor: default; }
+.secondary-btn:hover:not(:disabled) { background: var(--accent-soft); }

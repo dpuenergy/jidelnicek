@@ -14,7 +14,7 @@
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=3a1c7f2">
+  <link rel="stylesheet" href="app.css?v=4b9d3e5">
 </head>
 <body>
 
@@ -162,6 +162,7 @@
           <div id="photo-notes" style="font-size:12px;color:var(--ink-faint)"></div>
         </div>
         <div id="photo-target-hint" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px"></div>
+        <button id="photo-save-recipe" type="button" class="secondary-btn hidden">＋ Uložit do receptů</button>
       </div>
       <div class="modal-actions">
         <button data-close="photo-modal">Zavřít</button>
@@ -248,9 +249,15 @@
     <div class="modal">
       <h3>Upravit gramáž</h3>
       <p class="modal-sub" id="editmacro-name"></p>
-      <label for="em-grams">Gramáž (g)</label>
-      <input type="number" id="em-grams" placeholder="200" min="10" max="2000" step="10">
-      <div id="em-preview" class="em-preview hidden"></div>
+      <!-- Single-component mode -->
+      <div id="em-single">
+        <label for="em-grams">Gramáž (g)</label>
+        <input type="number" id="em-grams" placeholder="200" min="10" max="2000" step="10">
+        <div id="em-preview" class="em-preview hidden"></div>
+      </div>
+      <!-- Multi-component mode -->
+      <div id="em-components" class="hidden"></div>
+      <!-- Fallback: direct macro input (no per-100g data) -->
       <div id="em-fallback" class="hidden">
         <p class="modal-hint">Makra na 100 g nejsou k dispozici — zadej přímo:</p>
         <div class="settings-targets-row">
@@ -292,7 +299,7 @@
   <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
-  <script type="module" src="js/app.js?v=3a1c7f2"></script>
+  <script type="module" src="js/app.js?v=4b9d3e5"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/jidelnicek/sw.js');

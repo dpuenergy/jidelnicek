@@ -3,12 +3,17 @@ import { escapeHtml } from '../helpers.js';
 
 function getAllRecipes() {
   const map = new Map();
+  // Custom recipes from localStorage take precedence
+  try {
+    const custom = JSON.parse(localStorage.getItem('app_custom_recipes_v1') || '[]');
+    for (const r of custom) if (!map.has(r.id)) map.set(r.id, r);
+  } catch(_) {}
+  // Plan recipes
   for (const plan of Object.values(STATE.plans)) {
     for (const r of (plan.recipes || [])) {
       if (!map.has(r.id)) map.set(r.id, { ...r, _planTitle: plan.plan_title });
     }
   }
-  // Alphabetical by name
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
 }
 

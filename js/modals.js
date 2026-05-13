@@ -177,6 +177,63 @@ export function initActionSheet(onImportPlan) {
   });
 }
 
+// ── Custom recipe helpers ──────────────────────────────────────
+const KEY_CUSTOM_RECIPES = 'app_custom_recipes_v1';
+
+export function getCustomRecipes() {
+  try { return JSON.parse(localStorage.getItem(KEY_CUSTOM_RECIPES) || '[]'); } catch(_) { return []; }
+}
+
+function _slugify(s) {
+  return s.toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function _normName(s) {
+  return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+}
+
+function savePhotoAsRecipe(result) {
+  const all = getAllRecipes();
+  const norm = _normName(result.name);
+  const dup = all.find(r => _normName(r.name) === norm);
+  if (dup) {
+    if (!confirm(`Recept „${dup.name}" už v knihovně existuje. Přesto uložit jako nový?`)) return;
+  }
+  const m = result.macros;
+  const g = result.grams_estimate;
+  const recipe = {
+    id:       `custom-${_slugify(result.name)}-${Date.now().toString(36)}`,
+    name:     result.name,
+    category: 'vlastní',
+    custom:   true,
+    notes:    result.notes || '',
+    ingredients: result.ingredients || [],
+  };
+  if (g && g >= 50) {
+    recipe.macros_per_100g = {
+      kcal: Math.round(m.kcal / g * 100),
+      p:    Math.round((m.p || 0) / g * 100 * 10) / 10,
+      c:    Math.round((m.c || 0) / g * 100 * 10) / 10,
+      f:    Math.round((m.f || 0) / g * 100 * 10) / 10,
+    };
+  } else {
+    recipe.macros_per_serving = {
+      kcal: Math.round(m.kcal),
+      p:    m.p != null ? Math.round(m.p) : 0,
+      c:    m.c != null ? Math.round(m.c) : 0,
+      f:    m.f != null ? Math.round(m.f) : 0,
+    };
+  }
+  const customs = getCustomRecipes();
+  customs.unshift(recipe);
+  localStorage.setItem(KEY_CUSTOM_RECIPES, JSON.stringify(customs));
+  const btn = document.getElementById('photo-save-recipe');
+  btn.textContent = '✓ Uloženo do receptů';
+  btn.disabled = true;
+}
+
 // ── Photo ──────────────────────────────────────────────────────
 export function initPhoto(rerender) {
   document.getElementById('photosrc-camera').addEventListener('click', () => {
@@ -210,6 +267,10 @@ export function initPhoto(rerender) {
     persistPlans();
     closeModal('photo-modal');
     rerender();
+  });
+
+  document.getElementById('photo-save-recipe').addEventListener('click', () => {
+    if (STATE.lastPhotoResult) savePhotoAsRecipe(STATE.lastPhotoResult);
   });
 }
 
@@ -268,6 +329,11 @@ function showPhotoResult(r) {
     const plan = STATE.plans[STATE.photoTarget.planId];
     hint.textContent = `Nahradit pokrm ${plan.persons[STATE.photoTarget.personKey].name}?`;
   } else { hint.textContent = 'Použít jako pokrm v plánu?'; }
+  // Reset + show save-recipe button
+  const saveBtn = document.getElementById('photo-save-recipe');
+  saveBtn.textContent = '＋ Uložit do receptů';
+  saveBtn.disabled = false;
+  saveBtn.classList.remove('hidden');
 }
 
 function fileToBase64(file) {
@@ -284,10 +350,10 @@ function fileToBase64(file) {
 }
 
 async function callClaudeVision({ mediaType, data }) {
-  const prompt = `Analyzuj toto jídlo z fotky a odhadni nutriční hodnoty pro JEDNU porci.
-Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáže. 3. Spočítej kcal, bílkoviny, sacharidy, tuky.
-Vrať POUZE čistý JSON:
-{"name":"popis s gramážemi","macros":{"kcal":0,"p":0,"c":0,"f":0},"confidence":"low|medium|high","notes":"1-2 věty"}`;
+  const prompt = `Analyzuj toto jídlo z fotky. Odhadni nutriční hodnoty pro CELOU porci viditelnou na fotce.
+Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáž každé komponenty. 3. Spočítej celková makra porce.
+Vrať POUZE čistý JSON (žádný markdown):
+{"name":"Název pokrmu v češtině","grams_estimate":350,"macros":{"kcal":0,"p":0,"c":0,"f":0},"ingredients":[{"item":"název","amount":"150 g"}],"confidence":"low|medium|high","notes":"1-2 věty"}`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -423,8 +489,36 @@ export function openReplace(target) {
 }
 
 // ── Edit portion weight ────────────────────────────────────────
-let _editMacroCtx = null;
+let _editMacroCtx   = null;
 let _editMacroPer100g = null;
+let _editMacroComps = null;   // parsed components for multi-component mode
+
+function _parseComponents(name) {
+  if (!name) return null;
+  const parts = name.split(/[,;]/).map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const comps = parts.map(p => {
+    const m = p.match(/^(.*?)\s*(\d+)\s*g\s*$/i);
+    return m ? { text: m[1].trim(), grams: parseInt(m[2]) } : { text: p, grams: null };
+  });
+  if (comps.filter(c => c.grams !== null).length >= 2) return comps;
+  return null;
+}
+
+function _renderComponentInputs(el, comps) {
+  el.innerHTML = comps.map((c, i) =>
+    `<div class="em-component">
+      <span class="em-comp-name">${escapeHtml(c.text)}</span>
+      ${c.grams !== null
+        ? `<div class="em-comp-input-wrap">
+             <input type="number" class="em-comp-grams" data-idx="${i}"
+               value="${c.grams}" min="0" max="2000" step="5">
+             <span class="em-comp-unit">g</span>
+           </div>`
+        : `<span class="em-comp-nograms">—</span>`}
+    </div>`
+  ).join('');
+}
 
 function _findPer100g(meal) {
   if (meal.macros_per_100g) return meal.macros_per_100g;
@@ -492,21 +586,47 @@ export function initEditMacro() {
       delete slotData.shared;
     }
     const meal = slotData[pk] || {};
-    const grams = parseFloat(document.getElementById('em-grams').value);
-    if (_editMacroPer100g && grams >= 10) {
-      const m = _calcFromGrams(_editMacroPer100g, grams);
-      // Update name: replace old gram number or append
-      const baseName = (meal.name || '').replace(/\s*\d+\s*g\b/, '').trim();
-      meal.name   = `${baseName} ${Math.round(grams)}g`;
-      meal.macros = m;
+
+    if (_editMacroComps) {
+      // ── Multi-component mode ──────────────────────────────────
+      const inputs = document.querySelectorAll('.em-comp-grams');
+      const newComps = _editMacroComps.map((c, i) => {
+        const inp = [...inputs].find(el => parseInt(el.dataset.idx) === i);
+        const g   = inp ? (parseInt(inp.value) || 0) : (c.grams || 0);
+        return { ...c, grams: c.grams !== null ? g : null };
+      });
+      // Reconstruct name preserving component order
+      meal.name = newComps.map(c => c.grams !== null ? `${c.text} ${c.grams}g` : c.text).join(', ');
+      // Scale macros proportionally from total gram change
+      const oldTotal = _editMacroComps.reduce((s, c) => s + (c.grams || 0), 0);
+      const newTotal = newComps.reduce((s, c) => s + (c.grams || 0), 0);
+      if (oldTotal > 0 && newTotal > 0 && meal.macros) {
+        const f = newTotal / oldTotal;
+        meal.macros = {
+          kcal: Math.round((meal.macros.kcal || 0) * f),
+          p:    Math.round((meal.macros.p    || 0) * f * 10) / 10,
+          c:    Math.round((meal.macros.c    || 0) * f * 10) / 10,
+          f:    Math.round((meal.macros.f    || 0) * f * 10) / 10,
+        };
+      }
     } else {
-      meal.macros = {
-        kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
-        p:    parseFloat(document.getElementById('em-p').value)    || 0,
-        c:    parseFloat(document.getElementById('em-c').value)    || 0,
-        f:    parseFloat(document.getElementById('em-f').value)    || 0,
-      };
+      // ── Single-component mode ─────────────────────────────────
+      const grams = parseFloat(document.getElementById('em-grams').value);
+      if (_editMacroPer100g && grams >= 10) {
+        const m = _calcFromGrams(_editMacroPer100g, grams);
+        const baseName = (meal.name || '').replace(/\s*\d+\s*g\b/, '').trim();
+        meal.name   = `${baseName} ${Math.round(grams)}g`;
+        meal.macros = m;
+      } else {
+        meal.macros = {
+          kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
+          p:    parseFloat(document.getElementById('em-p').value)    || 0,
+          c:    parseFloat(document.getElementById('em-c').value)    || 0,
+          f:    parseFloat(document.getElementById('em-f').value)    || 0,
+        };
+      }
     }
+
     slotData[pk] = meal;
     persistPlans();
     closeModal('editmacro-modal');
@@ -515,28 +635,41 @@ export function initEditMacro() {
 }
 
 export function openEditMacro({ planId, dayIdx, slot, pk, meal, rerender }) {
-  _editMacroCtx = { planId, dayIdx, slot, pk, rerender };
+  _editMacroCtx   = { planId, dayIdx, slot, pk, rerender };
   _editMacroPer100g = _findPer100g(meal);
+  _editMacroComps   = _parseComponents(meal.name);
 
   document.getElementById('editmacro-name').textContent = meal.name;
 
-  // Pre-fill grams from name or from back-calc
-  const gramsMatch = meal.name && meal.name.match(/(\d+)\s*g/);
-  const currentGrams = gramsMatch ? parseInt(gramsMatch[1]) : 200;
-  document.getElementById('em-grams').value = currentGrams;
+  const singleEl  = document.getElementById('em-single');
+  const compsEl   = document.getElementById('em-components');
+  const fallbackEl = document.getElementById('em-fallback');
 
-  const fallback = document.getElementById('em-fallback');
-  if (_editMacroPer100g) {
-    fallback.classList.add('hidden');
-    _updateEmPreview(currentGrams);
+  if (_editMacroComps) {
+    // Multi-component mode — hide single input, show component list
+    singleEl.classList.add('hidden');
+    fallbackEl.classList.add('hidden');
+    compsEl.classList.remove('hidden');
+    _renderComponentInputs(compsEl, _editMacroComps);
   } else {
-    fallback.classList.remove('hidden');
-    document.getElementById('em-preview').classList.add('hidden');
-    const m = meal.macros || {};
-    document.getElementById('em-kcal').value = m.kcal ?? '';
-    document.getElementById('em-p').value    = m.p    ?? '';
-    document.getElementById('em-c').value    = m.c    ?? '';
-    document.getElementById('em-f').value    = m.f    ?? '';
+    // Single-component mode
+    compsEl.classList.add('hidden');
+    singleEl.classList.remove('hidden');
+    const gramsMatch = meal.name && meal.name.match(/(\d+)\s*g/);
+    const currentGrams = gramsMatch ? parseInt(gramsMatch[1]) : 200;
+    document.getElementById('em-grams').value = currentGrams;
+    if (_editMacroPer100g) {
+      fallbackEl.classList.add('hidden');
+      _updateEmPreview(currentGrams);
+    } else {
+      fallbackEl.classList.remove('hidden');
+      document.getElementById('em-preview').classList.add('hidden');
+      const m = meal.macros || {};
+      document.getElementById('em-kcal').value = m.kcal ?? '';
+      document.getElementById('em-p').value    = m.p    ?? '';
+      document.getElementById('em-c').value    = m.c    ?? '';
+      document.getElementById('em-f').value    = m.f    ?? '';
+    }
   }
   openModal('editmacro-modal');
 }
