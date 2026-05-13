@@ -346,87 +346,78 @@ function _showSlotPicker(targetDayIdx) {
   );
 }
 
-// ── Copy modal ────────────────────────────────────────────────
-let _cp = null;
-
+// ── Copy modal (event delegation — single handler, no stale listeners) ───
 function openCopyModal(plan, day, dayIdx, planId, fromSlot, pk, rerender) {
   const fromMeal = getMealForPerson(day, fromSlot, pk);
   if (!fromMeal) return;
-  _cp = { plan, planId, fromDayIdx: dayIdx, fromSlot, fromExtraIdx: undefined, pk, rerender };
-  document.getElementById('copy-modal-title').textContent = `Kopírovat: ${_titleShort(fromMeal.name)}`;
-  _showCopyDayPicker();
-  document.getElementById('copy-modal').classList.remove('hidden');
+  _openCopyModalImpl(plan, dayIdx, fromSlot, pk, rerender,
+    JSON.parse(JSON.stringify(fromMeal)));
 }
 
 function openExtraCopyModal(plan, day, dayIdx, planId, extraIdx, pk, rerender) {
   const extra = day.extra_meals[extraIdx];
   if (!extra) return;
-  _cp = { plan, planId, fromDayIdx: dayIdx, fromSlot: null, fromExtraIdx: extraIdx, pk, rerender };
-  document.getElementById('copy-modal-title').textContent = `Kopírovat: ${_titleShort(extra.name)}`;
-  _showCopyDayPicker();
-  document.getElementById('copy-modal').classList.remove('hidden');
+  const meal = { name: extra.name, note: extra.note, macros: JSON.parse(JSON.stringify(extra.macros || {})) };
+  _openCopyModalImpl(plan, dayIdx, null, extra.pk, rerender, meal, true);
 }
 
-function _showCopyDayPicker() {
-  const { plan, fromDayIdx } = _cp;
-  const list = document.getElementById('copy-day-list');
-  list.innerHTML = `<p class="move-step-label">Vyber cílový den:</p>` +
-    plan.days.map((d, idx) => `
-      <button class="move-day-btn" data-didx="${idx}">
-        <span class="move-day-name">${escapeHtml(d.name || '')}</span>
-        <span class="move-day-date">${escapeHtml(d.date || '')}</span>
-      </button>`).join('');
-  list.querySelectorAll('.move-day-btn').forEach(btn =>
-    btn.addEventListener('click', () => _showCopySlotPicker(parseInt(btn.dataset.didx)))
-  );
-}
+function _openCopyModalImpl(plan, fromDayIdx, fromSlot, pk, rerender, meal, extraMode) {
+  const modal = document.getElementById('copy-modal');
+  const list  = document.getElementById('copy-day-list');
+  document.getElementById('copy-modal-title').textContent = `Kopírovat: ${_titleShort(meal.name)}`;
 
-function _showCopySlotPicker(targetDayIdx) {
-  const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
-  const targetDay = plan.days[targetDayIdx];
-  const list = document.getElementById('copy-day-list');
-
-  if (fromExtraIdx !== undefined) {
-    // Extra meal → always copies as extra_meals entry; still pick day only
-    const extra = plan.days[fromDayIdx].extra_meals[fromExtraIdx];
-    const toDay = plan.days[targetDayIdx];
-    if (!toDay.extra_meals) toDay.extra_meals = [];
-    toDay.extra_meals.push({
-      pk: extra.pk, name: extra.name, note: extra.note,
-      macros: JSON.parse(JSON.stringify(extra.macros || {})),
-      _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-    });
-    persistPlans();
-    document.getElementById('copy-modal').classList.add('hidden');
-    rerender();
-    return;
+  function showDays() {
+    list.innerHTML = `<p class="move-step-label">Vyber cílový den:</p>` +
+      plan.days.map((d, i) =>
+        `<button class="move-day-btn" data-cp-day="${i}">
+          <span class="move-day-name">${escapeHtml(d.name || '')}</span>
+          <span class="move-day-date">${escapeHtml(d.date || '')}</span>
+        </button>`
+      ).join('');
   }
 
-  // Regular meal → pick target slot
-  const fromDay = plan.days[fromDayIdx];
-  const meal    = getMealForPerson(fromDay, fromSlot, pk);
-  if (!meal) { document.getElementById('copy-modal').classList.add('hidden'); return; }
+  function showSlots(toDayIdx) {
+    const toDay = plan.days[toDayIdx];
+    list.innerHTML =
+      `<button class="move-back-btn" data-cp-back="1">← ${escapeHtml(toDay.name || '')} ${escapeHtml(toDay.date || '')}</button>` +
+      plan.slots.map(s => {
+        const label    = (plan.slot_labels && plan.slot_labels[s]) || s;
+        const existing = getMealForPerson(toDay, s, pk);
+        const note     = existing ? `přepíše: ${escapeHtml(_titleShort(existing.name))}` : 'prázdný slot';
+        return `<button class="move-slot-btn" data-cp-slot="${escapeHtml(s)}" data-cp-today="${toDayIdx}">
+          <span class="move-slot-icon">${slotIcon(s)}</span>
+          <span class="move-slot-info">
+            <span class="move-slot-name">${escapeHtml(label)}</span>
+            <span class="move-slot-note">${note}</span>
+          </span>
+        </button>`;
+      }).join('');
+  }
 
-  list.innerHTML =
-    `<button class="move-back-btn" id="copy-back">← ${escapeHtml(targetDay.name || '')} ${escapeHtml(targetDay.date || '')}</button>` +
-    plan.slots.map(s => {
-      const label    = (plan.slot_labels && plan.slot_labels[s]) || s;
-      const existing = getMealForPerson(targetDay, s, pk);
-      const note     = existing ? `přepíše: ${escapeHtml(_titleShort(existing.name))}` : 'prázdný slot';
-      return `<button class="move-slot-btn" data-to="${escapeHtml(s)}">
-        <span class="move-slot-icon">${slotIcon(s)}</span>
-        <span class="move-slot-info">
-          <span class="move-slot-name">${escapeHtml(label)}</span>
-          <span class="move-slot-note">${note}</span>
-        </span>
-      </button>`;
-    }).join('');
-
-  document.getElementById('copy-back').addEventListener('click', _showCopyDayPicker);
-  list.querySelectorAll('.move-slot-btn').forEach(btn =>
-    btn.addEventListener('click', () => {
-      const toDay = plan.days[targetDayIdx];
-      const toSlot = btn.dataset.to;
+  function handleClick(e) {
+    const dayBtn  = e.target.closest('[data-cp-day]');
+    const backBtn = e.target.closest('[data-cp-back]');
+    const slotBtn = e.target.closest('[data-cp-slot]');
+    if (dayBtn) {
+      const toDayIdx = parseInt(dayBtn.dataset.cpDay, 10);
+      if (extraMode) {
+        // Extra meal → add to extra_meals on target day
+        const toDay = plan.days[toDayIdx];
+        if (!toDay.extra_meals) toDay.extra_meals = [];
+        toDay.extra_meals.push({ pk, name: meal.name, note: meal.note,
+          macros: JSON.parse(JSON.stringify(meal.macros || {})),
+          _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5) });
+        list.removeEventListener('click', handleClick);
+        persistPlans(); modal.classList.add('hidden'); rerender();
+      } else {
+        showSlots(toDayIdx);
+      }
+    } else if (backBtn) {
+      showDays();
+    } else if (slotBtn) {
+      const toSlot   = slotBtn.dataset.cpSlot;
+      const toDayIdx = parseInt(slotBtn.dataset.cpToday, 10);
+      const toDay    = plan.days[toDayIdx];
       if (!toDay.meals[toSlot]) toDay.meals[toSlot] = {};
       breakShared(toDay, toSlot);
       const displaced = getMealForPerson(toDay, toSlot, pk);
@@ -435,11 +426,17 @@ function _showCopySlotPicker(targetDayIdx) {
         toDay.discarded_meals.push({ pk, slot: toSlot, name: displaced.name, note: displaced.note, macros: displaced.macros });
       }
       toDay.meals[toSlot][pk] = JSON.parse(JSON.stringify(meal));
-      persistPlans();
-      document.getElementById('copy-modal').classList.add('hidden');
-      rerender();
-    })
-  );
+      list.removeEventListener('click', handleClick);
+      persistPlans(); modal.classList.add('hidden'); rerender();
+    }
+  }
+
+  if (list._cpHandler) list.removeEventListener('click', list._cpHandler);
+  list._cpHandler = handleClick;
+  list.addEventListener('click', handleClick);
+
+  showDays();
+  modal.classList.remove('hidden');
 }
 
 // ── Main render ────────────────────────────────────────────────
