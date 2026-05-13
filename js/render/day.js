@@ -1,7 +1,7 @@
 import { STATE, persistAte, persistCurrent, persistPlans, getEffectiveTargets } from '../state.js';
 import {
   escapeHtml, activeMetricsFor, computeDayTotals,
-  computeEatenTotals, mealKey, slotIcon, ICONS, buildTimeline,
+  computeEatenTotals, mealKey, extraMealKey, slotIcon, ICONS, buildTimeline,
 } from '../helpers.js';
 
 // Accordion state: set of expanded slotKeys for current day
@@ -136,16 +136,44 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
   </div>`;
 }
 
-// ── Day totals card ────────────────────────────────────────────
-function dayTotalsHTML(plan, day, persons) {
-  const totals  = computeDayTotals(plan, day);
+// ── Extra meal card HTML (full actions) ────────────────────────
+function extraMealCardHTML(plan, planId, dayIdx, e, realIdx, ate) {
+  const eatKey  = e._id ? extraMealKey(planId, dayIdx, e._id) : null;
+  const isEaten = eatKey ? !!ate[eatKey] : false;
+  const m = e.macros || {};
+  const macroLine = [
+    m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
+    m.p    != null ? `<strong>${m.p}</strong> B` : '',
+    m.c    != null ? `<strong>${m.c}</strong> S` : '',
+    m.f    != null ? `<strong>${m.f}</strong> T` : '',
+  ].filter(Boolean).join(' · ');
+  return `<div class="extra-meal-card${isEaten ? ' eaten' : ''}" data-extra-idx="${realIdx}">
+    <span class="meal-person">${escapeHtml(plan.persons[e.pk]?.name || e.pk)}</span>
+    <div class="meal-name">${escapeHtml(e.name)}</div>
+    ${e.note ? `<div class="meal-note">${escapeHtml(e.note)}</div>` : ''}
+    <div class="meal-macros">${macroLine}</div>
+    <div class="meal-actions">
+      ${eatKey ? `<button class="eaten-btn${isEaten ? ' is-eaten' : ''}" data-act="extra-eat" data-eidx="${realIdx}">${isEaten ? '✓ Snědeno' : 'Snědeno'}</button>` : ''}
+      <button data-act="extra-replace" data-eidx="${realIdx}" data-epk="${escapeHtml(e.pk)}">↔ Nahradit</button>
+      <button data-act="extra-editmacro" data-eidx="${realIdx}">✎ Gramáž</button>
+      <button data-act="extra-chat" data-eidx="${realIdx}">${ICONS.chat} Otázka</button>
+      <button data-act="extra-photo" data-eidx="${realIdx}">${ICONS.camera} Foto</button>
+      <button data-act="extra-move" data-eidx="${realIdx}" data-epk="${escapeHtml(e.pk)}">${ICONS.move} Přesun</button>
+      <button data-act="extra-discard" data-eidx="${realIdx}">✕ Vyřadit</button>
+    </div>
+  </div>`;
+}
+
+// ── Day totals card (shows eaten macros vs target) ─────────────
+function dayTotalsHTML(plan, day, persons, dayIdx, planId, ate) {
+  const totals  = computeEatenTotals(plan, day, dayIdx, planId, ate);
   const metrics = activeMetricsFor(plan);
   let html = '<div class="day-totals">';
   for (const pk of persons) {
     const t = totals[pk];
     const tgt = getEffectiveTargets(plan, pk);
     html += `<div class="day-totals-person">
-      <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)}</div>`;
+      <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)} — snědeno</div>`;
     for (const m of metrics) {
       const v    = Math.round(t[m.key] || 0);
       const tg   = tgt[m.key] || 0;
@@ -231,8 +259,17 @@ function _titleShort(name) { return name && name.length > 40 ? name.slice(0, 40)
 function openMoveModal(plan, day, dayIdx, planId, fromSlot, pk, rerender) {
   const fromMeal = getMealForPerson(day, fromSlot, pk);
   if (!fromMeal) return;
-  _mv = { plan, planId, fromDayIdx: dayIdx, fromSlot, pk, rerender };
+  _mv = { plan, planId, fromDayIdx: dayIdx, fromSlot, fromExtraIdx: undefined, pk, rerender };
   document.getElementById('move-modal-title').textContent = `Přesunout: ${_titleShort(fromMeal.name)}`;
+  _showDayPicker();
+  document.getElementById('move-modal').classList.remove('hidden');
+}
+
+function openExtraMoveModal(plan, day, dayIdx, planId, extraIdx, pk, rerender) {
+  const extra = day.extra_meals[extraIdx];
+  if (!extra) return;
+  _mv = { plan, planId, fromDayIdx: dayIdx, fromSlot: null, fromExtraIdx: extraIdx, pk, rerender };
+  document.getElementById('move-modal-title').textContent = `Přesunout: ${_titleShort(extra.name)}`;
   _showDayPicker();
   document.getElementById('move-modal').classList.remove('hidden');
 }
@@ -283,8 +320,23 @@ function _showSlotPicker(targetDayIdx) {
   list.querySelectorAll('.move-slot-btn').forEach(btn =>
     btn.addEventListener('click', () => {
       const factor = parseFloat(document.getElementById('move-scale-input').value) || 1;
-      const { plan, fromDayIdx, fromSlot, pk, rerender } = _mv;
-      swapMealsAcrossDays(plan, fromDayIdx, fromSlot, targetDayIdx, btn.dataset.to, pk, factor);
+      const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _mv;
+      if (fromExtraIdx !== undefined) {
+        // Move extra meal into a regular slot
+        const extra  = plan.days[fromDayIdx].extra_meals[fromExtraIdx];
+        const toDay  = plan.days[targetDayIdx];
+        if (!toDay.meals[btn.dataset.to]) toDay.meals[btn.dataset.to] = {};
+        breakShared(toDay, btn.dataset.to);
+        const displaced = getMealForPerson(toDay, btn.dataset.to, pk);
+        toDay.meals[btn.dataset.to][pk] = { name: extra.name, note: extra.note, macros: extra.macros };
+        if (displaced) {
+          if (!toDay.extra_meals) toDay.extra_meals = [];
+          toDay.extra_meals.push({ pk, name: displaced.name, note: displaced.note, macros: displaced.macros });
+        }
+        plan.days[fromDayIdx].extra_meals.splice(fromExtraIdx, 1);
+      } else {
+        swapMealsAcrossDays(plan, fromDayIdx, fromSlot, targetDayIdx, btn.dataset.to, pk, factor);
+      }
       persistPlans();
       document.getElementById('move-modal').classList.add('hidden');
       rerender();
@@ -358,21 +410,9 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
   if (visibleExtras.length > 0) {
     html += `<div class="extra-meals-section">
       <div class="extra-meals-label">Extra jídla</div>`;
-    visibleExtras.forEach((e, idx) => {
+    visibleExtras.forEach(e => {
       const realIdx = extras.indexOf(e);
-      const m = e.macros || {};
-      const macroLine = [
-        m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
-        m.p    != null ? `<strong>${m.p}</strong> B` : '',
-        m.c    != null ? `<strong>${m.c}</strong> S` : '',
-        m.f    != null ? `<strong>${m.f}</strong> T` : '',
-      ].filter(Boolean).join(' · ');
-      html += `<div class="extra-meal-card">
-        <span class="meal-person">${escapeHtml(plan.persons[e.pk]?.name || e.pk)}</span>
-        <div class="meal-name">${escapeHtml(e.name)}</div>
-        <div class="meal-macros">${macroLine}</div>
-        <button class="extra-del-btn" data-extra-idx="${realIdx}">✕ Odebrat</button>
-      </div>`;
+      html += extraMealCardHTML(plan, planId, dayIdx, e, realIdx, STATE.ate);
     });
     html += '</div>';
   }
@@ -403,7 +443,7 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
     html += '</div>';
   }
 
-  html += dayTotalsHTML(plan, day, persons);
+  html += dayTotalsHTML(plan, day, persons, dayIdx, planId, STATE.ate);
   main.innerHTML = html;
 
   // Person filter buttons
@@ -464,15 +504,60 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
       if (meal) openEditMacro({ planId, dayIdx, slot, pk, meal, rerender });
     });
   });
-  main.querySelectorAll('.extra-del-btn').forEach(btn => {
+  // Extra meal actions
+  main.querySelectorAll('[data-act="extra-eat"]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.extraIdx, 10);
-      if (!isNaN(idx)) {
-        day.extra_meals.splice(idx, 1);
-        persistPlans(); rerender();
-      }
+      const eidx = parseInt(btn.dataset.eidx, 10);
+      const e = day.extra_meals[eidx];
+      if (!e || !e._id) return;
+      const key = extraMealKey(planId, dayIdx, e._id);
+      if (STATE.ate[key]) delete STATE.ate[key]; else STATE.ate[key] = true;
+      persistAte(); rerender();
     });
   });
+  main.querySelectorAll('[data-act="extra-replace"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openReplace({ planId, dayIdx, pk: btn.dataset.epk, extraIdx: parseInt(btn.dataset.eidx, 10) });
+    });
+  });
+  main.querySelectorAll('[data-act="extra-editmacro"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const eidx = parseInt(btn.dataset.eidx, 10);
+      const e = day.extra_meals[eidx];
+      if (!e) return;
+      openEditMacro({ planId, dayIdx, pk: e.pk, extraIdx: eidx, meal: e, rerender });
+    });
+  });
+  main.querySelectorAll('[data-act="extra-chat"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const eidx = parseInt(btn.dataset.eidx, 10);
+      const e = day.extra_meals[eidx];
+      if (e) openChat({ planId, dayIdx, slot: 'extra', personKey: e.pk, meal: e });
+    });
+  });
+  main.querySelectorAll('[data-act="extra-photo"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      STATE.photoTarget = { planId, dayIdx, mode: 'extra', extraIdx: parseInt(btn.dataset.eidx, 10) };
+      openPhotoSource();
+    });
+  });
+  main.querySelectorAll('[data-act="extra-move"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openExtraMoveModal(plan, day, dayIdx, planId, parseInt(btn.dataset.eidx, 10), btn.dataset.epk, rerender);
+    });
+  });
+  main.querySelectorAll('[data-act="extra-discard"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const eidx = parseInt(btn.dataset.eidx, 10);
+      const e = day.extra_meals[eidx];
+      if (!e) return;
+      if (!day.discarded_meals) day.discarded_meals = [];
+      day.discarded_meals.push({ pk: e.pk, slot: 'extra', name: e.name, note: e.note, macros: e.macros });
+      day.extra_meals.splice(eidx, 1);
+      persistPlans(); rerender();
+    });
+  });
+
   const extraOpenBtn = document.getElementById('extra-open-btn');
   if (extraOpenBtn) {
     extraOpenBtn.addEventListener('click', () => openExtraMeal({ plan, planId, dayIdx, rerender }));
@@ -526,14 +611,20 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
       const d = day.discarded_meals[idx];
       if (!d) return;
       const { pk, slot, ...mealData } = d;
-      if (!day.meals[slot]) day.meals[slot] = {};
-      const slotData = day.meals[slot];
-      if (slotData.shared) breakShared(day, slot);
-      if (!slotData[pk]) {
-        slotData[pk] = mealData;
+      if (!day.extra_meals) day.extra_meals = [];
+      if (slot === 'extra') {
+        day.extra_meals.push({ pk, name: mealData.name, note: mealData.note, macros: mealData.macros,
+          _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5) });
       } else {
-        if (!day.extra_meals) day.extra_meals = [];
-        day.extra_meals.push({ pk, name: mealData.name, note: mealData.note, macros: mealData.macros });
+        if (!day.meals[slot]) day.meals[slot] = {};
+        const slotData = day.meals[slot];
+        if (slotData.shared) breakShared(day, slot);
+        if (!slotData[pk]) {
+          slotData[pk] = mealData;
+        } else {
+          day.extra_meals.push({ pk, name: mealData.name, note: mealData.note, macros: mealData.macros,
+            _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5) });
+        }
       }
       day.discarded_meals.splice(idx, 1);
       persistPlans();

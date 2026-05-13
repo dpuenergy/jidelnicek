@@ -831,15 +831,11 @@ main {
 }
 .extra-meal-card {
   background: #fff8ec; border: 1px solid #f0d8a8;
-  border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
 }
 .extra-meal-card:last-child { margin-bottom: 0; }
-.extra-del-btn {
-  margin-top: 6px; background: transparent; border: none;
-  color: var(--ink-faint); font-family: inherit; font-size: 11px;
-  cursor: pointer; padding: 0;
-}
-.extra-del-btn:hover { color: var(--c-over); }
+.extra-meal-card.eaten { background: #f0f6f1; border-color: #cfe0d4; }
+.extra-meal-card.eaten .meal-name { color: var(--ink-soft); }
 .extra-person-row {
   display: flex; gap: 8px; margin-top: 14px;
 }

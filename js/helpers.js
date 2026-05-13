@@ -57,6 +57,10 @@ export function mealKey(planId, dayIdx, slot, personKey) {
   return `${planId}:${dayIdx}:${slot}:${personKey}`;
 }
 
+export function extraMealKey(planId, dayIdx, id) {
+  return `extra:${planId}:${dayIdx}:${id}`;
+}
+
 export function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -97,6 +101,10 @@ export function computeDayTotals(plan, day) {
       }
     }
   }
+  for (const e of (day.extra_meals || [])) {
+    if (!e.macros || !out[e.pk]) continue;
+    for (const k of Object.keys(out[e.pk])) if (typeof e.macros[k] === 'number') out[e.pk][k] += e.macros[k];
+  }
   return out;
 }
 
@@ -119,6 +127,11 @@ export function computeEatenTotals(plan, day, dayIdx, planId, ate) {
         for (const k of Object.keys(out[pk])) if (typeof meal.macros[k] === 'number') out[pk][k] += meal.macros[k];
       }
     }
+  }
+  for (const e of (day.extra_meals || [])) {
+    if (!e._id || !e.macros || !out[e.pk]) continue;
+    if (!ate[extraMealKey(planId, dayIdx, e._id)]) continue;
+    for (const k of Object.keys(out[e.pk])) if (typeof e.macros[k] === 'number') out[e.pk][k] += e.macros[k];
   }
   return out;
 }

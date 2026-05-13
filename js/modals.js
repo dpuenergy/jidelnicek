@@ -268,7 +268,7 @@ export function initPhoto(rerender) {
       const pks = _photoOrphanPk === 'both' ? ['jakub', 'partnerka'] : [_photoOrphanPk || 'jakub'];
       if (!_photoOrphanSlot || _photoOrphanSlot === 'extra') {
         if (!day.extra_meals) day.extra_meals = [];
-        for (const pk of pks) day.extra_meals.push({ pk, ...mealObj });
+        for (const pk of pks) day.extra_meals.push({ pk, _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), ...mealObj });
       } else {
         if (!day.meals[_photoOrphanSlot]) day.meals[_photoOrphanSlot] = {};
         const slotData = day.meals[_photoOrphanSlot];
@@ -284,6 +284,20 @@ export function initPhoto(rerender) {
       closeModal('photo-modal');
       rerender();
       return;
+    }
+    // Extra meal photo replace
+    if (mode === 'extra') {
+      const { extraIdx } = STATE.photoTarget;
+      const plan = STATE.plans[planId];
+      const day  = plan.days[dayIdx];
+      const e    = day.extra_meals && day.extra_meals[extraIdx];
+      if (e) {
+        const r = STATE.lastPhotoResult; const m = r.macros;
+        e.name = r.name; e.note = 'odhad z fotky';
+        e.macros = { kcal: Math.round(m.kcal), p: m.p != null ? Math.round(m.p) : null,
+                     c: m.c != null ? Math.round(m.c) : null, f: m.f != null ? Math.round(m.f) : null };
+      }
+      persistPlans(); closeModal('photo-modal'); rerender(); return;
     }
     if (!planId || !slot || !personKey) { closeModal('photo-modal'); return; }
     const plan     = STATE.plans[planId];
@@ -382,7 +396,9 @@ function showPhotoResult(r, previousName) {
   document.getElementById('photo-notes').textContent = r.notes || '';
   document.getElementById('photo-result-wrap').style.display = 'block';
   const hint = document.getElementById('photo-target-hint');
-  if (STATE.photoTarget && STATE.photoTarget.mode === 'replace') {
+  if (STATE.photoTarget && STATE.photoTarget.mode === 'extra') {
+    hint.textContent = 'Nahradit extra jídlo výsledkem z fotky?';
+  } else if (STATE.photoTarget && STATE.photoTarget.mode === 'replace') {
     const plan = STATE.plans[STATE.photoTarget.planId];
     hint.textContent = `Nahradit pokrm ${plan.persons[STATE.photoTarget.personKey].name}?`;
   } else if (STATE.photoTarget && STATE.photoTarget.mode === 'newOrphan') {
@@ -650,7 +666,7 @@ export function initReplace(rerender) {
 
   applyBtn.addEventListener('click', () => {
     if (!_replaceTarget || !_replaceRecipe) return;
-    const { planId, dayIdx, slot, pk } = _replaceTarget;
+    const { planId, dayIdx, slot, pk, extraIdx } = _replaceTarget;
     const plan = STATE.plans[planId];
     const r = _replaceRecipe;
 
@@ -672,19 +688,26 @@ export function initReplace(rerender) {
       macros = {};
     }
 
-    const slotData = plan.days[dayIdx].meals[slot] || (plan.days[dayIdx].meals[slot] = {});
-    if (slotData.shared) {
-      const sh = slotData.shared;
-      slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
-      slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
-      delete slotData.shared;
-    }
     const grams = macroData && macroData.unit === '/100g'
       ? (parseFloat(document.getElementById('replace-weight').value) || 200)
       : null;
     const placed = { name: r.name + (grams ? ` ${Math.round(grams)}g` : ''), macros, recipe_id: r.id };
     if (r.macros_per_100g) placed.macros_per_100g = r.macros_per_100g;
-    slotData[pk] = placed;
+
+    if (extraIdx !== undefined) {
+      const e = plan.days[dayIdx].extra_meals && plan.days[dayIdx].extra_meals[extraIdx];
+      if (e) { e.name = placed.name; e.macros = placed.macros; e.recipe_id = placed.recipe_id;
+               if (placed.macros_per_100g) e.macros_per_100g = placed.macros_per_100g; }
+    } else {
+      const slotData = plan.days[dayIdx].meals[slot] || (plan.days[dayIdx].meals[slot] = {});
+      if (slotData.shared) {
+        const sh = slotData.shared;
+        slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+        slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+        delete slotData.shared;
+      }
+      slotData[pk] = placed;
+    }
     persistPlans();
     closeModal('replace-modal');
     rerender();
@@ -827,8 +850,29 @@ export function initEditMacro() {
 
   document.getElementById('editmacro-save').addEventListener('click', () => {
     if (!_editMacroCtx) return;
-    const { planId, dayIdx, slot, pk, rerender } = _editMacroCtx;
+    const { planId, dayIdx, slot, pk, extraIdx, rerender } = _editMacroCtx;
     const plan = STATE.plans[planId];
+
+    if (extraIdx !== undefined) {
+      const e = plan.days[dayIdx].extra_meals && plan.days[dayIdx].extra_meals[extraIdx];
+      if (e) {
+        const grams = parseFloat(document.getElementById('em-grams').value);
+        if (_editMacroPer100g && grams >= 10) {
+          const m = _calcFromGrams(_editMacroPer100g, grams);
+          e.name   = (e.name || '').replace(/\s*\d+\s*g\b/, '').trim() + ` ${Math.round(grams)}g`;
+          e.macros = m;
+        } else {
+          e.macros = {
+            kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
+            p:    parseFloat(document.getElementById('em-p').value)    || 0,
+            c:    parseFloat(document.getElementById('em-c').value)    || 0,
+            f:    parseFloat(document.getElementById('em-f').value)    || 0,
+          };
+        }
+      }
+      persistPlans(); closeModal('editmacro-modal'); rerender(); return;
+    }
+
     if (!plan.days[dayIdx].meals[slot]) plan.days[dayIdx].meals[slot] = {};
     const slotData = plan.days[dayIdx].meals[slot];
     if (slotData.shared) {
@@ -886,8 +930,8 @@ export function initEditMacro() {
   });
 }
 
-export function openEditMacro({ planId, dayIdx, slot, pk, meal, rerender }) {
-  _editMacroCtx   = { planId, dayIdx, slot, pk, rerender };
+export function openEditMacro({ planId, dayIdx, slot, pk, extraIdx, meal, rerender }) {
+  _editMacroCtx   = { planId, dayIdx, slot, pk, extraIdx, rerender };
   _editMacroPer100g = _findPer100g(meal);
   _editMacroComps   = _parseComponents(meal.name);
 
@@ -1077,6 +1121,7 @@ export function initExtraMeal() {
     const label = (gramVisible && _extraPer100g && grams > 0) ? `${name} ${Math.round(grams)}g` : name;
     day.extra_meals.push({
       pk, name: label,
+      _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
       macros: {
         kcal: parseFloat(document.getElementById('extra-kcal').value) || 0,
         p:    parseFloat(document.getElementById('extra-p').value)    || 0,
