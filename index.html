@@ -14,7 +14,7 @@
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=2f4e8a1">
+  <link rel="stylesheet" href="app.css?v=3a1c7f2">
 </head>
 <body>
 
@@ -243,16 +243,22 @@
     </div>
   </div>
 
-  <!-- ── Modal: Edit macros ───────────────────────────────────── -->
+  <!-- ── Modal: Edit portion weight ─────────────────────────── -->
   <div id="editmacro-modal" class="modal-backdrop hidden">
     <div class="modal">
-      <h3>Upravit makra</h3>
+      <h3>Upravit gramáž</h3>
       <p class="modal-sub" id="editmacro-name"></p>
-      <div class="settings-targets-row">
-        <div class="settings-target-field"><label for="em-kcal">kcal</label><input type="number" id="em-kcal" placeholder="0" min="0"></div>
-        <div class="settings-target-field"><label for="em-p">B (g)</label><input type="number" id="em-p" placeholder="0" min="0"></div>
-        <div class="settings-target-field"><label for="em-c">S (g)</label><input type="number" id="em-c" placeholder="0" min="0"></div>
-        <div class="settings-target-field"><label for="em-f">T (g)</label><input type="number" id="em-f" placeholder="0" min="0"></div>
+      <label for="em-grams">Gramáž (g)</label>
+      <input type="number" id="em-grams" placeholder="200" min="10" max="2000" step="10">
+      <div id="em-preview" class="em-preview hidden"></div>
+      <div id="em-fallback" class="hidden">
+        <p class="modal-hint">Makra na 100 g nejsou k dispozici — zadej přímo:</p>
+        <div class="settings-targets-row">
+          <div class="settings-target-field"><label for="em-kcal">kcal</label><input type="number" id="em-kcal" placeholder="0" min="0"></div>
+          <div class="settings-target-field"><label for="em-p">B (g)</label><input type="number" id="em-p" placeholder="0" min="0"></div>
+          <div class="settings-target-field"><label for="em-c">S (g)</label><input type="number" id="em-c" placeholder="0" min="0"></div>
+          <div class="settings-target-field"><label for="em-f">T (g)</label><input type="number" id="em-f" placeholder="0" min="0"></div>
+        </div>
       </div>
       <div class="modal-actions">
         <button data-close="editmacro-modal">Zrušit</button>
@@ -286,7 +292,7 @@
   <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
-  <script type="module" src="js/app.js?v=2f4e8a1"></script>
+  <script type="module" src="js/app.js?v=3a1c7f2"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/jidelnicek/sw.js');
