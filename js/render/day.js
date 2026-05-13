@@ -130,7 +130,8 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
       <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">${ICONS.chat} Otázka</button>
       <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
       <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesun</button>
-      <button data-act="reset" data-slot="${slotKey}" data-person="${pk}">${ICONS.reset} Reset</button>
+      <button data-act="reset"   data-slot="${slotKey}" data-person="${pk}">${ICONS.reset} Reset</button>
+      <button data-act="discard" data-slot="${slotKey}" data-person="${pk}">✕ Vyřadit</button>
     </div>
   </div>`;
 }
@@ -377,6 +378,31 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
   }
 
   html += `<button class="extra-add-btn" id="extra-open-btn">＋ Doplnit jídlo</button>`;
+
+  // Discarded meals
+  const discarded = day.discarded_meals || [];
+  const visibleDiscarded = discarded.filter(d => pf === 'both' || d.pk === pf);
+  if (visibleDiscarded.length > 0) {
+    html += `<div class="discarded-section"><div class="discarded-label">Odložená jídla</div>`;
+    visibleDiscarded.forEach(d => {
+      const realIdx = discarded.indexOf(d);
+      const m = d.macros || {};
+      const macroLine = [
+        m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
+        m.p    != null ? `<strong>${m.p}</strong> B` : '',
+        m.c    != null ? `<strong>${m.c}</strong> S` : '',
+        m.f    != null ? `<strong>${m.f}</strong> T` : '',
+      ].filter(Boolean).join(' · ');
+      html += `<div class="discarded-card">
+        <span class="meal-person">${escapeHtml(plan.persons[d.pk]?.name || d.pk)}</span>
+        <div class="meal-name">${escapeHtml(d.name)}</div>
+        <div class="meal-macros">${macroLine}</div>
+        <button class="discard-restore-btn" data-discard-idx="${realIdx}">↩ Obnovit</button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
   html += dayTotalsHTML(plan, day, persons);
   main.innerHTML = html;
 
@@ -469,6 +495,47 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
       const origSlot = origDay?.meals?.[slot];
       if (!origSlot) return;
       plan.days[dayIdx].meals[slot] = JSON.parse(JSON.stringify(origSlot));
+      persistPlans();
+      rerender();
+    });
+  });
+
+  main.querySelectorAll('[data-act="discard"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slotKey  = btn.dataset.slot;
+      const pk       = btn.dataset.person;
+      const slotData = day.meals[slotKey] || {};
+      const meal = slotData.shared
+        ? { name: slotData.shared.name, note: slotData.shared.note,
+            macros: slotData.shared['macros_'+pk] || {}, type: slotData.shared.type }
+        : slotData[pk];
+      if (!meal) return;
+      if (!day.discarded_meals) day.discarded_meals = [];
+      day.discarded_meals.push({ pk, slot: slotKey, ...meal });
+      if (slotData.shared) breakShared(day, slotKey);
+      delete day.meals[slotKey][pk];
+      persistPlans();
+      rerender();
+    });
+  });
+
+  main.querySelectorAll('.discard-restore-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.discardIdx, 10);
+      if (isNaN(idx)) return;
+      const d = day.discarded_meals[idx];
+      if (!d) return;
+      const { pk, slot, ...mealData } = d;
+      if (!day.meals[slot]) day.meals[slot] = {};
+      const slotData = day.meals[slot];
+      if (slotData.shared) breakShared(day, slot);
+      if (!slotData[pk]) {
+        slotData[pk] = mealData;
+      } else {
+        if (!day.extra_meals) day.extra_meals = [];
+        day.extra_meals.push({ pk, name: mealData.name, note: mealData.note, macros: mealData.macros });
+      }
+      day.discarded_meals.splice(idx, 1);
       persistPlans();
       rerender();
     });

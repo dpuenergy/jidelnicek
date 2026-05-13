@@ -236,7 +236,8 @@ function savePhotoAsRecipe(result) {
 }
 
 class PhotoError extends Error {}
-let _photoOrphanPk = 'jakub';
+let _photoOrphanPk   = 'jakub';
+let _photoOrphanSlot = 'extra';
 
 // ── Photo ──────────────────────────────────────────────────────
 export function initPhoto(rerender) {
@@ -252,20 +253,33 @@ export function initPhoto(rerender) {
   document.getElementById('photo-apply').addEventListener('click', () => {
     if (!STATE.lastPhotoResult || !STATE.photoTarget) return;
     const { planId, dayIdx, slot, personKey, mode } = STATE.photoTarget;
-    // Orphan mode — add as extra meal
+    // Orphan mode — add to selected slot or extra
     if (mode === 'newOrphan') {
       const plan = STATE.plans[planId];
       if (!plan) { closeModal('photo-modal'); return; }
       const day = plan.days[dayIdx];
-      if (!day.extra_meals) day.extra_meals = [];
       const r = STATE.lastPhotoResult;
       const m = r.macros;
-      const pk = _photoOrphanPk || 'jakub';
-      day.extra_meals.push({
-        pk, name: r.name, note: 'odhad z fotky',
+      const mealObj = {
+        name: r.name, note: 'odhad z fotky',
         macros: { kcal: Math.round(m.kcal), p: m.p != null ? Math.round(m.p) : null,
                   c: m.c != null ? Math.round(m.c) : null, f: m.f != null ? Math.round(m.f) : null },
-      });
+      };
+      const pks = _photoOrphanPk === 'both' ? ['jakub', 'partnerka'] : [_photoOrphanPk || 'jakub'];
+      if (!_photoOrphanSlot || _photoOrphanSlot === 'extra') {
+        if (!day.extra_meals) day.extra_meals = [];
+        for (const pk of pks) day.extra_meals.push({ pk, ...mealObj });
+      } else {
+        if (!day.meals[_photoOrphanSlot]) day.meals[_photoOrphanSlot] = {};
+        const slotData = day.meals[_photoOrphanSlot];
+        if (slotData.shared) {
+          const sh = slotData.shared;
+          slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+          slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+          delete slotData.shared;
+        }
+        for (const pk of pks) slotData[pk] = { ...mealObj };
+      }
       persistPlans();
       closeModal('photo-modal');
       rerender();
@@ -372,15 +386,37 @@ function showPhotoResult(r, previousName) {
     const plan = STATE.plans[STATE.photoTarget.planId];
     hint.textContent = `Nahradit pokrm ${plan.persons[STATE.photoTarget.personKey].name}?`;
   } else if (STATE.photoTarget && STATE.photoTarget.mode === 'newOrphan') {
-    _photoOrphanPk = 'jakub';
+    _photoOrphanPk   = 'jakub';
+    _photoOrphanSlot = 'extra';
+    const plan = STATE.plans[STATE.currentPlanId];
+    const slotBtns = plan
+      ? plan.slots.map(s => {
+          const label = (plan.slot_labels && plan.slot_labels[s]) || s;
+          return `<button class="photo-slot-btn" data-slot="${escapeHtml(s)}">${escapeHtml(label)}</button>`;
+        }).join('')
+      : '';
     hint.innerHTML =
-      `<span class="photo-hint-label">Přidat pro:</span>
-       <button class="photo-pk-btn active" data-pk="jakub">Kuba</button>
-       <button class="photo-pk-btn" data-pk="partnerka">Verča</button>`;
+      `<span class="photo-hint-label">Pro:</span>
+       <div class="photo-pk-row">
+         <button class="photo-pk-btn active" data-pk="jakub">Kuba</button>
+         <button class="photo-pk-btn" data-pk="partnerka">Verča</button>
+         <button class="photo-pk-btn" data-pk="both">Oba</button>
+       </div>
+       <span class="photo-hint-label">Chod:</span>
+       <div class="photo-slot-row">
+         <button class="photo-slot-btn active" data-slot="extra">Extra</button>
+         ${slotBtns}
+       </div>`;
     hint.querySelectorAll('.photo-pk-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         _photoOrphanPk = btn.dataset.pk;
         hint.querySelectorAll('.photo-pk-btn').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+    hint.querySelectorAll('.photo-slot-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _photoOrphanSlot = btn.dataset.slot;
+        hint.querySelectorAll('.photo-slot-btn').forEach(b => b.classList.toggle('active', b === btn));
       });
     });
   } else { hint.textContent = 'Použít jako pokrm v plánu?'; }

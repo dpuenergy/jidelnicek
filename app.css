@@ -929,11 +929,41 @@ main {
 /* ─── Misc label helpers ─────────────────────────────────────── */
 .label-hint { font-weight: 400; font-size: 11px; color: var(--ink-faint); }
 
-/* ─── Photo orphan person picker ─────────────────────────────── */
+/* ─── Photo orphan person/slot pickers ───────────────────────── */
 .photo-hint-label { font-size: 12px; color: var(--ink-soft); margin-right: 6px; }
+.photo-pk-row, .photo-slot-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px;
+}
 .photo-pk-btn {
   padding: 4px 12px; border-radius: 999px; border: 1px solid var(--rule);
   background: var(--bg); color: var(--ink-soft);
-  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 4px;
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .photo-pk-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.photo-slot-btn {
+  padding: 4px 12px; border-radius: 999px; border: 1px solid var(--rule);
+  background: var(--bg); color: var(--ink-soft);
+  font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+}
+.photo-slot-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ─── Discarded meals section ────────────────────────────────── */
+.discarded-section {
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 12px; margin-bottom: 6px;
+}
+.discarded-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ink-faint); margin-bottom: 8px;
+}
+.discarded-card {
+  background: var(--bg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; opacity: .75;
+}
+.discarded-card:last-child { margin-bottom: 0; }
+.discard-restore-btn {
+  margin-top: 6px; background: transparent; border: 1px solid var(--accent);
+  color: var(--accent); font-family: inherit; font-size: 11px; font-weight: 600;
+  cursor: pointer; padding: 3px 10px; border-radius: 999px;
+}
+.discard-restore-btn:hover { background: var(--accent-soft); }
