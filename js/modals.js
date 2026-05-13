@@ -979,6 +979,16 @@ let _extraDebounce     = null;
 let _extraRequiresSide = false;
 let _extraSidePer100g  = null;
 let _extraSideGrams    = 0;
+let _cnfdData          = null;   // loaded once, null = not yet fetched
+
+async function _loadCnfd() {
+  if (_cnfdData) return _cnfdData;
+  try {
+    const res = await fetch('/jidelnicek/shared/cnfd.json');
+    _cnfdData = res.ok ? await res.json() : [];
+  } catch(_) { _cnfdData = []; }
+  return _cnfdData;
+}
 
 // Macros per 100g for common Czech side dishes
 const SIDE_MACROS = {
@@ -1013,13 +1023,26 @@ function _renderExtraResults() {
   if (_extraFoods === null) {
     html += `<div class="extra-res-loading">Hledám v databázi potravin…</div>`;
   } else if (_extraFoods.length > 0) {
-    html += `<div class="extra-res-section">Potraviny <span class="extra-res-badge">Open Food Facts</span></div>`;
-    html += _extraFoods.map((f, i) =>
-      `<button class="extra-result-btn" data-type="food" data-fidx="${i}">
-        <span class="extra-res-name">${escapeHtml(f.name.slice(0, 60))}</span>
-        <span class="extra-res-sub">${Math.round(f.kcal_100g)} kcal/100g${f.brand ? ' · ' + escapeHtml(f.brand.split(',')[0].trim().slice(0, 30)) : ''}</span>
-      </button>`
-    ).join('');
+    const cnfdItems = _extraFoods.filter(f => f._src === 'cnfd');
+    const offItems  = _extraFoods.filter(f => f._src === 'off');
+    if (cnfdItems.length) {
+      html += `<div class="extra-res-section">Potraviny <span class="extra-res-badge">CNFD</span></div>`;
+      html += cnfdItems.map((f, i) =>
+        `<button class="extra-result-btn" data-type="food" data-fidx="${_extraFoods.indexOf(f)}">
+          <span class="extra-res-name">${escapeHtml(f.name)}</span>
+          <span class="extra-res-sub">${f.kcal_100g} kcal/100g · B ${f.p_100g}g · S ${f.c_100g}g · T ${f.f_100g}g</span>
+        </button>`
+      ).join('');
+    }
+    if (offItems.length) {
+      html += `<div class="extra-res-section">Potraviny <span class="extra-res-badge">Open Food Facts CZ</span></div>`;
+      html += offItems.map((f) =>
+        `<button class="extra-result-btn" data-type="food" data-fidx="${_extraFoods.indexOf(f)}">
+          <span class="extra-res-name">${escapeHtml(f.name.slice(0, 60))}</span>
+          <span class="extra-res-sub">${Math.round(f.kcal_100g)} kcal/100g${f.brand ? ' · ' + escapeHtml(f.brand.split(',')[0].trim().slice(0, 30)) : ''}</span>
+        </button>`
+      ).join('');
+    }
   }
 
   if (!html) html = `<div class="extra-res-empty">Žádné výsledky</div>`;
@@ -1115,27 +1138,53 @@ function _selectSideItem(name) {
 }
 
 async function _searchFoods(query) {
-  try {
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page_size=8&fields=product_name,nutriments,brands&action=process&search_simple=1`;
-    const res = await fetch(url);
-    if (!res.ok) { _extraFoods = []; _renderExtraResults(); return; }
-    const data = await res.json();
-    _extraFoods = (data.products || [])
-      .filter(p => p.product_name && p.nutriments?.['energy-kcal_100g'] != null)
-      .slice(0, 8)
-      .map(p => ({
-        name:      p.product_name,
-        brand:     p.brands || '',
-        kcal_100g: Math.round(p.nutriments['energy-kcal_100g'] || 0),
-        p_100g:    Math.round((p.nutriments['proteins_100g'] || 0) * 10) / 10,
-        c_100g:    Math.round((p.nutriments['carbohydrates_100g'] || 0) * 10) / 10,
-        f_100g:    Math.round((p.nutriments['fat_100g'] || 0) * 10) / 10,
-      }));
-    _renderExtraResults();
-  } catch (_) { _extraFoods = []; _renderExtraResults(); }
+  const q = query.toLowerCase();
+
+  // Stage 1: local CNFD (instant)
+  const cnfd = await _loadCnfd();
+  const cnfdHits = cnfd
+    .filter(f => f.name.toLowerCase().includes(q))
+    .slice(0, 6)
+    .map(f => ({
+      _src:     'cnfd',
+      name:     f.name,
+      brand:    '',
+      kcal_100g: f.kcal,
+      p_100g:   f.p,
+      c_100g:   f.c,
+      f_100g:   f.f,
+    }));
+
+  // Stage 2: OFF Czech only (async), only when CNFD has < 3 hits
+  let offHits = [];
+  if (cnfdHits.length < 3) {
+    try {
+      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&countries_tags=en:czechia&json=1&page_size=8&fields=product_name,nutriments,brands&action=process&search_simple=1`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        offHits = (data.products || [])
+          .filter(p => p.product_name && p.nutriments?.['energy-kcal_100g'] != null)
+          .slice(0, 5)
+          .map(p => ({
+            _src:      'off',
+            name:      p.product_name,
+            brand:     p.brands || '',
+            kcal_100g: Math.round(p.nutriments['energy-kcal_100g'] || 0),
+            p_100g:    Math.round((p.nutriments['proteins_100g'] || 0) * 10) / 10,
+            c_100g:    Math.round((p.nutriments['carbohydrates_100g'] || 0) * 10) / 10,
+            f_100g:    Math.round((p.nutriments['fat_100g'] || 0) * 10) / 10,
+          }));
+      }
+    } catch (_) {}
+  }
+
+  _extraFoods = [...cnfdHits, ...offHits];
+  _renderExtraResults();
 }
 
 export function initExtraMeal() {
+  _loadCnfd(); // preload in background so first search is instant
   const searchEl = document.getElementById('extra-search');
   const gramEl   = document.getElementById('extra-grams');
 
@@ -1145,9 +1194,10 @@ export function initExtraMeal() {
     const resultsEl = document.getElementById('extra-search-results');
     if (q.length < 2) { resultsEl.classList.add('hidden'); _extraRecipes = []; _extraFoods = null; return; }
     _extraRecipes = getAllRecipes().filter(r => r.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6);
+    // Show "loading" placeholder for food section immediately, then debounce the actual search
     _extraFoods = null;
     _renderExtraResults();
-    _extraDebounce = setTimeout(() => _searchFoods(q), 700);
+    _extraDebounce = setTimeout(() => _searchFoods(q), 400);
   });
 
   gramEl.addEventListener('input', () => {

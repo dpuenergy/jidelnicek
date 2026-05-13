@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v17a3c1f';
+const CACHE = 'jidelnicek-v18b2d4e';
 const SHELL = [
   '/jidelnicek/',
   '/jidelnicek/index.html',
@@ -15,6 +15,7 @@ const SHELL = [
   '/jidelnicek/js/render/menu.js',
   '/jidelnicek/manifest.json',
   '/jidelnicek/icons/icon.svg',
+  '/jidelnicek/shared/cnfd.json',
 ];
 
 self.addEventListener('install', e => {
