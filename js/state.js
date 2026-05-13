@@ -41,7 +41,13 @@ export function loadState() {
 let _syncPush = null;
 export function registerSyncPush(fn) { _syncPush = fn; }
 
-export function persistPlans()  { localStorage.setItem(KEY_PLANS, JSON.stringify(STATE.plans)); }
+export function persistPlans() {
+  localStorage.setItem(KEY_PLANS, JSON.stringify(STATE.plans));
+  if (_syncPush) _syncPush();
+}
+export function _persistPlansSilent() {
+  localStorage.setItem(KEY_PLANS, JSON.stringify(STATE.plans));
+}
 export function persistCurrent() {
   if (STATE.currentPlanId) localStorage.setItem(KEY_CURRENT, STATE.currentPlanId);
   else localStorage.removeItem(KEY_CURRENT);
