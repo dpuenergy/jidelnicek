@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v8d4e2b7';
+const CACHE = 'jidelnicek-v9a5f3c1';
 const SHELL = [
   '/jidelnicek/',
   '/jidelnicek/index.html',
@@ -37,6 +37,7 @@ self.addEventListener('fetch', e => {
   // Pass through: API calls, GitHub raw content, fonts
   if (
     url.hostname === 'api.anthropic.com' ||
+    url.hostname === 'api.github.com' ||
     url.hostname === 'raw.githubusercontent.com' ||
     url.hostname === 'fonts.googleapis.com' ||
     url.hostname === 'fonts.gstatic.com'

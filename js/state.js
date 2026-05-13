@@ -5,7 +5,8 @@ export const KEY_ATE     = 'app_ate_meals_v1';
 export const KEY_CHAT    = 'app_chats_v1';
 export const KEY_API     = 'claude_api_key';
 export const KEY_MODEL   = 'claude_model';
-export const KEY_TARGETS = 'app_targets_v1';
+export const KEY_TARGETS       = 'app_targets_v1';
+export const KEY_GITHUB_TOKEN  = 'github_token';
 export const DEFAULT_MODEL = 'claude-sonnet-4-5';
 
 export const STATE = {
@@ -19,6 +20,7 @@ export const STATE = {
   photoTarget: null,
   chatTarget: null,
   lastPhotoResult: null,
+  lastPhotoImg: null,
 };
 
 export function loadState() {
@@ -44,8 +46,9 @@ export function persistCurrent() {
 }
 export function persistAte()   { localStorage.setItem(KEY_ATE,   JSON.stringify(STATE.ate)); }
 export function persistChats() { localStorage.setItem(KEY_CHAT,  JSON.stringify(STATE.chats)); }
-export function getApiKey()    { return localStorage.getItem(KEY_API)   || ''; }
-export function getModel()     { return localStorage.getItem(KEY_MODEL) || DEFAULT_MODEL; }
+export function getApiKey()       { return localStorage.getItem(KEY_API)          || ''; }
+export function getModel()        { return localStorage.getItem(KEY_MODEL)        || DEFAULT_MODEL; }
+export function getGithubToken()  { return localStorage.getItem(KEY_GITHUB_TOKEN) || ''; }
 export function getTargetOverrides() {
   try { return JSON.parse(localStorage.getItem(KEY_TARGETS) || '{}'); } catch(_) { return {}; }
 }

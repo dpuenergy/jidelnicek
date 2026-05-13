@@ -925,3 +925,6 @@ main {
 .photo-feedback-error {
   font-size: 12px; color: var(--danger, #c0392b); padding: 4px 0;
 }
+
+/* ─── Misc label helpers ─────────────────────────────────────── */
+.label-hint { font-weight: 400; font-size: 11px; color: var(--ink-faint); }

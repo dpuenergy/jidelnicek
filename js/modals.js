@@ -1,6 +1,7 @@
 import {
   STATE, persistPlans, persistChats,
-  getApiKey, getModel, KEY_API, KEY_MODEL, KEY_TARGETS,
+  getApiKey, getModel, getGithubToken,
+  KEY_API, KEY_MODEL, KEY_TARGETS, KEY_GITHUB_TOKEN,
   getTargetOverrides,
 } from './state.js';
 import { escapeHtml, mealKey } from './helpers.js';
@@ -32,6 +33,8 @@ export function initSettings() {
   document.getElementById('settings-save').addEventListener('click', () => {
     const k = document.getElementById('settings-key').value.trim();
     if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
+    const gh = document.getElementById('settings-github-token').value.trim();
+    if (gh) localStorage.setItem(KEY_GITHUB_TOKEN, gh); else localStorage.removeItem(KEY_GITHUB_TOKEN);
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
     // Save target overrides
     const overrides = {};
@@ -48,8 +51,9 @@ export function initSettings() {
 }
 
 export function openSettings() {
-  document.getElementById('settings-key').value   = getApiKey();
-  document.getElementById('settings-model').value = getModel();
+  document.getElementById('settings-key').value            = getApiKey();
+  document.getElementById('settings-github-token').value   = getGithubToken();
+  document.getElementById('settings-model').value          = getModel();
   // Load target overrides
   const ov = getTargetOverrides();
   for (const [pk, keys] of TARGET_FIELDS) {
@@ -407,21 +411,63 @@ function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
   });
 }
 
-// ── Photo feedback storage ─────────────────────────────────────
-const KEY_PHOTO_FEEDBACK = 'photo_feedback_v1';
+// ── Photo feedback storage (GitHub-backed) ─────────────────────
+const FEEDBACK_RAW = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/shared/photo-feedback.json';
+const FEEDBACK_API = 'https://api.github.com/repos/dpuenergy/jidelnicek/contents/shared/photo-feedback.json';
+let _cachedCorrections = null;   // in-memory after first fetch
 
-function _getPhotoCorrections() {
-  try { return JSON.parse(localStorage.getItem(KEY_PHOTO_FEEDBACK) || '[]'); } catch(_) { return []; }
+async function _loadCorrections() {
+  if (_cachedCorrections) return _cachedCorrections;
+  try {
+    const res = await fetch(FEEDBACK_RAW + '?t=' + Date.now());
+    if (res.ok) {
+      const j = await res.json();
+      _cachedCorrections = Array.isArray(j.corrections) ? j.corrections : [];
+    }
+  } catch(_) {}
+  if (!_cachedCorrections) _cachedCorrections = [];
+  return _cachedCorrections;
 }
 
-function _savePhotoCorrection(originalName, refinedName) {
-  const corrections = _getPhotoCorrections();
+async function _savePhotoCorrection(originalName, refinedName) {
+  const token = getGithubToken();
+  const corrections = await _loadCorrections();
   corrections.unshift({ from: originalName, to: refinedName, ts: Date.now() });
-  localStorage.setItem(KEY_PHOTO_FEEDBACK, JSON.stringify(corrections.slice(0, 30)));
+  _cachedCorrections = corrections.slice(0, 50);
+
+  if (!token) return;   // no token → in-memory only this session
+
+  const content = _toBase64(JSON.stringify({ corrections: _cachedCorrections }, null, 2));
+  // Need current SHA for updates
+  let sha;
+  try {
+    const r = await fetch(FEEDBACK_API, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' },
+    });
+    if (r.ok) sha = (await r.json()).sha;
+  } catch(_) {}
+
+  const body = { message: 'photo feedback update', content, ...(sha ? { sha } : {}) };
+  try {
+    await fetch(FEEDBACK_API, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch(_) {}
 }
 
-function _fewShotBlock() {
-  const corrections = _getPhotoCorrections().slice(0, 3);
+function _toBase64(str) {
+  // btoa doesn't handle UTF-8 directly
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+    (_, p1) => String.fromCharCode(parseInt(p1, 16))));
+}
+
+async function _fewShotBlock() {
+  const corrections = (await _loadCorrections()).slice(0, 3);
   if (!corrections.length) return '';
   return '\nPředchozí opravy (uč se z nich):\n'
     + corrections.map(c => `- "${c.from}" → "${c.to}"`).join('\n') + '\n';
@@ -483,7 +529,7 @@ async function refinePhotoAnalysis(userFeedback) {
 }
 
 async function callClaudeVision({ mediaType, data }) {
-  const fewShot = _fewShotBlock();
+  const fewShot = await _fewShotBlock();
   const prompt = `Analyzuj toto jídlo z fotky. Odhadni nutriční hodnoty pro CELOU porci viditelnou na fotce.
 Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáž každé komponenty. 3. Spočítej celková makra porce.${fewShot}
 Pokud na fotce NENÍ jídlo nebo ho nelze identifikovat, vrať: {"unrecognized":true,"notes":"krátký důvod"}
