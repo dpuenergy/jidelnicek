@@ -236,6 +236,7 @@ function savePhotoAsRecipe(result) {
 }
 
 class PhotoError extends Error {}
+let _photoOrphanPk = 'jakub';
 
 // ── Photo ──────────────────────────────────────────────────────
 export function initPhoto(rerender) {
@@ -250,7 +251,26 @@ export function initPhoto(rerender) {
 
   document.getElementById('photo-apply').addEventListener('click', () => {
     if (!STATE.lastPhotoResult || !STATE.photoTarget) return;
-    const { planId, dayIdx, slot, personKey } = STATE.photoTarget;
+    const { planId, dayIdx, slot, personKey, mode } = STATE.photoTarget;
+    // Orphan mode — add as extra meal
+    if (mode === 'newOrphan') {
+      const plan = STATE.plans[planId];
+      if (!plan) { closeModal('photo-modal'); return; }
+      const day = plan.days[dayIdx];
+      if (!day.extra_meals) day.extra_meals = [];
+      const r = STATE.lastPhotoResult;
+      const m = r.macros;
+      const pk = _photoOrphanPk || 'jakub';
+      day.extra_meals.push({
+        pk, name: r.name, note: 'odhad z fotky',
+        macros: { kcal: Math.round(m.kcal), p: m.p != null ? Math.round(m.p) : null,
+                  c: m.c != null ? Math.round(m.c) : null, f: m.f != null ? Math.round(m.f) : null },
+      });
+      persistPlans();
+      closeModal('photo-modal');
+      rerender();
+      return;
+    }
     if (!planId || !slot || !personKey) { closeModal('photo-modal'); return; }
     const plan     = STATE.plans[planId];
     const slotData = plan.days[dayIdx].meals[slot] || (plan.days[dayIdx].meals[slot] = {});
@@ -351,6 +371,18 @@ function showPhotoResult(r, previousName) {
   if (STATE.photoTarget && STATE.photoTarget.mode === 'replace') {
     const plan = STATE.plans[STATE.photoTarget.planId];
     hint.textContent = `Nahradit pokrm ${plan.persons[STATE.photoTarget.personKey].name}?`;
+  } else if (STATE.photoTarget && STATE.photoTarget.mode === 'newOrphan') {
+    _photoOrphanPk = 'jakub';
+    hint.innerHTML =
+      `<span class="photo-hint-label">Přidat pro:</span>
+       <button class="photo-pk-btn active" data-pk="jakub">Kuba</button>
+       <button class="photo-pk-btn" data-pk="partnerka">Verča</button>`;
+    hint.querySelectorAll('.photo-pk-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _photoOrphanPk = btn.dataset.pk;
+        hint.querySelectorAll('.photo-pk-btn').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
   } else { hint.textContent = 'Použít jako pokrm v plánu?'; }
   // Reset + show save-recipe button
   const saveBtn = document.getElementById('photo-save-recipe');

@@ -928,3 +928,12 @@ main {
 
 /* ─── Misc label helpers ─────────────────────────────────────── */
 .label-hint { font-weight: 400; font-size: 11px; color: var(--ink-faint); }
+
+/* ─── Photo orphan person picker ─────────────────────────────── */
+.photo-hint-label { font-size: 12px; color: var(--ink-soft); margin-right: 6px; }
+.photo-pk-btn {
+  padding: 4px 12px; border-radius: 999px; border: 1px solid var(--rule);
+  background: var(--bg); color: var(--ink-soft);
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 4px;
+}
+.photo-pk-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
