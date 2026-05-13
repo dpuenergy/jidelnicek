@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v16';
+const CACHE = 'jidelnicek-v17';
 
 // Soubory předem cachované při instalaci (malé, stabilní)
 const PRECACHE = [

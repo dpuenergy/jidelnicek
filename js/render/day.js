@@ -130,6 +130,7 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
       <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">${ICONS.chat} Otázka</button>
       <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
       <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesun</button>
+      <button data-act="copy"  data-slot="${slotKey}" data-person="${pk}">⎘ Kopírovat</button>
       <button data-act="reset"   data-slot="${slotKey}" data-person="${pk}">${ICONS.reset} Reset</button>
       <button data-act="discard" data-slot="${slotKey}" data-person="${pk}">✕ Vyřadit</button>
     </div>
@@ -159,6 +160,7 @@ function extraMealCardHTML(plan, planId, dayIdx, e, realIdx, ate) {
       <button data-act="extra-chat" data-eidx="${realIdx}">${ICONS.chat} Otázka</button>
       <button data-act="extra-photo" data-eidx="${realIdx}">${ICONS.camera} Foto</button>
       <button data-act="extra-move" data-eidx="${realIdx}" data-epk="${escapeHtml(e.pk)}">${ICONS.move} Přesun</button>
+      <button data-act="extra-copy" data-eidx="${realIdx}" data-epk="${escapeHtml(e.pk)}">⎘ Kopírovat</button>
       <button data-act="extra-discard" data-eidx="${realIdx}">✕ Vyřadit</button>
     </div>
   </div>`;
@@ -339,6 +341,67 @@ function _showSlotPicker(targetDayIdx) {
       }
       persistPlans();
       document.getElementById('move-modal').classList.add('hidden');
+      rerender();
+    })
+  );
+}
+
+// ── Copy modal ────────────────────────────────────────────────
+let _cp = null;
+
+function openCopyModal(plan, day, dayIdx, planId, fromSlot, pk, rerender) {
+  const fromMeal = getMealForPerson(day, fromSlot, pk);
+  if (!fromMeal) return;
+  _cp = { plan, planId, fromDayIdx: dayIdx, fromSlot, fromExtraIdx: undefined, pk, rerender };
+  document.getElementById('copy-modal-title').textContent = `Kopírovat: ${_titleShort(fromMeal.name)}`;
+  _showCopyDayPicker();
+  document.getElementById('copy-modal').classList.remove('hidden');
+}
+
+function openExtraCopyModal(plan, day, dayIdx, planId, extraIdx, pk, rerender) {
+  const extra = day.extra_meals[extraIdx];
+  if (!extra) return;
+  _cp = { plan, planId, fromDayIdx: dayIdx, fromSlot: null, fromExtraIdx: extraIdx, pk, rerender };
+  document.getElementById('copy-modal-title').textContent = `Kopírovat: ${_titleShort(extra.name)}`;
+  _showCopyDayPicker();
+  document.getElementById('copy-modal').classList.remove('hidden');
+}
+
+function _showCopyDayPicker() {
+  const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
+  const list = document.getElementById('copy-day-list');
+  list.innerHTML = `<p class="move-step-label">Vyber cílový den:</p>` +
+    plan.days.map((d, idx) => `
+      <button class="move-day-btn${idx === fromDayIdx ? ' current' : ''}" data-didx="${idx}">
+        <span class="move-day-name">${escapeHtml(d.name || '')}</span>
+        <span class="move-day-date">${escapeHtml(d.date || '')}</span>
+      </button>`).join('');
+  list.querySelectorAll('.move-day-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const targetDayIdx = parseInt(btn.dataset.didx);
+      const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
+      if (fromExtraIdx !== undefined) {
+        // Copy extra meal → extra_meals on target day
+        const extra = plan.days[fromDayIdx].extra_meals[fromExtraIdx];
+        const toDay = plan.days[targetDayIdx];
+        if (!toDay.extra_meals) toDay.extra_meals = [];
+        toDay.extra_meals.push({
+          pk: extra.pk, name: extra.name, note: extra.note,
+          macros: JSON.parse(JSON.stringify(extra.macros || {})),
+          _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+        });
+      } else {
+        // Copy regular meal → same slot on target day (overwrite)
+        const fromDay = plan.days[fromDayIdx];
+        const toDay   = plan.days[targetDayIdx];
+        const meal    = getMealForPerson(fromDay, fromSlot, pk);
+        if (!meal) { document.getElementById('copy-modal').classList.add('hidden'); return; }
+        if (!toDay.meals[fromSlot]) toDay.meals[fromSlot] = {};
+        breakShared(toDay, fromSlot);
+        toDay.meals[fromSlot][pk] = JSON.parse(JSON.stringify(meal));
+      }
+      persistPlans();
+      document.getElementById('copy-modal').classList.add('hidden');
       rerender();
     })
   );
@@ -569,6 +632,18 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
     });
   });
 
+  main.querySelectorAll('[data-act="copy"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openCopyModal(plan, day, dayIdx, planId, btn.dataset.slot, btn.dataset.person, rerender);
+    });
+  });
+
+  main.querySelectorAll('[data-act="extra-copy"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openExtraCopyModal(plan, day, dayIdx, planId, parseInt(btn.dataset.eidx, 10), btn.dataset.epk, rerender);
+    });
+  });
+
   main.querySelectorAll('[data-act="reset"]').forEach(btn => {
     btn.addEventListener('click', () => {
       if (!plan._original_days) {
@@ -576,10 +651,22 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
         return;
       }
       const slot    = btn.dataset.slot;
+      const pk      = btn.dataset.person;
       const origDay = plan._original_days[dayIdx];
       const origSlot = origDay?.meals?.[slot];
       if (!origSlot) return;
-      plan.days[dayIdx].meals[slot] = JSON.parse(JSON.stringify(origSlot));
+      // Restore only this person's meal — leave the other person's meal intact
+      let origMeal;
+      if (origSlot.shared) {
+        origMeal = { name: origSlot.shared.name, note: origSlot.shared.note,
+          macros: origSlot.shared['macros_' + pk] || {} };
+      } else {
+        origMeal = origSlot[pk] ? JSON.parse(JSON.stringify(origSlot[pk])) : null;
+      }
+      if (!origMeal) return;
+      if (!plan.days[dayIdx].meals[slot]) plan.days[dayIdx].meals[slot] = {};
+      breakShared(plan.days[dayIdx], slot);
+      plan.days[dayIdx].meals[slot][pk] = origMeal;
       persistPlans();
       rerender();
     });
