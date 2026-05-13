@@ -111,6 +111,32 @@ export function initAddPlan(onPlanImported) {
 
 export function openAddPlan() { openModal('addplan-modal'); }
 
+// ── Auto-sync on boot ──────────────────────────────────────────
+// Recipe-only plans (days=[]) are always refreshed; week plans only
+// if missing. Silent — no UI feedback unless something was imported.
+export async function autoSync(onImported) {
+  try {
+    const res = await fetch(GITHUB_INDEX);
+    if (!res.ok) return;
+    const index = await res.json();
+    let count = 0;
+    for (const p of (index.plans || [])) {
+      const local = STATE.plans[p.id];
+      const isLibrary = local && Array.isArray(local.days) && local.days.length === 0;
+      if (local && !isLibrary) continue; // week plan already imported — keep user edits
+      try {
+        const r = await fetch(GITHUB_RAW_BASE + p.file);
+        if (!r.ok) continue;
+        const plan = await r.json();
+        plan._original_days = JSON.parse(JSON.stringify(plan.days));
+        STATE.plans[plan.id] = plan;
+        count++;
+      } catch(_) { /* network/parse error — skip silently */ }
+    }
+    if (count > 0) { persistPlans(); onImported(); }
+  } catch(_) { /* index fetch failed — offline or github down */ }
+}
+
 // ── Action sheet (FAB) ─────────────────────────────────────────
 export function initActionSheet(onImportPlan) {
   document.getElementById('fab-btn').addEventListener('click', () => openModal('action-modal'));

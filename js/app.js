@@ -10,6 +10,7 @@ import {
   initModalDismiss, initSettings, initAddPlan,
   initActionSheet, initPhoto, initChat,
   openPhotoSource, openChat, openAddPlan, openSettings,
+  autoSync,
 } from './modals.js';
 
 export function render() {
@@ -84,6 +85,9 @@ function boot() {
   });
 
   render();
+
+  // Silent background sync — runs after first render so UI is not blocked
+  autoSync(() => { autoInitTimeline(); render(); });
 }
 
 boot();
