@@ -285,14 +285,16 @@ async function handlePhotoFile(file, inputEl, rerender) {
   STATE.lastPhotoResult = null;
   document.getElementById('photo-result-wrap').style.display = 'none';
   document.getElementById('photo-apply').disabled = true;
-  const prev = document.getElementById('photo-preview');
-  prev.src = URL.createObjectURL(file); prev.style.display = 'block';
-  setPhotoStatus('Načítám…', false);
+  document.getElementById('photo-preview').style.display = 'none';
+  setPhotoStatus('Komprimuji…', false);
   openModal('photo-modal');
   let img;
   try {
-    setPhotoStatus('Komprimuji…', false);
     img = await resizeAndCompress(file);
+    // Show preview from compressed data — original file no longer referenced
+    const prev = document.getElementById('photo-preview');
+    prev.src = `data:image/jpeg;base64,${img.data}`;
+    prev.style.display = 'block';
   }
   catch(e) { setPhotoStatus('Chyba čtení obrázku: ' + e.message, true); return; }
   setPhotoStatus('Claude analyzuje…', false);

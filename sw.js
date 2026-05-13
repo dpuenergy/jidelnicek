@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-v5c2f1a0';
+const CACHE = 'jidelnicek-v6e8b4d2';
 const SHELL = [
   '/jidelnicek/',
   '/jidelnicek/index.html',
