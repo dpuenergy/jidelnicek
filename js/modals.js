@@ -49,8 +49,8 @@ export function initSettings() {
     closeModal('settings-modal');
   });
 
-  // Sync UI
-  document.getElementById('sync-copy-btn').addEventListener('click', () => {
+  // Sync UI — elementy existují jen v nové verzi HTML
+  document.getElementById('sync-copy-btn')?.addEventListener('click', () => {
     const id = getSyncId();
     if (!id) return;
     navigator.clipboard.writeText(id).catch(() => {});
@@ -59,7 +59,7 @@ export function initSettings() {
     setTimeout(() => { btn.textContent = 'Kopírovat'; }, 2000);
   });
 
-  document.getElementById('sync-connect-btn').addEventListener('click', async () => {
+  document.getElementById('sync-connect-btn')?.addEventListener('click', async () => {
     const input = document.getElementById('sync-connect-input');
     const id = input.value.trim();
     if (!id) return;
@@ -85,10 +85,11 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
-  // Show current sync ID
   const syncId = getSyncId();
-  document.getElementById('sync-id-display').textContent = syncId || '(vytváří se…)';
-  document.getElementById('sync-connect-input').value = '';
+  const syncDisplay = document.getElementById('sync-id-display');
+  if (syncDisplay) syncDisplay.textContent = syncId || '(vytváří se…)';
+  const syncInput = document.getElementById('sync-connect-input');
+  if (syncInput) syncInput.value = '';
   openModal('settings-modal');
 }
 
