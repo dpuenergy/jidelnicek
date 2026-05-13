@@ -368,38 +368,67 @@ function openExtraCopyModal(plan, day, dayIdx, planId, extraIdx, pk, rerender) {
 }
 
 function _showCopyDayPicker() {
-  const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
+  const { plan, fromDayIdx } = _cp;
   const list = document.getElementById('copy-day-list');
   list.innerHTML = `<p class="move-step-label">Vyber cílový den:</p>` +
     plan.days.map((d, idx) => `
-      <button class="move-day-btn${idx === fromDayIdx ? ' current' : ''}" data-didx="${idx}">
+      <button class="move-day-btn" data-didx="${idx}">
         <span class="move-day-name">${escapeHtml(d.name || '')}</span>
         <span class="move-day-date">${escapeHtml(d.date || '')}</span>
       </button>`).join('');
   list.querySelectorAll('.move-day-btn').forEach(btn =>
+    btn.addEventListener('click', () => _showCopySlotPicker(parseInt(btn.dataset.didx)))
+  );
+}
+
+function _showCopySlotPicker(targetDayIdx) {
+  const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
+  const targetDay = plan.days[targetDayIdx];
+  const list = document.getElementById('copy-day-list');
+
+  if (fromExtraIdx !== undefined) {
+    // Extra meal → always copies as extra_meals entry; still pick day only
+    const extra = plan.days[fromDayIdx].extra_meals[fromExtraIdx];
+    const toDay = plan.days[targetDayIdx];
+    if (!toDay.extra_meals) toDay.extra_meals = [];
+    toDay.extra_meals.push({
+      pk: extra.pk, name: extra.name, note: extra.note,
+      macros: JSON.parse(JSON.stringify(extra.macros || {})),
+      _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    });
+    persistPlans();
+    document.getElementById('copy-modal').classList.add('hidden');
+    rerender();
+    return;
+  }
+
+  // Regular meal → pick target slot
+  const fromDay = plan.days[fromDayIdx];
+  const meal    = getMealForPerson(fromDay, fromSlot, pk);
+  if (!meal) { document.getElementById('copy-modal').classList.add('hidden'); return; }
+
+  list.innerHTML =
+    `<button class="move-back-btn" id="copy-back">← ${escapeHtml(targetDay.name || '')} ${escapeHtml(targetDay.date || '')}</button>` +
+    plan.slots.map(s => {
+      const label    = (plan.slot_labels && plan.slot_labels[s]) || s;
+      const existing = getMealForPerson(targetDay, s, pk);
+      const note     = existing ? `přepíše: ${escapeHtml(_titleShort(existing.name))}` : 'prázdný slot';
+      return `<button class="move-slot-btn" data-to="${escapeHtml(s)}">
+        <span class="move-slot-icon">${slotIcon(s)}</span>
+        <span class="move-slot-info">
+          <span class="move-slot-name">${escapeHtml(label)}</span>
+          <span class="move-slot-note">${note}</span>
+        </span>
+      </button>`;
+    }).join('');
+
+  document.getElementById('copy-back').addEventListener('click', _showCopyDayPicker);
+  list.querySelectorAll('.move-slot-btn').forEach(btn =>
     btn.addEventListener('click', () => {
-      const targetDayIdx = parseInt(btn.dataset.didx);
-      const { plan, fromDayIdx, fromSlot, fromExtraIdx, pk, rerender } = _cp;
-      if (fromExtraIdx !== undefined) {
-        // Copy extra meal → extra_meals on target day
-        const extra = plan.days[fromDayIdx].extra_meals[fromExtraIdx];
-        const toDay = plan.days[targetDayIdx];
-        if (!toDay.extra_meals) toDay.extra_meals = [];
-        toDay.extra_meals.push({
-          pk: extra.pk, name: extra.name, note: extra.note,
-          macros: JSON.parse(JSON.stringify(extra.macros || {})),
-          _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-        });
-      } else {
-        // Copy regular meal → same slot on target day (overwrite)
-        const fromDay = plan.days[fromDayIdx];
-        const toDay   = plan.days[targetDayIdx];
-        const meal    = getMealForPerson(fromDay, fromSlot, pk);
-        if (!meal) { document.getElementById('copy-modal').classList.add('hidden'); return; }
-        if (!toDay.meals[fromSlot]) toDay.meals[fromSlot] = {};
-        breakShared(toDay, fromSlot);
-        toDay.meals[fromSlot][pk] = JSON.parse(JSON.stringify(meal));
-      }
+      const toDay = plan.days[targetDayIdx];
+      if (!toDay.meals[btn.dataset.to]) toDay.meals[btn.dataset.to] = {};
+      breakShared(toDay, btn.dataset.to);
+      toDay.meals[btn.dataset.to][pk] = JSON.parse(JSON.stringify(meal));
       persistPlans();
       document.getElementById('copy-modal').classList.add('hidden');
       rerender();

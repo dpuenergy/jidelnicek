@@ -2,7 +2,7 @@ import { loadState, STATE, persistCurrent, registerSyncPush } from './state.js';
 import { buildTimeline, parseDayDate } from './helpers.js';
 import { CLAUDE_KEY, CLAUDE_MODEL } from './config.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
-import { renderDayView }     from './render/day.js?v=2';
+import { renderDayView }     from './render/day.js?v=3';
 import { renderWeekView }    from './render/week.js';
 import { renderRecipesView } from './render/recipes.js';
 import { renderMenuView }    from './render/menu.js';
