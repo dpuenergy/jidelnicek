@@ -1,8 +1,9 @@
 import { STATE, persistAte, persistCurrent, KEY_TARGETS } from './state.js';
 
 const KEY_BASE      = 'sync_firebase_url';
+const KEY_DEVICE_ID = 'sync_device_id';
 const KEY_LOCAL_TS  = 'sync_local_ts';
-const SYNC_PATH     = '/jidelnicek-sync.json';
+const DEVICES_PATH  = '/jidelnicek-devices';
 const PUSH_DELAY_MS = 2000;
 
 let _pushTimer  = null;
@@ -12,7 +13,16 @@ let _onSynced   = null;
 
 export function setSyncCallback(fn) { _onSynced = fn; }
 
-export function getSyncId() { return localStorage.getItem(KEY_BASE) || ''; }
+function getDeviceId() {
+  let id = localStorage.getItem(KEY_DEVICE_ID);
+  if (!id) {
+    id = 'dev-' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(KEY_DEVICE_ID, id);
+  }
+  return id;
+}
+
+export function getSyncId()  { return localStorage.getItem(KEY_BASE) || ''; }
 export function setSyncId(v) {
   let u = v.trim().replace(/\/+$/, '');
   if (u && !u.startsWith('http')) u = 'https://' + u;
@@ -32,44 +42,54 @@ function buildPayload() {
   };
 }
 
-function applyRemote(remote) {
-  if (!remote) return;
-  let changed = false;
-  if (remote.planId && remote.planId !== STATE.currentPlanId && STATE.plans[remote.planId]) {
-    STATE.currentPlanId = remote.planId;
-    persistCurrent();
-    changed = true;
-  }
-  if (remote.ate && typeof remote.ate === 'object') {
-    for (const k of Object.keys(remote.ate)) {
-      if (remote.ate[k] && !STATE.ate[k]) { STATE.ate[k] = true; changed = true; }
-    }
-    if (changed) persistAte();
-  }
-  if (remote.targets && typeof remote.targets === 'object') {
-    const localTs = parseInt(localStorage.getItem(KEY_LOCAL_TS) || '0', 10);
-    if ((remote.ts || 0) > localTs) {
-      localStorage.setItem(KEY_TARGETS, JSON.stringify(remote.targets));
-      changed = true;
-    }
-  }
-  if (changed && _onSynced) _onSynced();
-}
-
-// ── Public API ────────────────────────────────────────────────────
+// ── Pull — čte všechna zařízení, merguje ──────────────────────────
 export async function pullSync() {
   const base = getSyncId();
   if (!base) return 'no-id';
   try {
-    const res = await fetch(base + SYNC_PATH);
+    const res = await fetch(`${base}${DEVICES_PATH}.json`);
     if (!res.ok) return `error:HTTP ${res.status}`;
-    const data = await res.json();
-    applyRemote(data);
+    const all = await res.json();
+    if (!all || typeof all !== 'object') { _lastSyncTs = Date.now(); return 'ok'; }
+
+    const myId = getDeviceId();
+    let changed = false;
+    let newestTs = 0;
+    let newest   = null;
+
+    for (const [devId, data] of Object.entries(all)) {
+      if (devId === myId || !data) continue;
+      // Union-merge ate (nikdy neodstraňuje)
+      if (data.ate && typeof data.ate === 'object') {
+        for (const k of Object.keys(data.ate)) {
+          if (data.ate[k] && !STATE.ate[k]) { STATE.ate[k] = true; changed = true; }
+        }
+      }
+      if ((data.ts || 0) > newestTs) { newestTs = data.ts; newest = data; }
+    }
+
+    if (changed) persistAte();
+
+    if (newest) {
+      if (newest.planId && newest.planId !== STATE.currentPlanId && STATE.plans[newest.planId]) {
+        STATE.currentPlanId = newest.planId;
+        persistCurrent();
+        changed = true;
+      }
+      const localTs = parseInt(localStorage.getItem(KEY_LOCAL_TS) || '0', 10);
+      if (newestTs > localTs && newest.targets && typeof newest.targets === 'object') {
+        localStorage.setItem(KEY_TARGETS, JSON.stringify(newest.targets));
+        changed = true;
+      }
+    }
+
+    if (changed && _onSynced) _onSynced();
     _lastSyncTs = Date.now();
     return 'ok';
   } catch (e) { return 'error:' + e.message; }
 }
 
+// ── Push — píše jen do vlastního namespace ─────────────────────────
 export async function pushNow() {
   const base = getSyncId();
   if (!base) return 'no-id';
@@ -77,7 +97,8 @@ export async function pushNow() {
   const serialized = JSON.stringify(payload);
   if (serialized === _lastPushed) return 'skip';
   try {
-    const res = await fetch(base + SYNC_PATH, {
+    const devId = getDeviceId();
+    const res = await fetch(`${base}${DEVICES_PATH}/${devId}.json`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
       body:    serialized,
