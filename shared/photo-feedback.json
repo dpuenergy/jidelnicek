@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Opečené kuřecí kousky v koření",
+      "to": "Kuřecí nudličky na kari s rýží",
+      "ts": 1778664600547
+    },
+    {
       "from": "Marinované kuřecí kousky v pikantní omáčce",
       "to": "Opečené kuřecí kousky v koření",
       "ts": 1778664586608
