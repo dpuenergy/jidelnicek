@@ -234,6 +234,8 @@ function savePhotoAsRecipe(result) {
   btn.disabled = true;
 }
 
+class PhotoError extends Error {}
+
 // ── Photo ──────────────────────────────────────────────────────
 export function initPhoto(rerender) {
   document.getElementById('photosrc-camera').addEventListener('click', () => {
@@ -304,7 +306,9 @@ async function handlePhotoFile(file, inputEl, rerender) {
     showPhotoResult(result);
     document.getElementById('photo-apply').disabled = false;
     hidePhotoStatus();
-  } catch(e) { setPhotoStatus('API chyba: ' + e.message, true); }
+  } catch(e) {
+    setPhotoStatus(e instanceof PhotoError ? e.message : 'Chyba API: ' + e.message, true);
+  }
 }
 
 function setPhotoStatus(text, isError) {
@@ -374,7 +378,8 @@ function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
 async function callClaudeVision({ mediaType, data }) {
   const prompt = `Analyzuj toto jídlo z fotky. Odhadni nutriční hodnoty pro CELOU porci viditelnou na fotce.
 Postup: 1. Identifikuj viditelné komponenty. 2. Odhadni gramáž každé komponenty. 3. Spočítej celková makra porce.
-Vrať POUZE čistý JSON (žádný markdown):
+Pokud na fotce NENÍ jídlo nebo ho nelze identifikovat, vrať: {"unrecognized":true,"notes":"krátký důvod"}
+Jinak vrať POUZE čistý JSON (žádný markdown):
 {"name":"Název pokrmu v češtině","grams_estimate":350,"macros":{"kcal":0,"p":0,"c":0,"f":0},"ingredients":[{"item":"název","amount":"150 g"}],"confidence":"low|medium|high","notes":"1-2 věty"}`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -400,9 +405,13 @@ Vrať POUZE čistý JSON (žádný markdown):
   const j = await res.json();
   let text = (j.content?.[0]?.text || '').trim()
     .replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/i,'');
-  const parsed = JSON.parse(text);
+  let parsed;
+  try { parsed = JSON.parse(text); }
+  catch(_) { throw new PhotoError('Jídlo nebylo rozpoznáno — zkus jinou fotku nebo lepší světlo.'); }
+  if (parsed.unrecognized)
+    throw new PhotoError(parsed.notes || 'Jídlo nebylo rozpoznáno — zkus jinou fotku nebo lepší světlo.');
   if (!parsed.name || !parsed.macros || typeof parsed.macros.kcal !== 'number')
-    throw new Error('Neúplná data v odpovědi');
+    throw new PhotoError('Jídlo nebylo rozpoznáno — zkus jinou fotku nebo lepší světlo.');
   return parsed;
 }
 
