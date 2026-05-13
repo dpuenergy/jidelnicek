@@ -971,11 +971,26 @@ export function openEditMacro({ planId, dayIdx, slot, pk, extraIdx, meal, rerend
 }
 
 // ── Extra meal ─────────────────────────────────────────────────
-let _extraCtx      = null;
-let _extraPer100g  = null;
-let _extraRecipes  = [];
-let _extraFoods    = null;   // null = loading, [] = empty, [...] = results
-let _extraDebounce = null;
+let _extraCtx          = null;
+let _extraPer100g      = null;
+let _extraRecipes      = [];
+let _extraFoods        = null;   // null = loading, [] = empty, [...] = results
+let _extraDebounce     = null;
+let _extraRequiresSide = false;
+let _extraSidePer100g  = null;
+let _extraSideGrams    = 0;
+
+// Macros per 100g for common Czech side dishes
+const SIDE_MACROS = {
+  'Rýže vařená':      { kcal: 130, p: 2.7, c: 28.2, f: 0.3 },
+  'Těstoviny vařené': { kcal: 131, p: 5.0, c: 25.2, f: 1.1 },
+  'Brambory vařené':  { kcal:  77, p: 2.0, c: 17.0, f: 0.1 },
+  'Kuskus vařený':    { kcal: 112, p: 3.8, c: 23.2, f: 0.2 },
+  'Bulgur vařený':    { kcal:  83, p: 3.1, c: 18.6, f: 0.2 },
+  'Quinoa vařená':    { kcal: 120, p: 4.4, c: 21.3, f: 1.9 },
+  'Polenta vařená':   { kcal:  71, p: 1.7, c: 14.7, f: 0.4 },
+  'Čočka vařená':     { kcal: 116, p: 9.0, c: 20.0, f: 0.4 },
+};
 
 function _renderExtraResults() {
   const el = document.getElementById('extra-search-results');
@@ -1015,7 +1030,7 @@ function _renderExtraResults() {
     btn.addEventListener('click', () => {
       const r = getAllRecipes().find(x => x.id === btn.dataset.id);
       if (!r) return;
-      _selectExtraItem(r.name, getMacros(r));
+      _selectExtraItem(r.name, getMacros(r), r);
     });
   });
   el.querySelectorAll('[data-type="food"]').forEach(btn => {
@@ -1027,7 +1042,7 @@ function _renderExtraResults() {
   });
 }
 
-function _selectExtraItem(name, macroData) {
+function _selectExtraItem(name, macroData, recipe = null) {
   document.getElementById('extra-name').value = name;
   document.getElementById('extra-search-results').classList.add('hidden');
   const gramWrap = document.getElementById('extra-gram-wrap');
@@ -1046,6 +1061,56 @@ function _selectExtraItem(name, macroData) {
       document.getElementById('extra-c').value    = Math.round((macroData.m.c || 0) * 10) / 10 || '';
       document.getElementById('extra-f').value    = Math.round((macroData.m.f || 0) * 10) / 10 || '';
     }
+  }
+
+  // Reset side dish state
+  _extraRequiresSide = !!(recipe && recipe.requires_side);
+  _extraSidePer100g  = null;
+  _extraSideGrams    = 0;
+  const sideWrap = document.getElementById('extra-side-wrap');
+  document.getElementById('extra-side-name').value  = '';
+  document.getElementById('extra-side-grams').value = '';
+  document.getElementById('extra-side-preview').classList.add('hidden');
+  document.getElementById('extra-side-gram-wrap').classList.add('hidden');
+  document.getElementById('extra-side-results').classList.add('hidden');
+  document.getElementById('extra-side-search').value = '';
+
+  if (_extraRequiresSide) {
+    const quickEl = document.getElementById('extra-side-quick');
+    quickEl.innerHTML = (recipe.side_dishes || [])
+      .map(s => `<button class="extra-side-quick-btn" data-side="${escapeHtml(s)}">${escapeHtml(s)}</button>`)
+      .join('');
+    quickEl.querySelectorAll('.extra-side-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickEl.querySelectorAll('.extra-side-quick-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _selectSideItem(btn.dataset.side);
+      });
+    });
+    sideWrap.classList.remove('hidden');
+    // Auto-select first suggestion if only one
+    if (recipe.side_dishes && recipe.side_dishes.length === 1) {
+      quickEl.querySelectorAll('.extra-side-quick-btn')[0]?.click();
+    }
+  } else {
+    sideWrap.classList.add('hidden');
+  }
+}
+
+function _selectSideItem(name) {
+  document.getElementById('extra-side-name').value = name;
+  document.getElementById('extra-side-results').classList.add('hidden');
+  const m = SIDE_MACROS[name] || null;
+  _extraSidePer100g = m;
+  const gramWrap = document.getElementById('extra-side-gram-wrap');
+  if (m) {
+    gramWrap.classList.remove('hidden');
+    const gramEl = document.getElementById('extra-side-grams');
+    if (!gramEl.value || parseFloat(gramEl.value) <= 0) gramEl.value = '150';
+    gramEl.dispatchEvent(new Event('input'));
+  } else {
+    gramWrap.classList.add('hidden');
+    _extraSideGrams = 0;
   }
 }
 
@@ -1107,10 +1172,90 @@ export function initExtraMeal() {
     }
   });
 
+  // Side dish gram preview
+  document.getElementById('extra-side-grams').addEventListener('input', () => {
+    const g = parseFloat(document.getElementById('extra-side-grams').value);
+    _extraSideGrams = g > 0 ? g : 0;
+    const prevEl = document.getElementById('extra-side-preview');
+    if (_extraSidePer100g && g > 0) {
+      const f = g / 100;
+      const m = {
+        kcal: Math.round((_extraSidePer100g.kcal || 0) * f),
+        p:    Math.round((_extraSidePer100g.p    || 0) * f * 10) / 10,
+        c:    Math.round((_extraSidePer100g.c    || 0) * f * 10) / 10,
+        f:    Math.round((_extraSidePer100g.f    || 0) * f * 10) / 10,
+      };
+      prevEl.textContent = `→ ${m.kcal} kcal · B ${m.p} g · S ${m.c} g · T ${m.f} g`;
+      prevEl.classList.remove('hidden');
+    } else {
+      prevEl.classList.add('hidden');
+    }
+  });
+
+  // Side dish search (SIDE_MACROS + recipes with macros_per_100g)
+  document.getElementById('extra-side-search').addEventListener('input', () => {
+    const q = document.getElementById('extra-side-search').value.trim().toLowerCase();
+    const resultsEl = document.getElementById('extra-side-results');
+    if (q.length < 1) { resultsEl.classList.add('hidden'); return; }
+    const sideMatches = Object.keys(SIDE_MACROS).filter(n => n.toLowerCase().includes(q));
+    const recipeMatches = getAllRecipes()
+      .filter(r => r.macros_per_100g && !r.requires_side && r.name.toLowerCase().includes(q))
+      .slice(0, 4);
+    let html = '';
+    for (const n of sideMatches) {
+      const m = SIDE_MACROS[n];
+      html += `<button class="extra-result-btn" data-side-name="${escapeHtml(n)}">
+        <span class="extra-res-name">${escapeHtml(n)}</span>
+        <span class="extra-res-sub">${m.kcal} kcal/100g · B ${m.p}g · S ${m.c}g · T ${m.f}g</span>
+      </button>`;
+    }
+    for (const r of recipeMatches) {
+      const m = r.macros_per_100g;
+      html += `<button class="extra-result-btn" data-side-recipe="${escapeHtml(r.id)}" data-side-name="${escapeHtml(r.name)}">
+        <span class="extra-res-name">${escapeHtml(r.name)}</span>
+        <span class="extra-res-sub">${m.kcal} kcal/100g · B ${m.p}g · S ${m.c}g · T ${m.f}g</span>
+      </button>`;
+    }
+    if (!html) html = `<div class="extra-res-empty">Žádné výsledky</div>`;
+    resultsEl.innerHTML = html;
+    resultsEl.classList.remove('hidden');
+    resultsEl.querySelectorAll('[data-side-name]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('extra-side-search').value = '';
+        document.getElementById('extra-side-quick').querySelectorAll('.extra-side-quick-btn')
+          .forEach(b => b.classList.remove('active'));
+        const rid = btn.dataset.sideRecipe;
+        if (rid) {
+          const r = getAllRecipes().find(x => x.id === rid);
+          if (r) { _extraSidePer100g = r.macros_per_100g; }
+        }
+        _selectSideItem(btn.dataset.sideName);
+      });
+    });
+  });
+
   document.getElementById('extra-add').addEventListener('click', () => {
     if (!_extraCtx) return;
     const name = document.getElementById('extra-name').value.trim();
     if (!name) { document.getElementById('extra-name').focus(); return; }
+
+    // Validate side dish when required
+    if (_extraRequiresSide) {
+      const sideName  = document.getElementById('extra-side-name').value.trim();
+      const sideGrams = parseFloat(document.getElementById('extra-side-grams').value);
+      if (!sideName) {
+        const sw = document.getElementById('extra-side-wrap');
+        sw.style.outline = '2px solid var(--c-over)';
+        setTimeout(() => { sw.style.outline = ''; }, 1500);
+        document.getElementById('extra-side-search').focus();
+        return;
+      }
+      if (!(sideGrams > 0)) {
+        document.getElementById('extra-side-grams').focus();
+        return;
+      }
+    }
+
     const { plan, dayIdx, rerender } = _extraCtx;
     const day = plan.days[dayIdx];
     if (!day.extra_meals) day.extra_meals = [];
@@ -1119,15 +1264,34 @@ export function initExtraMeal() {
     const grams = parseFloat(document.getElementById('extra-grams').value);
     const gramVisible = !document.getElementById('extra-gram-wrap').classList.contains('hidden');
     const label = (gramVisible && _extraPer100g && grams > 0) ? `${name} ${Math.round(grams)}g` : name;
+
+    let macros = {
+      kcal: parseFloat(document.getElementById('extra-kcal').value) || 0,
+      p:    parseFloat(document.getElementById('extra-p').value)    || 0,
+      c:    parseFloat(document.getElementById('extra-c').value)    || 0,
+      f:    parseFloat(document.getElementById('extra-f').value)    || 0,
+    };
+
+    let finalLabel = label;
+    if (_extraRequiresSide) {
+      const sideName  = document.getElementById('extra-side-name').value.trim();
+      const sideGrams = parseFloat(document.getElementById('extra-side-grams').value);
+      if (_extraSidePer100g && sideGrams > 0) {
+        const sf = sideGrams / 100;
+        macros = {
+          kcal: Math.round(macros.kcal + (_extraSidePer100g.kcal || 0) * sf),
+          p:    Math.round((macros.p   + (_extraSidePer100g.p    || 0) * sf) * 10) / 10,
+          c:    Math.round((macros.c   + (_extraSidePer100g.c    || 0) * sf) * 10) / 10,
+          f:    Math.round((macros.f   + (_extraSidePer100g.f    || 0) * sf) * 10) / 10,
+        };
+      }
+      finalLabel = `${label} + ${sideName} ${Math.round(sideGrams)}g`;
+    }
+
     day.extra_meals.push({
-      pk, name: label,
+      pk, name: finalLabel,
       _id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-      macros: {
-        kcal: parseFloat(document.getElementById('extra-kcal').value) || 0,
-        p:    parseFloat(document.getElementById('extra-p').value)    || 0,
-        c:    parseFloat(document.getElementById('extra-c').value)    || 0,
-        f:    parseFloat(document.getElementById('extra-f').value)    || 0,
-      },
+      macros,
     });
     persistPlans();
     closeModal('extra-modal');
@@ -1136,16 +1300,26 @@ export function initExtraMeal() {
 }
 
 export function openExtraMeal({ plan, planId, dayIdx, rerender }) {
-  _extraCtx     = { plan, planId, dayIdx, rerender };
-  _extraPer100g = null;
-  _extraRecipes = [];
-  _extraFoods   = null;
+  _extraCtx          = { plan, planId, dayIdx, rerender };
+  _extraPer100g      = null;
+  _extraRecipes      = [];
+  _extraFoods        = null;
+  _extraRequiresSide = false;
+  _extraSidePer100g  = null;
+  _extraSideGrams    = 0;
   clearTimeout(_extraDebounce);
   document.getElementById('extra-search').value = '';
   document.getElementById('extra-search-results').classList.add('hidden');
   document.getElementById('extra-gram-wrap').classList.add('hidden');
   document.getElementById('extra-grams').value = '';
   document.getElementById('extra-gram-preview').classList.add('hidden');
+  document.getElementById('extra-side-wrap').classList.add('hidden');
+  document.getElementById('extra-side-name').value  = '';
+  document.getElementById('extra-side-grams').value = '';
+  document.getElementById('extra-side-preview').classList.add('hidden');
+  document.getElementById('extra-side-gram-wrap').classList.add('hidden');
+  document.getElementById('extra-side-results').classList.add('hidden');
+  document.getElementById('extra-side-search').value = '';
   document.getElementById('extra-name').value  = '';
   document.getElementById('extra-kcal').value  = '';
   document.getElementById('extra-p').value     = '';
