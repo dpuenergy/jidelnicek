@@ -8,13 +8,14 @@ function getAllRecipes() {
       if (!map.has(r.id)) map.set(r.id, { ...r, _planTitle: plan.plan_title });
     }
   }
-  return [...map.values()];
+  // Alphabetical by name
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
 }
 
 const PROTEIN_LABEL = { 'Kuřecí':'🍗', 'Hovězí':'🥩', 'Vepřové':'🐷', 'Zvěřina':'🦌', 'Ryby':'🐟', 'Vegetariánské':'🥦', 'Smíšené':'🍲' };
 
 function getMacros(r) {
-  if (r.macros_per_100g)   return { m: r.macros_per_100g,   unit: '/100g' };
+  if (r.macros_per_100g)    return { m: r.macros_per_100g,    unit: '/100g' };
   if (r.macros_per_serving) return { m: r.macros_per_serving, unit: '/porci' };
   return null;
 }
@@ -22,10 +23,10 @@ function getMacros(r) {
 function macroDonut(macros, unit) {
   const p = macros.p || 0, c = macros.c || 0, f = macros.f || 0;
   const pKcal = p * 4, cKcal = c * 4, fKcal = f * 9;
-  const total  = pKcal + cKcal + fKcal || 1;
-  const pPct   = (pKcal / total) * 100;
-  const cPct   = (cKcal / total) * 100;
-  const grad   = `conic-gradient(var(--c-protein) 0% ${pPct.toFixed(1)}%, var(--c-carbs) ${pPct.toFixed(1)}% ${(pPct + cPct).toFixed(1)}%, var(--c-fat) ${(pPct + cPct).toFixed(1)}% 100%)`;
+  const total = pKcal + cKcal + fKcal || 1;
+  const pPct  = (pKcal / total) * 100;
+  const cPct  = (cKcal / total) * 100;
+  const grad  = `conic-gradient(var(--c-protein) 0% ${pPct.toFixed(1)}%, var(--c-carbs) ${pPct.toFixed(1)}% ${(pPct + cPct).toFixed(1)}%, var(--c-fat) ${(pPct + cPct).toFixed(1)}% 100%)`;
   return `<div class="macro-donut-wrap">
     <div class="macro-donut" style="background:${grad}">
       <div class="macro-donut-inner"><span class="mdi-kcal">${macros.kcal}</span><span class="mdi-label">kcal</span></div>
@@ -43,12 +44,12 @@ function recipeCardHTML(r) {
   const vBadge = r.v_compatible === false
     ? `<span class="recipe-badge v-no" title="${escapeHtml(r.v_restriction || '')}">V ✗</span>`
     : r.v_compatible === true ? `<span class="recipe-badge v-yes">V ✓</span>` : '';
-  const ptLabel    = PROTEIN_LABEL[r.protein_type] || '';
-  const catBadge   = r.category && r.category !== 'hlavní jídlo'
+  const ptLabel   = PROTEIN_LABEL[r.protein_type] || '';
+  const catBadge  = r.category && r.category !== 'hlavní jídlo'
     ? `<span class="recipe-cat-badge">${escapeHtml(r.category)}</span>` : '';
   const personBadge = r.person
     ? `<span class="recipe-person-badge">${escapeHtml(r.person)}</span>` : '';
-  const macroData  = getMacros(r);
+  const macroData = getMacros(r);
 
   return `<div class="recipe-card" data-rid="${escapeHtml(r.id)}">
     <div class="recipe-card-header">
@@ -66,19 +67,34 @@ function recipeCardHTML(r) {
   </div>`;
 }
 
-function renderList(all, query, listEl) {
+// Returns sorted unique categories from recipe list
+function getCategories(all) {
+  const cats = new Set();
+  for (const r of all) {
+    if (r.category) cats.add(r.category);
+    else if (r.protein_type) cats.add(r.protein_type);
+  }
+  return [...cats].sort((a, b) => a.localeCompare(b, 'cs'));
+}
+
+function renderList(all, query, catFilter, listEl) {
   const q = query.toLowerCase().trim();
-  const filtered = q
+  let filtered = q
     ? all.filter(r =>
         r.name.toLowerCase().includes(q) ||
-        (r.batch_note || '').toLowerCase().includes(q) ||
-        (r.category  || '').toLowerCase().includes(q) ||
-        (r.person    || '').toLowerCase().includes(q)
+        (r.batch_note  || '').toLowerCase().includes(q) ||
+        (r.category    || '').toLowerCase().includes(q) ||
+        (r.protein_type|| '').toLowerCase().includes(q) ||
+        (r.person      || '').toLowerCase().includes(q)
       )
     : all;
 
+  if (catFilter) {
+    filtered = filtered.filter(r => r.category === catFilter || r.protein_type === catFilter);
+  }
+
   if (filtered.length === 0) {
-    listEl.innerHTML = `<p style="text-align:center;color:var(--ink-faint);padding:32px 0;font-size:14px">Žádný recept neodpovídá hledání.</p>`;
+    listEl.innerHTML = `<p class="recipes-empty">Žádný recept neodpovídá hledání.</p>`;
     return;
   }
   listEl.innerHTML = filtered.map(recipeCardHTML).join('');
@@ -118,9 +134,11 @@ function openRecipeModal(id, all) {
     sdWrap.style.display = 'block';
   } else if (sdWrap) { sdWrap.style.display = 'none'; }
 
+  const ingWrap = document.getElementById('recipe-modal-ingredients').parentElement;
   document.getElementById('recipe-modal-ingredients').innerHTML = (r.ingredients || [])
     .map(i => `<li><strong>${escapeHtml(i.amount)}</strong> — ${escapeHtml(i.item)}</li>`)
     .join('');
+  ingWrap.style.display = (r.ingredients && r.ingredients.length) ? 'block' : 'none';
 
   const stepsEl   = document.getElementById('recipe-modal-steps');
   const stepsWrap = document.getElementById('recipe-steps-wrap');
@@ -157,13 +175,37 @@ export function renderRecipesView() {
     return;
   }
 
+  const cats = getCategories(all);
+  const catPills = cats.map(c =>
+    `<button class="cat-pill" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`
+  ).join('');
+
   main.innerHTML = `
     <input class="recipes-search" id="recipes-search" placeholder="Hledat recept…">
+    <div class="cat-pills" id="cat-pills">
+      <button class="cat-pill active" data-cat="">Vše</button>
+      ${catPills}
+    </div>
     <div id="recipes-list" class="recipes-list"></div>`;
 
   const listEl   = document.getElementById('recipes-list');
   const searchEl = document.getElementById('recipes-search');
+  const pillsEl  = document.getElementById('cat-pills');
+  let activeCat  = '';
 
-  renderList(all, '', listEl);
-  searchEl.addEventListener('input', e => renderList(all, e.target.value, listEl));
+  const refresh = () => renderList(all, searchEl.value, activeCat, listEl);
+
+  searchEl.addEventListener('input', refresh);
+  pillsEl.querySelectorAll('.cat-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      activeCat = pill.dataset.cat;
+      pillsEl.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p === pill));
+      refresh();
+    });
+  });
+
+  refresh();
 }
+
+// Exported for replace-modal use
+export { getAllRecipes, getMacros };

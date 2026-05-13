@@ -5,6 +5,7 @@ export const KEY_ATE     = 'app_ate_meals_v1';
 export const KEY_CHAT    = 'app_chats_v1';
 export const KEY_API     = 'claude_api_key';
 export const KEY_MODEL   = 'claude_model';
+export const KEY_TARGETS = 'app_targets_v1';
 export const DEFAULT_MODEL = 'claude-sonnet-4-5';
 
 export const STATE = {
@@ -45,3 +46,11 @@ export function persistAte()   { localStorage.setItem(KEY_ATE,   JSON.stringify(
 export function persistChats() { localStorage.setItem(KEY_CHAT,  JSON.stringify(STATE.chats)); }
 export function getApiKey()    { return localStorage.getItem(KEY_API)   || ''; }
 export function getModel()     { return localStorage.getItem(KEY_MODEL) || DEFAULT_MODEL; }
+export function getTargetOverrides() {
+  try { return JSON.parse(localStorage.getItem(KEY_TARGETS) || '{}'); } catch(_) { return {}; }
+}
+export function getEffectiveTargets(plan, pk) {
+  const ov = getTargetOverrides()[pk] || {};
+  const base = (plan.persons[pk] && plan.persons[pk].targets) || {};
+  return { ...base, ...Object.fromEntries(Object.entries(ov).filter(([,v]) => v > 0)) };
+}

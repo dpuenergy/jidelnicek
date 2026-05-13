@@ -14,14 +14,13 @@
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="app.css?v=1a2b3c4">
+  <link rel="stylesheet" href="app.css?v=2f4e8a1">
 </head>
 <body>
 
   <!-- App bar -->
   <header class="appbar">
     <span class="appbar-title">Jídelníček</span>
-    <button class="appbar-btn" id="settings-btn" title="Nastavení"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
   </header>
 
   <!-- Week strip (hidden when no plan / not on day tab) -->
@@ -90,6 +89,23 @@
         <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6 (doporučeno)</option>
         <option value="claude-opus-4-7">Claude Opus 4.7 (nejlepší, drahý)</option>
       </select>
+      <div class="settings-targets-section">
+        <div class="settings-targets-label">Denní cíle — Kuba</div>
+        <div class="settings-targets-row">
+          <div class="settings-target-field"><label for="tgt-jakub-kcal">kcal</label><input type="number" id="tgt-jakub-kcal" placeholder="0" min="0" step="50"></div>
+          <div class="settings-target-field"><label for="tgt-jakub-p">B (g)</label><input type="number" id="tgt-jakub-p" placeholder="0" min="0" step="5"></div>
+          <div class="settings-target-field"><label for="tgt-jakub-c">S (g)</label><input type="number" id="tgt-jakub-c" placeholder="0" min="0" step="5"></div>
+          <div class="settings-target-field"><label for="tgt-jakub-f">T (g)</label><input type="number" id="tgt-jakub-f" placeholder="0" min="0" step="5"></div>
+        </div>
+        <div class="settings-targets-label settings-targets-label-second">Denní cíle — Verča</div>
+        <div class="settings-targets-row">
+          <div class="settings-target-field"><label for="tgt-partnerka-kcal">kcal</label><input type="number" id="tgt-partnerka-kcal" placeholder="0" min="0" step="50"></div>
+          <div class="settings-target-field"><label for="tgt-partnerka-p">B (g)</label><input type="number" id="tgt-partnerka-p" placeholder="0" min="0" step="5"></div>
+          <div class="settings-target-field"><label for="tgt-partnerka-c">S (g)</label><input type="number" id="tgt-partnerka-c" placeholder="0" min="0" step="5"></div>
+          <div class="settings-target-field"><label for="tgt-partnerka-f">T (g)</label><input type="number" id="tgt-partnerka-f" placeholder="0" min="0" step="5"></div>
+        </div>
+        <p class="modal-hint">Přepíše cíle z importovaného plánu. Nechej prázdné = použij cíle z plánu.</p>
+      </div>
       <div class="modal-actions">
         <button data-close="settings-modal">Zrušit</button>
         <button class="primary" id="settings-save">Uložit</button>
@@ -209,11 +225,68 @@
     </div>
   </div>
 
+  <!-- ── Modal: Replace meal with recipe ─────────────────────── -->
+  <div id="replace-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3 id="replace-modal-title">Nahradit pokrm</h3>
+      <input type="text" id="replace-search" placeholder="Hledat recept…" autocomplete="off">
+      <div id="replace-list" class="replace-list"></div>
+      <div id="replace-weight-wrap" class="replace-weight-wrap hidden">
+        <label for="replace-weight">Gramáž porce (g)</label>
+        <input type="number" id="replace-weight" placeholder="200" min="10" max="1000" step="10">
+        <p class="modal-hint">Makra se přepočítají dle gramáže z hodnot /100g</p>
+      </div>
+      <div class="modal-actions">
+        <button data-close="replace-modal">Zrušit</button>
+        <button class="primary" id="replace-apply" disabled>Použít</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Edit macros ───────────────────────────────────── -->
+  <div id="editmacro-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Upravit makra</h3>
+      <p class="modal-sub" id="editmacro-name"></p>
+      <div class="settings-targets-row">
+        <div class="settings-target-field"><label for="em-kcal">kcal</label><input type="number" id="em-kcal" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="em-p">B (g)</label><input type="number" id="em-p" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="em-c">S (g)</label><input type="number" id="em-c" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="em-f">T (g)</label><input type="number" id="em-f" placeholder="0" min="0"></div>
+      </div>
+      <div class="modal-actions">
+        <button data-close="editmacro-modal">Zrušit</button>
+        <button class="primary" id="editmacro-save">Uložit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Add extra meal ────────────────────────────────── -->
+  <div id="extra-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Doplnit jídlo</h3>
+      <p class="modal-sub">Dezert, ovoce, snack — cokoliv mimo plán.</p>
+      <label for="extra-name">Název</label>
+      <input type="text" id="extra-name" placeholder="např. Jablko, Tvaroh, Dortík…" autocomplete="off">
+      <div class="settings-targets-row" style="margin-top:12px">
+        <div class="settings-target-field"><label for="extra-kcal">kcal</label><input type="number" id="extra-kcal" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="extra-p">B (g)</label><input type="number" id="extra-p" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="extra-c">S (g)</label><input type="number" id="extra-c" placeholder="0" min="0"></div>
+        <div class="settings-target-field"><label for="extra-f">T (g)</label><input type="number" id="extra-f" placeholder="0" min="0"></div>
+      </div>
+      <div id="extra-person-row" class="extra-person-row"></div>
+      <div class="modal-actions">
+        <button data-close="extra-modal">Zrušit</button>
+        <button class="primary" id="extra-add">Přidat</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hidden file inputs -->
   <input type="file" id="camera-input"  accept="image/*" capture="environment" style="display:none">
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
-  <script type="module" src="js/app.js?v=1a2b3c4"></script>
+  <script type="module" src="js/app.js?v=2f4e8a1"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/jidelnicek/sw.js');

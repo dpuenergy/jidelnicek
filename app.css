@@ -736,3 +736,128 @@ main {
 
 /* ─── Utilities ──────────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+/* ─── Hero circle overflow (>100%) ──────────────────────────── */
+.hero-circle.over { filter: drop-shadow(0 0 4px rgba(196,74,74,.4)); }
+.hero-pct.over { color: var(--c-over); font-weight: 700; }
+
+/* ─── Recipe category filter pills ──────────────────────────── */
+.cat-pills {
+  display: flex; gap: 6px; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 12px; margin-bottom: 4px;
+}
+.cat-pills::-webkit-scrollbar { display: none; }
+.cat-pill {
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--bg-card); color: var(--ink-soft);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+.cat-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cat-pill:active { background: var(--rule-soft); }
+.cat-pill.active:active { background: var(--accent); }
+.recipes-empty { text-align: center; color: var(--ink-faint); padding: 32px 0; font-size: 14px; }
+
+/* Compact recipe cards */
+.recipe-card { padding: 10px 12px; }
+.recipe-card-name { font-size: 14px; }
+.macro-donut { width: 46px; height: 46px; }
+.macro-donut-inner { width: 30px; height: 30px; }
+.mdi-kcal { font-size: 10px; }
+
+/* ─── Settings target overrides ─────────────────────────────── */
+.settings-targets-section {
+  margin-top: 20px; padding-top: 14px;
+  border-top: 0.5px solid var(--rule);
+}
+.settings-targets-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--ink-soft); margin-bottom: 8px;
+}
+.settings-targets-label-second { margin-top: 14px; }
+.settings-targets-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.settings-target-field label {
+  display: block; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ink-faint); margin-bottom: 4px; margin-top: 0;
+}
+.settings-target-field input {
+  width: 100%; padding: 8px 10px;
+  border: 1px solid var(--rule); border-radius: 8px;
+  font-family: inherit; font-size: 14px;
+  color: var(--ink); background: var(--bg);
+}
+.settings-target-field input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+/* ─── Replace recipe modal ───────────────────────────────────── */
+.replace-list {
+  max-height: 40vh; overflow-y: auto;
+  margin: 10px 0; display: flex; flex-direction: column; gap: 4px;
+}
+.replace-recipe-btn {
+  display: flex; flex-direction: column; align-items: flex-start;
+  width: 100%; padding: 10px 12px;
+  background: var(--bg); border: 1px solid var(--rule);
+  border-radius: 10px; font-family: inherit;
+  cursor: pointer; text-align: left; gap: 2px;
+}
+.replace-recipe-btn:active { background: var(--rule-soft); }
+.replace-recipe-btn.selected { border-color: var(--accent); background: var(--accent-soft); }
+.rrb-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+.rrb-sub  { font-size: 11px; color: var(--ink-faint); }
+.replace-weight-wrap { margin-top: 12px; }
+
+/* ─── Extra meal ─────────────────────────────────────────────── */
+.extra-add-btn {
+  display: block; width: 100%; margin: 12px 0 6px;
+  padding: 10px; border-radius: 10px;
+  border: 1.5px dashed var(--rule);
+  background: transparent; color: var(--ink-soft);
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer;
+}
+.extra-add-btn:active { background: var(--rule-soft); }
+.extra-meals-section {
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 12px; margin-bottom: 6px;
+}
+.extra-meals-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ink-faint); margin-bottom: 8px;
+}
+.extra-meal-card {
+  background: #fff8ec; border: 1px solid #f0d8a8;
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+}
+.extra-meal-card:last-child { margin-bottom: 0; }
+.extra-del-btn {
+  margin-top: 6px; background: transparent; border: none;
+  color: var(--ink-faint); font-family: inherit; font-size: 11px;
+  cursor: pointer; padding: 0;
+}
+.extra-del-btn:hover { color: var(--c-over); }
+.extra-person-row {
+  display: flex; gap: 8px; margin-top: 14px;
+}
+.extra-person-btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: transparent; color: var(--ink-soft);
+  cursor: pointer;
+}
+.extra-person-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ─── Chat auto-expand + Zaznamenat ─────────────────────────── */
+.chat-input-row textarea { resize: none; overflow-y: hidden; max-height: 200px; }
+.chat-record-btn {
+  display: block; margin-top: 8px;
+  background: var(--accent-soft); border: 1px solid var(--accent);
+  color: var(--accent); font-family: inherit; font-size: 12px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px; cursor: pointer; width: 100%;
+}
+.chat-record-btn:disabled { opacity: .5; cursor: default; }

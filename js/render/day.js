@@ -1,4 +1,4 @@
-import { STATE, persistAte, persistCurrent, persistPlans } from '../state.js';
+import { STATE, persistAte, persistCurrent, persistPlans, getEffectiveTargets } from '../state.js';
 import {
   escapeHtml, activeMetricsFor, computeDayTotals,
   computeEatenTotals, mealKey, slotIcon, ICONS, buildTimeline,
@@ -21,14 +21,15 @@ function heroCircleHTML(eaten, total, sizeClass = '') {
   const cx = sizeClass === 'small' ? 42 : 60;
   const SIZE = cx * 2;
   const C = 2 * Math.PI * R;
-  const ratio = total > 0 ? Math.min(eaten / total, 1) : 0;
-  const dash  = (ratio * C).toFixed(1);
+  const over = total > 0 && eaten > total * 1.05;
+  const visualRatio = total > 0 ? Math.min(eaten / total, 1) : 0;
+  const dash  = (visualRatio * C).toFixed(1);
   const gap   = (C - parseFloat(dash)).toFixed(1);
-  const pct   = Math.round(ratio * 100);
-  const stroke = eaten > total * 1.05 ? 'var(--c-over)' : 'var(--accent)';
+  const pct   = total > 0 ? Math.round((eaten / total) * 100) : 0;
+  const stroke = over ? 'var(--c-over)' : 'var(--accent)';
   const sw = sizeClass === 'small' ? 6 : 8;
 
-  return `<div class="hero-circle${sizeClass ? ' ' + sizeClass : ''}">
+  return `<div class="hero-circle${sizeClass ? ' ' + sizeClass : ''}${over ? ' over' : ''}">
     <svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">
       <circle cx="${cx}" cy="${cx}" r="${R}" fill="none"
         stroke="var(--rule-soft)" stroke-width="${sw}"/>
@@ -41,7 +42,7 @@ function heroCircleHTML(eaten, total, sizeClass = '') {
     <div class="hero-center">
       <span class="hero-kcal">${Math.round(eaten)}</span>
       <span class="hero-target">/ ${Math.round(total)}</span>
-      <span class="hero-pct">${pct}%</span>
+      <span class="hero-pct${over ? ' over' : ''}">${pct}%</span>
     </div>
   </div>`;
 }
@@ -63,14 +64,14 @@ function heroHTML(plan, day, dayIdx, planId) {
   let circlesHTML;
   if (persons.length === 1) {
     const pk = persons[0];
-    const tgt = plan.persons[pk].targets.kcal || 0;
+    const tgt = getEffectiveTargets(plan, pk).kcal || 0;
     circlesHTML = `<div class="hero-circle-item">
       <span class="hero-person-name">${escapeHtml(plan.persons[pk].name)}</span>
       ${heroCircleHTML(eaten[pk].kcal, tgt)}
     </div>`;
   } else {
     circlesHTML = persons.map(pk => {
-      const tgt = plan.persons[pk].targets.kcal || 0;
+      const tgt = getEffectiveTargets(plan, pk).kcal || 0;
       return `<div class="hero-circle-item">
         <span class="hero-person-name">${escapeHtml(plan.persons[pk].name)}</span>
         ${heroCircleHTML(eaten[pk].kcal, tgt, 'small')}
@@ -124,9 +125,11 @@ function mealCardHTML(plan, slotKey, pk, meal, dayIdx, planId) {
     <div class="meal-macros">${macroLine}</div>
     <div class="meal-actions">
       <button class="eaten-btn${isEaten ? ' is-eaten' : ''}" data-act="eat" data-key="${key}">${isEaten ? '✓ Snědeno' : 'Snědeno'}</button>
-      <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
+      <button data-act="replace" data-slot="${slotKey}" data-person="${pk}">↔ Nahradit</button>
+      <button data-act="editmacro" data-slot="${slotKey}" data-person="${pk}">✎ Gramáž</button>
       <button data-act="chat"  data-slot="${slotKey}" data-person="${pk}">${ICONS.chat} Otázka</button>
-      <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesunout</button>
+      <button data-act="photo" data-slot="${slotKey}" data-person="${pk}">${ICONS.camera} Foto</button>
+      <button data-act="move"  data-slot="${slotKey}" data-person="${pk}">${ICONS.move} Přesun</button>
       <button data-act="reset" data-slot="${slotKey}" data-person="${pk}">${ICONS.reset} Reset</button>
     </div>
   </div>`;
@@ -139,7 +142,7 @@ function dayTotalsHTML(plan, day, persons) {
   let html = '<div class="day-totals">';
   for (const pk of persons) {
     const t = totals[pk];
-    const tgt = plan.persons[pk].targets;
+    const tgt = getEffectiveTargets(plan, pk);
     html += `<div class="day-totals-person">
       <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)}</div>`;
     for (const m of metrics) {
@@ -289,7 +292,7 @@ function _showSlotPicker(targetDayIdx) {
 }
 
 // ── Main render ────────────────────────────────────────────────
-export function renderDayView(rerender, openPhotoSource, openChat) {
+export function renderDayView(rerender, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal) {
   const plan = STATE.currentPlanId ? STATE.plans[STATE.currentPlanId] : null;
   const main = document.getElementById('main');
 
@@ -348,6 +351,32 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
     html += '</div>';
   }
 
+  // Extra meals (per-person free-form)
+  const extras = day.extra_meals || [];
+  const visibleExtras = extras.filter(e => pf === 'both' || e.pk === pf);
+  if (visibleExtras.length > 0) {
+    html += `<div class="extra-meals-section">
+      <div class="extra-meals-label">Extra jídla</div>`;
+    visibleExtras.forEach((e, idx) => {
+      const realIdx = extras.indexOf(e);
+      const m = e.macros || {};
+      const macroLine = [
+        m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
+        m.p    != null ? `<strong>${m.p}</strong> B` : '',
+        m.c    != null ? `<strong>${m.c}</strong> S` : '',
+        m.f    != null ? `<strong>${m.f}</strong> T` : '',
+      ].filter(Boolean).join(' · ');
+      html += `<div class="extra-meal-card">
+        <span class="meal-person">${escapeHtml(plan.persons[e.pk]?.name || e.pk)}</span>
+        <div class="meal-name">${escapeHtml(e.name)}</div>
+        <div class="meal-macros">${macroLine}</div>
+        <button class="extra-del-btn" data-extra-idx="${realIdx}">✕ Odebrat</button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  html += `<button class="extra-add-btn" id="extra-open-btn">＋ Doplnit jídlo</button>`;
   html += dayTotalsHTML(plan, day, persons);
   main.innerHTML = html;
 
@@ -394,6 +423,34 @@ export function renderDayView(rerender, openPhotoSource, openChat) {
       if (meal) openChat({ planId, dayIdx, slot, personKey: pk, meal });
     });
   });
+  main.querySelectorAll('[data-act="replace"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openReplace({ planId, dayIdx, slot: btn.dataset.slot, pk: btn.dataset.person });
+    });
+  });
+  main.querySelectorAll('[data-act="editmacro"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slot = btn.dataset.slot; const pk = btn.dataset.person;
+      const slotData = day.meals[slot] || {};
+      const meal = slotData.shared
+        ? { name: slotData.shared.name, macros: slotData.shared['macros_'+pk] || {} }
+        : slotData[pk];
+      if (meal) openEditMacro({ planId, dayIdx, slot, pk, meal, rerender });
+    });
+  });
+  main.querySelectorAll('.extra-del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.extraIdx, 10);
+      if (!isNaN(idx)) {
+        day.extra_meals.splice(idx, 1);
+        persistPlans(); rerender();
+      }
+    });
+  });
+  const extraOpenBtn = document.getElementById('extra-open-btn');
+  if (extraOpenBtn) {
+    extraOpenBtn.addEventListener('click', () => openExtraMeal({ plan, planId, dayIdx, rerender }));
+  }
 
   main.querySelectorAll('[data-act="move"]').forEach(btn => {
     btn.addEventListener('click', () => {

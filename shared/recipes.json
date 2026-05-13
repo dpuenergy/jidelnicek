@@ -29,7 +29,16 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 151, "p": 17.8, "c": 12.2, "f": 3.3 },
       "side_dishes": ["Rýže vařená"],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Kuřecí prsa (bez kůže)", "amount": "1 000 g"},
+        {"item": "Sladká chilli omáčka", "amount": "200 ml"},
+        {"item": "Sriracha", "amount": "20 ml"},
+        {"item": "Pšeničná mouka hladká", "amount": "50 g"},
+        {"item": "Olivový olej", "amount": "30 ml"},
+        {"item": "Zázvor čerstvý", "amount": "30 g"},
+        {"item": "Paprika sladká mletá", "amount": "10 g"},
+        {"item": "Česnek", "amount": "3 stroužky"}
+      ],
       "steps": [],
       "notes": "115 g cukrů v celém hrnci ze sladkochilli omáčky."
     },
@@ -41,7 +50,13 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 165, "p": 18.5, "c": 1.9, "f": 9.2 },
       "side_dishes": ["Brambory opečené (air fryer)", "Chléb tmavý"],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Krůtí stehno (bez kosti a kůže)", "amount": "1 000 g"},
+        {"item": "Vejce slepičí", "amount": "3 ks (165 g)"},
+        {"item": "Bramborový škrob", "amount": "20 g"},
+        {"item": "Cibule", "amount": "50 g"},
+        {"item": "Olivový olej", "amount": "60 ml"}
+      ],
       "steps": [],
       "notes": "Vždy s přílohou — brambor nebo chléb. Krůtí stehno nebo mix prsa+stehna."
     },
@@ -53,7 +68,16 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 83, "p": 9.0, "c": 2.4, "f": 2.4 },
       "side_dishes": ["Rýže vařená"],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Kuřecí prsa (bez kůže)", "amount": "800 g"},
+        {"item": "Smetana na vaření 10%", "amount": "400 ml"},
+        {"item": "Bílé víno suché", "amount": "600 ml"},
+        {"item": "Pórek", "amount": "200 g"},
+        {"item": "Žampiony plátky (nálev)", "amount": "115 g"},
+        {"item": "Trvanlivé mléko 1,5%", "amount": "150 ml"},
+        {"item": "Celozrnná mouka", "amount": "15 g"},
+        {"item": "Paprika červená", "amount": "100 g"}
+      ],
       "steps": [],
       "notes": "Kuřecí prsa v smetanové omáčce s bílým vínem. Rýže vždy."
     },
@@ -65,7 +89,14 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 111, "p": 17.6, "c": 3.7, "f": 2.8 },
       "side_dishes": ["Těstoviny vařené", "Rýže vařená"],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Kuřecí prso vařené", "amount": "800 g"},
+        {"item": "Smetana na vaření 10% (bezlakt.)", "amount": "200 ml"},
+        {"item": "Cottage cheese proteinový", "amount": "180 g"},
+        {"item": "Kukuřice vařená", "amount": "200 g"},
+        {"item": "Mangold", "amount": "50 g"},
+        {"item": "Celerová nať", "amount": "50 g"}
+      ],
       "steps": [],
       "notes": "Rekordní protein 73 % kalorií. 800 g prs + cottage cheese."
     },
@@ -77,7 +108,16 @@
       "batch_note": "batch 2 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 108, "p": 11.2, "c": 7.9, "f": 3.4 },
       "side_dishes": [],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Gnocchi", "amount": "800 g"},
+        {"item": "Kuřecí prsa restovaná", "amount": "900 g"},
+        {"item": "Kuřecí stehenní řízek", "amount": "400 g"},
+        {"item": "Špenátový protlak", "amount": "900 g"},
+        {"item": "Cottage (bez laktózy)", "amount": "300 g"},
+        {"item": "Smetana na vaření 10%", "amount": "200 ml"},
+        {"item": "Cuketa", "amount": "250 g"},
+        {"item": "Kuřecí vývar", "amount": "200 ml"}
+      ],
       "steps": [],
       "notes": "Var. A (bezlaktózová). Gnocchi integrované v receptu. Sůl 13.9 g na hrnec — sledovat."
     },
@@ -102,7 +142,14 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 130, "p": 14.0, "c": 2.0, "f": 8.0 },
       "side_dishes": ["Těstoviny vařené"],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Smetana ke šlehání 31% Kunín", "amount": "200 g"},
+        {"item": "Jihočeská niva Madeta", "amount": "110 g"},
+        {"item": "Kuřecí prsa (přidají se zvlášť)", "amount": "∼200 g / porci"},
+        {"item": "Ketchup sladký", "amount": "20 g"},
+        {"item": "Sladká chilli omáčka", "amount": "20 ml"},
+        {"item": "Bezlepkové penne Combino", "amount": "400 g (celý recept)"}
+      ],
       "steps": [],
       "notes": "Pasta se vaří čerstvě ke každé porci, omáčka do batche."
     },
@@ -237,7 +284,16 @@
       "batch_note": "batch 3 dny · oběd i večeře",
       "macros_per_100g": { "kcal": 144, "p": 6.3, "c": 8.6, "f": 9.1 },
       "side_dishes": [],
-      "ingredients": [],
+      "ingredients": [
+        {"item": "Mleté hovězí", "amount": "500 g"},
+        {"item": "Rajčata loupaná krájená", "amount": "800 g (2× konzerva)"},
+        {"item": "Lasagne pláty Panzani", "amount": "125 g"},
+        {"item": "Mléko polotučné 1,5%", "amount": "500 ml"},
+        {"item": "Máslo", "amount": "55 g"},
+        {"item": "Mouka polohrubá", "amount": "50 g"},
+        {"item": "Olej slunečnicový", "amount": "50 ml"},
+        {"item": "Česnek", "amount": "2 stroužky"}
+      ],
       "steps": [],
       "notes": "Mleté hovězí + béchamel + lasagne pláty. Verča nesmí — rajčata."
     },

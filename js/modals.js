@@ -1,8 +1,10 @@
 import {
   STATE, persistPlans, persistChats,
-  getApiKey, getModel, KEY_API, KEY_MODEL,
+  getApiKey, getModel, KEY_API, KEY_MODEL, KEY_TARGETS,
+  getTargetOverrides,
 } from './state.js';
 import { escapeHtml, mealKey } from './helpers.js';
+import { getAllRecipes, getMacros } from './render/recipes.js';
 
 const GITHUB_INDEX    = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/shared/index.json';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/';
@@ -21,18 +23,41 @@ export function initModalDismiss() {
 }
 
 // ── Settings ───────────────────────────────────────────────────
+const TARGET_FIELDS = [
+  ['jakub',     ['kcal','p','c','f']],
+  ['partnerka', ['kcal','p','c','f']],
+];
+
 export function initSettings() {
-  document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('settings-save').addEventListener('click', () => {
     const k = document.getElementById('settings-key').value.trim();
     if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
+    // Save target overrides
+    const overrides = {};
+    for (const [pk, keys] of TARGET_FIELDS) {
+      overrides[pk] = {};
+      for (const key of keys) {
+        const val = parseFloat(document.getElementById(`tgt-${pk}-${key}`).value);
+        if (!isNaN(val) && val > 0) overrides[pk][key] = val;
+      }
+    }
+    localStorage.setItem(KEY_TARGETS, JSON.stringify(overrides));
     closeModal('settings-modal');
   });
 }
+
 export function openSettings() {
   document.getElementById('settings-key').value   = getApiKey();
   document.getElementById('settings-model').value = getModel();
+  // Load target overrides
+  const ov = getTargetOverrides();
+  for (const [pk, keys] of TARGET_FIELDS) {
+    for (const key of keys) {
+      const el = document.getElementById(`tgt-${pk}-${key}`);
+      if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
+    }
+  }
   openModal('settings-modal');
 }
 
@@ -109,7 +134,7 @@ export function initAddPlan(onPlanImported) {
   });
 }
 
-export function openAddPlan() { openModal('addplan-modal'); }
+export function openAddPlan()  { openModal('addplan-modal'); }
 
 // ── Auto-sync on boot ──────────────────────────────────────────
 // Recipe-only plans (days=[]) are always refreshed; week plans only
@@ -293,10 +318,209 @@ Vrať POUZE čistý JSON:
   return parsed;
 }
 
+// ── Replace meal with recipe ───────────────────────────────────
+let _replaceTarget = null;
+let _replaceRecipe = null;
+
+export function initReplace(rerender) {
+  const searchEl  = document.getElementById('replace-search');
+  const listEl    = document.getElementById('replace-list');
+  const weightWrap = document.getElementById('replace-weight-wrap');
+  const applyBtn  = document.getElementById('replace-apply');
+
+  searchEl.addEventListener('input', () => _renderReplaceList(searchEl.value, listEl, weightWrap, applyBtn));
+
+  applyBtn.addEventListener('click', () => {
+    if (!_replaceTarget || !_replaceRecipe) return;
+    const { planId, dayIdx, slot, pk } = _replaceTarget;
+    const plan = STATE.plans[planId];
+    const r = _replaceRecipe;
+
+    let macros;
+    const macroData = getMacros(r);
+    if (macroData && macroData.unit === '/100g') {
+      const grams = parseFloat(document.getElementById('replace-weight').value) || 200;
+      const factor = grams / 100;
+      const m = macroData.m;
+      macros = {
+        kcal: Math.round((m.kcal || 0) * factor),
+        p:    Math.round((m.p    || 0) * factor),
+        c:    Math.round((m.c    || 0) * factor),
+        f:    Math.round((m.f    || 0) * factor),
+      };
+    } else if (macroData) {
+      macros = { ...macroData.m };
+    } else {
+      macros = {};
+    }
+
+    const slotData = plan.days[dayIdx].meals[slot] || (plan.days[dayIdx].meals[slot] = {});
+    if (slotData.shared) {
+      const sh = slotData.shared;
+      slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+      slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+      delete slotData.shared;
+    }
+    const grams = macroData && macroData.unit === '/100g'
+      ? (parseFloat(document.getElementById('replace-weight').value) || 200)
+      : null;
+    slotData[pk] = { name: r.name + (grams ? ` ${Math.round(grams)}g` : ''), macros };
+    persistPlans();
+    closeModal('replace-modal');
+    rerender();
+  });
+}
+
+function _renderReplaceList(query, listEl, weightWrap, applyBtn) {
+  const q   = query.toLowerCase().trim();
+  const all = getAllRecipes();
+  const filtered = q
+    ? all.filter(r => r.name.toLowerCase().includes(q) || (r.category||'').toLowerCase().includes(q))
+    : all;
+  listEl.innerHTML = filtered.slice(0, 60).map(r => {
+    const md = getMacros(r);
+    const sub = md ? `${md.m.kcal} kcal ${md.unit}` : '';
+    return `<button class="replace-recipe-btn" data-rid="${escapeHtml(r.id)}">
+      <span class="rrb-name">${escapeHtml(r.name)}</span>
+      ${sub ? `<span class="rrb-sub">${escapeHtml(sub)}</span>` : ''}
+    </button>`;
+  }).join('');
+  listEl.querySelectorAll('.replace-recipe-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r = getAllRecipes().find(x => x.id === btn.dataset.rid);
+      if (!r) return;
+      _replaceRecipe = r;
+      listEl.querySelectorAll('.replace-recipe-btn').forEach(b => b.classList.toggle('selected', b === btn));
+      const md = getMacros(r);
+      if (md && md.unit === '/100g') {
+        weightWrap.classList.remove('hidden');
+        document.getElementById('replace-weight').value = '200';
+      } else {
+        weightWrap.classList.add('hidden');
+      }
+      applyBtn.disabled = false;
+    });
+  });
+}
+
+export function openReplace(target) {
+  _replaceTarget = target;
+  _replaceRecipe = null;
+  document.getElementById('replace-apply').disabled = true;
+  document.getElementById('replace-weight-wrap').classList.add('hidden');
+  document.getElementById('replace-search').value = '';
+  const plan = STATE.plans[target.planId];
+  const personName = plan?.persons[target.pk]?.name || target.pk;
+  document.getElementById('replace-modal-title').textContent = `Nahradit pokrm — ${personName}`;
+  _renderReplaceList(
+    '', document.getElementById('replace-list'),
+    document.getElementById('replace-weight-wrap'),
+    document.getElementById('replace-apply')
+  );
+  openModal('replace-modal');
+}
+
+// ── Edit macros ────────────────────────────────────────────────
+let _editMacroCtx = null;
+
+export function initEditMacro() {
+  document.getElementById('editmacro-save').addEventListener('click', () => {
+    if (!_editMacroCtx) return;
+    const { planId, dayIdx, slot, pk, rerender } = _editMacroCtx;
+    const plan = STATE.plans[planId];
+    const slotData = plan.days[dayIdx].meals[slot] || {};
+    if (slotData.shared) {
+      const sh = slotData.shared;
+      slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+      slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+      delete slotData.shared;
+      plan.days[dayIdx].meals[slot] = slotData;
+    }
+    const meal = slotData[pk] || {};
+    meal.macros = {
+      kcal: parseFloat(document.getElementById('em-kcal').value) || 0,
+      p:    parseFloat(document.getElementById('em-p').value)    || 0,
+      c:    parseFloat(document.getElementById('em-c').value)    || 0,
+      f:    parseFloat(document.getElementById('em-f').value)    || 0,
+    };
+    slotData[pk] = meal;
+    persistPlans();
+    closeModal('editmacro-modal');
+    rerender();
+  });
+}
+
+export function openEditMacro({ planId, dayIdx, slot, pk, meal, rerender }) {
+  _editMacroCtx = { planId, dayIdx, slot, pk, rerender };
+  document.getElementById('editmacro-name').textContent = meal.name;
+  const m = meal.macros || {};
+  document.getElementById('em-kcal').value = m.kcal ?? '';
+  document.getElementById('em-p').value    = m.p    ?? '';
+  document.getElementById('em-c').value    = m.c    ?? '';
+  document.getElementById('em-f').value    = m.f    ?? '';
+  openModal('editmacro-modal');
+}
+
+// ── Extra meal ─────────────────────────────────────────────────
+let _extraCtx = null;
+
+export function initExtraMeal() {
+  document.getElementById('extra-add').addEventListener('click', () => {
+    if (!_extraCtx) return;
+    const name = document.getElementById('extra-name').value.trim();
+    if (!name) { document.getElementById('extra-name').focus(); return; }
+    const { plan, planId, dayIdx, rerender } = _extraCtx;
+    const day = plan.days[dayIdx];
+    if (!day.extra_meals) day.extra_meals = [];
+    const pkEl = document.querySelector('.extra-person-btn.active');
+    const pk   = pkEl ? pkEl.dataset.pk : 'jakub';
+    day.extra_meals.push({
+      pk, name,
+      macros: {
+        kcal: parseFloat(document.getElementById('extra-kcal').value) || 0,
+        p:    parseFloat(document.getElementById('extra-p').value)    || 0,
+        c:    parseFloat(document.getElementById('extra-c').value)    || 0,
+        f:    parseFloat(document.getElementById('extra-f').value)    || 0,
+      },
+    });
+    persistPlans();
+    closeModal('extra-modal');
+    rerender();
+  });
+}
+
+export function openExtraMeal({ plan, planId, dayIdx, rerender }) {
+  _extraCtx = { plan, planId, dayIdx, rerender };
+  document.getElementById('extra-name').value  = '';
+  document.getElementById('extra-kcal').value  = '';
+  document.getElementById('extra-p').value     = '';
+  document.getElementById('extra-c').value     = '';
+  document.getElementById('extra-f').value     = '';
+  // Person picker
+  const row = document.getElementById('extra-person-row');
+  row.innerHTML = Object.entries(plan.persons).map(([pk, p]) =>
+    `<button class="extra-person-btn${pk === 'jakub' ? ' active' : ''}" data-pk="${escapeHtml(pk)}">${escapeHtml(p.name)}</button>`
+  ).join('');
+  row.querySelectorAll('.extra-person-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      row.querySelectorAll('.extra-person-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+  openModal('extra-modal');
+  setTimeout(() => document.getElementById('extra-name').focus(), 100);
+}
+
 // ── Chat ───────────────────────────────────────────────────────
 export function initChat() {
+  const input = document.getElementById('chat-input');
+  // Auto-expand textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  });
   document.getElementById('chat-send').addEventListener('click', sendChat);
-  document.getElementById('chat-input').addEventListener('keydown', e => {
+  input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
 }
@@ -321,9 +545,39 @@ function chatKey() {
 function renderChatHistory() {
   const hist = STATE.chats[chatKey()] || [];
   const el   = document.getElementById('chat-history');
-  el.innerHTML = hist.map(msg =>
-    `<div class="chat-msg ${msg.role === 'user' ? 'user' : 'assistant'}${msg.error ? ' error' : ''}">${escapeHtml(msg.content)}</div>`
-  ).join('');
+  el.innerHTML = hist.map(msg => {
+    const isUser = msg.role === 'user';
+    let displayText = msg.content;
+    let macroBtn = '';
+    if (!isUser && msg.macroUpdate) {
+      const m = msg.macroUpdate;
+      macroBtn = `<button class="chat-record-btn" data-macros='${JSON.stringify(m)}'>✓ Zaznamenat makra (${m.kcal} kcal · B${m.p} · S${m.c} · T${m.f})</button>`;
+    }
+    return `<div class="chat-msg ${isUser ? 'user' : 'assistant'}${msg.error ? ' error' : ''}">${escapeHtml(displayText)}${macroBtn}</div>`;
+  }).join('');
+  // Wire "Zaznamenat" buttons
+  el.querySelectorAll('.chat-record-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = JSON.parse(btn.dataset.macros);
+      const t = STATE.chatTarget;
+      if (!t || !t.planId || !t.slot) return;
+      const plan     = STATE.plans[t.planId];
+      const slotData = plan.days[t.dayIdx].meals[t.slot] || {};
+      if (slotData.shared) {
+        const sh = slotData.shared;
+        slotData.jakub     = { name: sh.name, note: sh.note, macros: sh.macros_jakub     || {} };
+        slotData.partnerka = { name: sh.name, note: sh.note, macros: sh.macros_partnerka || {} };
+        delete slotData.shared;
+      }
+      const meal = slotData[t.personKey] || {};
+      meal.macros = { kcal: m.kcal, p: m.p, c: m.c, f: m.f };
+      slotData[t.personKey] = meal;
+      plan.days[t.dayIdx].meals[t.slot] = slotData;
+      persistPlans();
+      btn.textContent = '✓ Zaznamenáno';
+      btn.disabled = true;
+    });
+  });
   el.scrollTop = el.scrollHeight;
 }
 
@@ -334,15 +588,30 @@ async function sendChat() {
   const key = chatKey();
   if (!STATE.chats[key]) STATE.chats[key] = [];
   STATE.chats[key].push({ role:'user', content: text });
-  persistChats(); input.value = ''; renderChatHistory();
+  persistChats();
+  input.value = '';
+  input.style.height = 'auto';
+  renderChatHistory();
   const sendBtn = document.getElementById('chat-send');
   sendBtn.disabled = true;
   STATE.chats[key].push({ role:'assistant', content:'…' });
   renderChatHistory();
   try {
-    const reply = await callClaudeChat(STATE.chats[key].slice(0,-1));
+    const raw = await callClaudeChat(STATE.chats[key].slice(0,-1));
     STATE.chats[key].pop();
-    STATE.chats[key].push({ role:'assistant', content: reply });
+    // Detect MAKRA:{...} pattern
+    const macroMatch = raw.match(/MAKRA:\s*(\{[^}]+\})/);
+    if (macroMatch) {
+      try {
+        const m = JSON.parse(macroMatch[1]);
+        const displayText = raw.replace(/MAKRA:\s*\{[^}]+\}/, '').trim();
+        STATE.chats[key].push({ role:'assistant', content: displayText, macroUpdate: m });
+      } catch(_) {
+        STATE.chats[key].push({ role:'assistant', content: raw });
+      }
+    } else {
+      STATE.chats[key].push({ role:'assistant', content: raw });
+    }
   } catch(e) {
     STATE.chats[key].pop();
     STATE.chats[key].push({ role:'assistant', content:'Chyba: '+e.message, error:true });
@@ -352,7 +621,7 @@ async function sendChat() {
 
 async function callClaudeChat(history) {
   const t = STATE.chatTarget; const m = t.meal.macros || {};
-  const system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky.`;
+  const system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky. Pokud uživatel žádá o úpravu gramáže nebo maker pokrmu a ty navrhuješ konkrétní nové hodnoty, přidej na konec odpovědi (na samostatný řádek) token: MAKRA:{"kcal":X,"p":X,"c":X,"f":X}`;
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST',
     headers:{ 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01',

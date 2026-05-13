@@ -9,7 +9,9 @@ import { renderMenuView }    from './render/menu.js';
 import {
   initModalDismiss, initSettings, initAddPlan,
   initActionSheet, initPhoto, initChat,
+  initReplace, initEditMacro, initExtraMeal,
   openPhotoSource, openChat, openAddPlan, openSettings,
+  openReplace, openEditMacro, openExtraMeal,
   autoSync,
 } from './modals.js';
 
@@ -19,7 +21,7 @@ export function render() {
 
   switch (STATE.view) {
     case 'day':
-      renderDayView(render, openPhotoSource, openChat);
+      renderDayView(render, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal);
       break;
     case 'week':
       renderWeekView();
@@ -74,6 +76,9 @@ function boot() {
   initActionSheet(openAddPlan);
   initPhoto(render);
   initChat();
+  initReplace(render);
+  initEditMacro();
+  initExtraMeal();
 
   // Bottom nav tab clicks
   document.querySelectorAll('.bnav-btn[data-tab]').forEach(btn => {
