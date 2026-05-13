@@ -426,9 +426,15 @@ function _showCopySlotPicker(targetDayIdx) {
   list.querySelectorAll('.move-slot-btn').forEach(btn =>
     btn.addEventListener('click', () => {
       const toDay = plan.days[targetDayIdx];
-      if (!toDay.meals[btn.dataset.to]) toDay.meals[btn.dataset.to] = {};
-      breakShared(toDay, btn.dataset.to);
-      toDay.meals[btn.dataset.to][pk] = JSON.parse(JSON.stringify(meal));
+      const toSlot = btn.dataset.to;
+      if (!toDay.meals[toSlot]) toDay.meals[toSlot] = {};
+      breakShared(toDay, toSlot);
+      const displaced = getMealForPerson(toDay, toSlot, pk);
+      if (displaced) {
+        if (!toDay.discarded_meals) toDay.discarded_meals = [];
+        toDay.discarded_meals.push({ pk, slot: toSlot, name: displaced.name, note: displaced.note, macros: displaced.macros });
+      }
+      toDay.meals[toSlot][pk] = JSON.parse(JSON.stringify(meal));
       persistPlans();
       document.getElementById('copy-modal').classList.add('hidden');
       rerender();
