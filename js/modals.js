@@ -14,8 +14,10 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/
 const _sync = {
   getSyncId:    () => '',
   setSyncId:    () => {},
-  pullSync:     async () => {},
+  pullSync:     async () => 'no-sync',
+  pushNow:      async () => 'no-sync',
   schedulePush: () => {},
+  syncInit:     async () => '',
 };
 export function setSyncFunctions(fns) { Object.assign(_sync, fns); }
 
@@ -79,9 +81,27 @@ export function initSettings() {
     const btn = document.getElementById('sync-connect-btn');
     btn.textContent = 'Synchronizuji…';
     btn.disabled = true;
-    await _sync.pullSync();
-    btn.textContent = 'Připojeno ✓';
-    setTimeout(() => { btn.textContent = 'Připojit'; btn.disabled = false; }, 2000);
+    const result = await _sync.pullSync();
+    btn.textContent = result === 'ok' ? 'Připojeno ✓' : `Chyba: ${result}`;
+    setTimeout(() => { btn.textContent = 'Připojit'; btn.disabled = false; }, 3000);
+  });
+
+  document.getElementById('sync-now-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('sync-now-btn');
+    const status = document.getElementById('sync-status');
+    btn.disabled = true;
+    if (status) status.textContent = 'Odesílám…';
+    const pushResult = await _sync.pushNow();
+    if (status) status.textContent = 'Stahuji…';
+    const pullResult = await _sync.pullSync();
+    btn.disabled = false;
+    if (status) {
+      const ok = pushResult === 'ok' || pushResult === 'skip';
+      const msg = ok && pullResult === 'ok'
+        ? `Sync OK (${new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })})`
+        : `Push: ${pushResult} / Pull: ${pullResult}`;
+      status.textContent = msg;
+    }
   });
 }
 

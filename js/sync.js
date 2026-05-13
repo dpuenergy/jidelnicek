@@ -107,29 +107,46 @@ function applyRemote(remote) {
 
 // ── Public API ────────────────────────────────────────────────────
 
-/** Pull latest state from Gist and apply. */
+let _lastSyncTs = 0;
+export function getLastSyncTs() { return _lastSyncTs; }
+
+/** Pull latest state from Gist and apply. Returns 'ok'|'no-id'|'error'. */
 export async function pullSync() {
   const id = getSyncId();
-  if (!id) return;
+  if (!id) return 'no-id';
   try {
     const remote = await gistFetch(id);
     applyRemote(remote);
-  } catch (_) { /* offline or token error — silent */ }
+    _lastSyncTs = Date.now();
+    return 'ok';
+  } catch (e) {
+    return 'error:' + e.message;
+  }
+}
+
+/** Immediately push current state to Gist. Returns 'ok'|'no-id'|'skip'|'error'. */
+export async function pushNow() {
+  const id = getSyncId();
+  if (!id) return 'no-id';
+  if (!hasToken()) return 'no-token';
+  const payload = buildPayload();
+  const serialized = JSON.stringify(payload);
+  if (serialized === _lastPushed) return 'skip';
+  _lastPushed = serialized;
+  localStorage.setItem('sync_local_ts', String(payload.ts));
+  try {
+    await gistPatch(id, payload);
+    _lastSyncTs = Date.now();
+    return 'ok';
+  } catch (e) {
+    return 'error:' + e.message;
+  }
 }
 
 /** Schedule a debounced push of current state to Gist. */
 export function schedulePush() {
   clearTimeout(_pushTimer);
-  _pushTimer = setTimeout(async () => {
-    const id = getSyncId();
-    if (!id) return;
-    const payload = buildPayload();
-    const serialized = JSON.stringify(payload);
-    if (serialized === _lastPushed) return;
-    _lastPushed = serialized;
-    localStorage.setItem('sync_local_ts', String(payload.ts));
-    try { await gistPatch(id, payload); } catch (_) { /* silent */ }
-  }, PUSH_DELAY_MS);
+  _pushTimer = setTimeout(() => pushNow(), PUSH_DELAY_MS);
 }
 
 /**

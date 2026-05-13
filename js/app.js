@@ -99,7 +99,11 @@ function boot() {
     setSyncFunctions(sync);
     registerSyncPush(sync.schedulePush);
     sync.setSyncCallback(() => { autoInitTimeline(); render(); });
-    sync.syncInit();
+    sync.syncInit().then(id => {
+      // Pokud syncInit nevytvořil Gist (token nebyl k dispozici při startu),
+      // zkusíme znovu — token mohl být zadán mezitím
+      if (!id && sync.hasToken()) sync.syncInit();
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         sync.pullSync().then(() => { autoInitTimeline(); render(); });

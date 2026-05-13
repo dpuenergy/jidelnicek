@@ -824,6 +824,12 @@ main {
   color: var(--ink); background: var(--bg);
 }
 .sync-connect-row input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+.sync-now-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 10px;
+}
+.sync-status-text {
+  font-size: 11px; color: var(--ink-soft); flex: 1;
+}
 .sync-small-btn {
   padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
   border: 1px solid var(--rule); background: var(--bg-card);
