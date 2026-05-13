@@ -880,6 +880,22 @@ main {
   padding: 12px; font-size: 13px; color: var(--ink-faint); text-align: center;
 }
 
+/* ─── Update toast ──────────────────────────────────────────── */
+.update-toast {
+  position: fixed; bottom: calc(var(--bnav-h) + env(safe-area-inset-bottom) + 12px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff;
+  padding: 10px 14px; border-radius: 10px;
+  font-size: 13px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3); z-index: 9999;
+  white-space: nowrap;
+}
+.update-toast button {
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 5px 12px; border-radius: 6px; border: none;
+  background: var(--accent); color: #fff; cursor: pointer;
+}
+
 /* ─── Extra meal side dish section ──────────────────────────── */
 #extra-side-wrap {
   background: #fdf7ee; border: 1px solid #e8c97a;

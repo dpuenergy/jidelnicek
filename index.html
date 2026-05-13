@@ -329,9 +329,27 @@
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
   <script type="module" src="js/app.js?v=18b2d4e"></script>
+  <div id="update-toast" class="update-toast hidden">
+    Nová verze je k dispozici
+    <button type="button" id="update-btn">Aktualizovat</button>
+  </div>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/jidelnicek/sw.js');
+      navigator.serviceWorker.register('/jidelnicek/sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const sw = reg.installing;
+          sw.addEventListener('statechange', () => {
+            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+              document.getElementById('update-toast').classList.remove('hidden');
+            }
+          });
+        });
+      });
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('update-btn').addEventListener('click', () => {
+          window.location.reload();
+        });
+      });
     }
   </script>
 </body>
