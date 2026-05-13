@@ -335,21 +335,29 @@
   </div>
   <script>
     if ('serviceWorker' in navigator) {
+      const showUpdateToast = () =>
+        document.getElementById('update-toast').classList.remove('hidden');
+
       navigator.serviceWorker.register('/jidelnicek/sw.js').then(reg => {
+        // Check for update every time app comes to foreground
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update();
+        });
+
+        // SW already waiting (updated while app was closed/backgrounded)
+        if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast();
+
         reg.addEventListener('updatefound', () => {
           const sw = reg.installing;
           sw.addEventListener('statechange', () => {
-            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-              document.getElementById('update-toast').classList.remove('hidden');
-            }
+            if (sw.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast();
           });
         });
       });
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('update-btn').addEventListener('click', () => {
-          window.location.reload();
-        });
-      });
+
+      document.getElementById('update-btn').addEventListener('click', () =>
+        window.location.reload()
+      );
     }
   </script>
 </body>
