@@ -1,4 +1,3 @@
-import { GITHUB_TOKEN } from './config.js';
 import { STATE, persistPlans, persistAte, persistCurrent, KEY_TARGETS } from './state.js';
 
 const GIST_KEY      = 'sync_gist_id';
@@ -17,14 +16,19 @@ export function setSyncId(id)      { localStorage.setItem(GIST_KEY, id.trim()); 
 export function clearSyncId()      { localStorage.removeItem(GIST_KEY); }
 
 // ── GitHub Gist API helpers ───────────────────────────────────────
-const GH_HEADERS = {
-  Authorization: `Bearer ${GITHUB_TOKEN}`,
-  'Content-Type': 'application/json',
-  'X-GitHub-Api-Version': '2022-11-28',
-};
+function ghHeaders() {
+  const token = localStorage.getItem('github_token') || '';
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+}
+
+export function hasToken() { return !!(localStorage.getItem('github_token') || '').trim(); }
 
 async function gistFetch(gistId) {
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: GH_HEADERS });
+  const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: ghHeaders() });
   if (!res.ok) throw new Error(`gist fetch ${res.status}`);
   const data = await res.json();
   const raw = data.files[GIST_FILENAME]?.content;
@@ -36,7 +40,7 @@ async function gistCreate() {
   const payload = buildPayload();
   const res = await fetch('https://api.github.com/gists', {
     method: 'POST',
-    headers: GH_HEADERS,
+    headers: ghHeaders(),
     body: JSON.stringify({
       description: 'Jídelníček sync',
       public: false,
@@ -51,7 +55,7 @@ async function gistCreate() {
 async function gistPatch(gistId, payload) {
   await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
-    headers: GH_HEADERS,
+    headers: ghHeaders(),
     body: JSON.stringify({
       files: { [GIST_FILENAME]: { content: JSON.stringify(payload) } },
     }),
@@ -135,6 +139,7 @@ export function schedulePush() {
  * Returns the Gist ID.
  */
 export async function syncInit() {
+  if (!hasToken()) return '';  // bez tokenu nelze nic dělat
   let id = getSyncId();
   if (!id) {
     try {

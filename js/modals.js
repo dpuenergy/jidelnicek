@@ -53,6 +53,8 @@ export function initSettings() {
       }
     }
     localStorage.setItem(KEY_TARGETS, JSON.stringify(overrides));
+    const ghToken = document.getElementById('sync-token-input')?.value.trim();
+    if (ghToken) localStorage.setItem('github_token', ghToken);
     _sync.schedulePush();
     closeModal('settings-modal');
   });
@@ -93,9 +95,11 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
+  const tokenEl = document.getElementById('sync-token-input');
+  if (tokenEl) tokenEl.value = localStorage.getItem('github_token') || '';
   const syncId = _sync.getSyncId();
   const syncDisplay = document.getElementById('sync-id-display');
-  if (syncDisplay) syncDisplay.textContent = syncId || '(vytváří se…)';
+  if (syncDisplay) syncDisplay.textContent = syncId || (localStorage.getItem('github_token') ? '(vytváří se…)' : '(nejdřív zadej token)');
   const syncInput = document.getElementById('sync-connect-input');
   if (syncInput) syncInput.value = '';
   openModal('settings-modal');
