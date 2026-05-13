@@ -9,6 +9,8 @@
   <meta name="apple-mobile-web-app-title" content="Jídelníček">
   <meta name="theme-color" content="#3e9b66">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
   <title>Jídelníček</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
@@ -212,5 +214,10 @@
   <input type="file" id="gallery-input" accept="image/*" style="display:none">
 
   <script type="module" src="js/app.js?v=1a2b3c4"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/jidelnicek/sw.js');
+    }
+  </script>
 </body>
 </html>
