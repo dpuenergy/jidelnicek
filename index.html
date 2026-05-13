@@ -339,10 +339,11 @@
         document.getElementById('update-toast').classList.remove('hidden');
 
       navigator.serviceWorker.register('/jidelnicek/sw.js').then(reg => {
-        // Check for update every time app comes to foreground
+        // Check for update when app comes to foreground or every 5 min
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') reg.update();
         });
+        setInterval(() => reg.update(), 5 * 60 * 1000);
 
         // SW already waiting (updated while app was closed/backgrounded)
         if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast();
