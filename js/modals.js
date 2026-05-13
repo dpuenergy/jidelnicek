@@ -33,7 +33,8 @@ const TARGET_FIELDS = [
 export function initSettings() {
   document.getElementById('settings-save').addEventListener('click', () => {
     const k = document.getElementById('settings-key').value.trim();
-    if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
+    if (k) localStorage.setItem(KEY_API, k);
+    // prázdné pole = zachovat stávající klíč (ne smazat)
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
     const overrides = {};
     for (const [pk, keys] of TARGET_FIELDS) {

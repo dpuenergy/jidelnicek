@@ -28,9 +28,13 @@ jobs:
             node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "  OK"
           done
 
-      - name: Schema check via inject-plan.js (dry-run against template)
+      - name: Schema check via inject-plan.js (plan files only)
         run: |
           for f in shared/*.json; do
+            # Skip non-plan files
+            case "$(basename $f)" in
+              cnfd.json|index.json|photo-feedback.json) continue ;;
+            esac
             echo "Schema check: $f"
             node scripts/inject-plan.js "$f" jidelnicek_sablona.html /tmp/out_test.html
           done
