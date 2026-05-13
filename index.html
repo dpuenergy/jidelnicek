@@ -338,22 +338,22 @@
       const showUpdateToast = () =>
         document.getElementById('update-toast').classList.remove('hidden');
 
+      // controllerchange = nový SW fakticky převzal stránku (po skipWaiting)
+      // hadController rozliší první instalaci od aktualizace
+      const hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (hadController) showUpdateToast();
+      });
+
       navigator.serviceWorker.register('/jidelnicek/sw.js').then(reg => {
-        // Check for update when app comes to foreground or every 5 min
+        // Aktivní check: foreground + každých 30 s (TEST — pak změnit na 5 min)
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') reg.update();
         });
-        setInterval(() => reg.update(), 5 * 60 * 1000);
+        setInterval(() => reg.update(), 30 * 1000);
 
-        // SW already waiting (updated while app was closed/backgrounded)
-        if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast();
-
-        reg.addEventListener('updatefound', () => {
-          const sw = reg.installing;
-          sw.addEventListener('statechange', () => {
-            if (sw.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast();
-          });
-        });
+        // SW čeká a je to update (ne první instalace)
+        if (reg.waiting && hadController) showUpdateToast();
       });
 
       document.getElementById('update-btn').addEventListener('click', () =>
