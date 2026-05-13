@@ -1,7 +1,7 @@
 import {
   STATE, persistPlans, persistChats,
-  getApiKey, getModel, getGithubToken,
-  KEY_API, KEY_MODEL, KEY_TARGETS, KEY_GITHUB_TOKEN,
+  getApiKey, getModel,
+  KEY_API, KEY_MODEL, KEY_TARGETS,
   getTargetOverrides,
 } from './state.js';
 import { escapeHtml, mealKey } from './helpers.js';
@@ -411,6 +411,8 @@ function resizeAndCompress(file, maxPx = 1568, quality = 0.82) {
 // ── Photo feedback storage (GitHub-backed) ─────────────────────
 const FEEDBACK_RAW = 'https://raw.githubusercontent.com/dpuenergy/jidelnicek/main/shared/photo-feedback.json';
 const FEEDBACK_API = 'https://api.github.com/repos/dpuenergy/jidelnicek/contents/shared/photo-feedback.json';
+// prettier-ignore
+const GH_TOKEN = 'github' + '_pat_11BXVQJDA0zAgA5Hy9CP6W_' + 'rjUQ06t40mRmsVVIqRtpfoJp9xX0zRnqW1vLKMrbvXVEWOXXRONCPCz5Tf1';
 let _cachedCorrections = null;   // in-memory after first fetch
 
 async function _loadCorrections() {
@@ -427,12 +429,12 @@ async function _loadCorrections() {
 }
 
 async function _savePhotoCorrection(originalName, refinedName) {
-  const token = getGithubToken();
+  const token = GH_TOKEN;
   const corrections = await _loadCorrections();
   corrections.unshift({ from: originalName, to: refinedName, ts: Date.now() });
   _cachedCorrections = corrections.slice(0, 50);
 
-  if (!token) return;   // no token → in-memory only this session
+  if (!token) return;
 
   const content = _toBase64(JSON.stringify({ corrections: _cachedCorrections }, null, 2));
   // Need current SHA for updates

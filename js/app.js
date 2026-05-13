@@ -1,6 +1,6 @@
 import { loadState, STATE, persistCurrent } from './state.js';
 import { buildTimeline, parseDayDate } from './helpers.js';
-import { CLAUDE_KEY, CLAUDE_MODEL, GITHUB_TOKEN } from './config.js';
+import { CLAUDE_KEY, CLAUDE_MODEL } from './config.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
 import { renderDayView }     from './render/day.js';
 import { renderWeekView }    from './render/week.js';
@@ -63,7 +63,6 @@ function autoInitTimeline() {
 function applyConfig() {
   if (CLAUDE_KEY)   localStorage.setItem('claude_api_key', CLAUDE_KEY);
   if (CLAUDE_MODEL) localStorage.setItem('claude_model',   CLAUDE_MODEL);
-  if (GITHUB_TOKEN) localStorage.setItem('github_token',   GITHUB_TOKEN);
 }
 
 function boot() {
