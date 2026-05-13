@@ -44,18 +44,43 @@ try {
 }
 
 // ── Minimal schema check (mirrors BEN's generátor checklist) ─────────────────
+// Recipe-only plans have days:[] — they are valid library plans, not week plans.
+const isRecipeLibrary = Array.isArray(plan.days) && plan.days.length === 0
+  && Array.isArray(plan.recipes) && plan.recipes.length > 0;
+
 const errors = [];
-if (!plan.id)       errors.push('missing "id"');
-if (!plan.persons)  errors.push('missing "persons"');
-if (!plan.slots || !Array.isArray(plan.slots) || plan.slots.length === 0)
-                    errors.push('missing/empty "slots"');
-if (!plan.days   || !Array.isArray(plan.days)  || plan.days.length === 0)
-                    errors.push('missing/empty "days"');
+if (!plan.id)      errors.push('missing "id"');
+if (!plan.persons) errors.push('missing "persons"');
+if (!isRecipeLibrary) {
+  if (!plan.slots || !Array.isArray(plan.slots) || plan.slots.length === 0)
+                     errors.push('missing/empty "slots"');
+  if (!plan.days  || !Array.isArray(plan.days)  || plan.days.length === 0)
+                     errors.push('missing/empty "days"');
+}
 if (plan.persons && (!plan.persons.jakub || !plan.persons.partnerka))
-                    errors.push('"persons" must have keys "jakub" and "partnerka"');
+                   errors.push('"persons" must have keys "jakub" and "partnerka"');
 if (errors.length) {
   console.error('inject-plan: plan JSON failed schema check:\n  ' + errors.join('\n  '));
   process.exit(1);
+}
+
+// Recipe-only plans don't produce an HTML file — just update index.json and exit.
+if (isRecipeLibrary) {
+  console.log(`inject-plan: recipe library plan "${plan.id}" — skipping HTML injection`);
+  const indexPath = require('path').join(ROOT, 'shared', 'index.json');
+  let index = { plans: [] };
+  try { index = JSON.parse(require('fs').readFileSync(indexPath, 'utf8')); } catch(_) {}
+  index.plans = (index.plans || []).filter(p => p.id !== plan.id);
+  index.plans.push({
+    id:           plan.id,
+    title:        plan.plan_title || plan.id,
+    date_range:   plan.date_range || '',
+    file:         `shared/${require('path').basename(planPath)}`,
+    generated_at: new Date().toISOString().split('T')[0],
+  });
+  require('fs').writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\n', 'utf8');
+  console.log(`inject-plan: updated shared/index.json`);
+  process.exit(0);
 }
 
 // ── Load template ─────────────────────────────────────────────────────────────
