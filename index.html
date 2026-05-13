@@ -106,6 +106,18 @@
         </div>
         <p class="modal-hint">Přepíše cíle z importovaného plánu. Nechej prázdné = použij cíle z plánu.</p>
       </div>
+      <div class="settings-sync-section">
+        <div class="settings-targets-label">Synchronizace</div>
+        <p class="modal-hint">Sdílej kód s partnerem — data se budou propisovat mezi zařízeními.</p>
+        <div class="sync-id-row">
+          <span id="sync-id-display" class="sync-id-text">—</span>
+          <button type="button" id="sync-copy-btn" class="sync-small-btn">Kopírovat</button>
+        </div>
+        <div class="sync-connect-row">
+          <input type="text" id="sync-connect-input" placeholder="Kód od partnera…" autocomplete="off" spellcheck="false">
+          <button type="button" id="sync-connect-btn" class="sync-small-btn">Připojit</button>
+        </div>
+      </div>
       <div class="modal-actions">
         <button data-close="settings-modal">Zrušit</button>
         <button class="primary" id="settings-save">Uložit</button>

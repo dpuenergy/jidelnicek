@@ -4,6 +4,7 @@ import {
   KEY_API, KEY_MODEL, KEY_TARGETS,
   getTargetOverrides,
 } from './state.js';
+import { getSyncId, setSyncId, pullSync, schedulePush } from './sync.js';
 import { escapeHtml, mealKey } from './helpers.js';
 import { getAllRecipes, getMacros } from './render/recipes.js';
 
@@ -34,7 +35,6 @@ export function initSettings() {
     const k = document.getElementById('settings-key').value.trim();
     if (k) localStorage.setItem(KEY_API, k); else localStorage.removeItem(KEY_API);
     localStorage.setItem(KEY_MODEL, document.getElementById('settings-model').value);
-    // Save target overrides
     const overrides = {};
     for (const [pk, keys] of TARGET_FIELDS) {
       overrides[pk] = {};
@@ -44,14 +44,39 @@ export function initSettings() {
       }
     }
     localStorage.setItem(KEY_TARGETS, JSON.stringify(overrides));
+    schedulePush();  // targets changed — push to Gist
     closeModal('settings-modal');
+  });
+
+  // Sync UI
+  document.getElementById('sync-copy-btn').addEventListener('click', () => {
+    const id = getSyncId();
+    if (!id) return;
+    navigator.clipboard.writeText(id).catch(() => {});
+    const btn = document.getElementById('sync-copy-btn');
+    btn.textContent = 'Zkopírováno!';
+    setTimeout(() => { btn.textContent = 'Kopírovat'; }, 2000);
+  });
+
+  document.getElementById('sync-connect-btn').addEventListener('click', async () => {
+    const input = document.getElementById('sync-connect-input');
+    const id = input.value.trim();
+    if (!id) return;
+    setSyncId(id);
+    input.value = '';
+    document.getElementById('sync-id-display').textContent = id;
+    const btn = document.getElementById('sync-connect-btn');
+    btn.textContent = 'Synchronizuji…';
+    btn.disabled = true;
+    await pullSync();
+    btn.textContent = 'Připojeno ✓';
+    setTimeout(() => { btn.textContent = 'Připojit'; btn.disabled = false; }, 2000);
   });
 }
 
 export function openSettings() {
   document.getElementById('settings-key').value   = getApiKey();
   document.getElementById('settings-model').value = getModel();
-  // Load target overrides
   const ov = getTargetOverrides();
   for (const [pk, keys] of TARGET_FIELDS) {
     for (const key of keys) {
@@ -59,6 +84,10 @@ export function openSettings() {
       if (el) el.value = (ov[pk] && ov[pk][key]) ? ov[pk][key] : '';
     }
   }
+  // Show current sync ID
+  const syncId = getSyncId();
+  document.getElementById('sync-id-display').textContent = syncId || '(vytváří se…)';
+  document.getElementById('sync-connect-input').value = '';
   openModal('settings-modal');
 }
 

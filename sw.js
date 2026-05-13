@@ -1,4 +1,4 @@
-const CACHE = 'jidelnicek-vb9e3f12';
+const CACHE = 'jidelnicek-vc4d5e6f';
 const SHELL = [
   '/jidelnicek/',
   '/jidelnicek/index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   '/jidelnicek/js/helpers.js',
   '/jidelnicek/js/config.js',
   '/jidelnicek/js/modals.js',
+  '/jidelnicek/js/sync.js',
   '/jidelnicek/js/render/nav.js',
   '/jidelnicek/js/render/day.js',
   '/jidelnicek/js/render/week.js',

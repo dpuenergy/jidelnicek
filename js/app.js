@@ -1,4 +1,4 @@
-import { loadState, STATE, persistCurrent } from './state.js';
+import { loadState, STATE, persistCurrent, registerSyncPush } from './state.js';
 import { buildTimeline, parseDayDate } from './helpers.js';
 import { CLAUDE_KEY, CLAUDE_MODEL } from './config.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
@@ -14,6 +14,7 @@ import {
   openReplace, openEditMacro, openExtraMeal,
   autoSync,
 } from './modals.js';
+import { syncInit, pullSync, setSyncCallback, schedulePush } from './sync.js';
 
 export function render() {
   renderBottomNav();
@@ -91,8 +92,24 @@ function boot() {
 
   render();
 
-  // Silent background sync — runs after first render so UI is not blocked
+  // Gist sync: push hook + re-render callback
+  registerSyncPush(schedulePush);
+  setSyncCallback(() => { autoInitTimeline(); render(); });
+
+  // Silent background sync — plans from GitHub repo, then Gist state
   autoSync(() => { autoInitTimeline(); render(); });
+  syncInit();
+
+  // Pull Gist on foreground
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      pullSync().then(() => { autoInitTimeline(); render(); });
+    }
+  });
+  // Pull Gist every 2 minutes
+  setInterval(() => {
+    pullSync().then(() => { autoInitTimeline(); render(); });
+  }, 2 * 60 * 1000);
 }
 
 boot();

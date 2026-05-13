@@ -38,13 +38,17 @@ export function loadState() {
   }
 }
 
+let _syncPush = null;
+export function registerSyncPush(fn) { _syncPush = fn; }
+
 export function persistPlans()  { localStorage.setItem(KEY_PLANS, JSON.stringify(STATE.plans)); }
 export function persistCurrent() {
   if (STATE.currentPlanId) localStorage.setItem(KEY_CURRENT, STATE.currentPlanId);
   else localStorage.removeItem(KEY_CURRENT);
   localStorage.setItem(KEY_DAY, String(STATE.currentDayIdx));
+  if (_syncPush) _syncPush();
 }
-export function persistAte()   { localStorage.setItem(KEY_ATE,   JSON.stringify(STATE.ate)); }
+export function persistAte()   { localStorage.setItem(KEY_ATE, JSON.stringify(STATE.ate)); if (_syncPush) _syncPush(); }
 export function persistChats() { localStorage.setItem(KEY_CHAT,  JSON.stringify(STATE.chats)); }
 export function getApiKey()       { return localStorage.getItem(KEY_API)          || ''; }
 export function getModel()        { return localStorage.getItem(KEY_MODEL)        || DEFAULT_MODEL; }
