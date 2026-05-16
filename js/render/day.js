@@ -7,6 +7,9 @@ import {
 // Accordion state: set of expanded slotKeys for current day
 let _expanded = new Set();
 let _lastDayKey = null;
+// Discarded meals: collapsed by default, persists until day changes
+let _discardedOpen = false;
+let _discardedDayKey = null;
 
 function dayKey() { return `${STATE.currentPlanId}:${STATE.currentDayIdx}`; }
 
@@ -556,27 +559,38 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
 
   html += `<button class="extra-add-btn" id="extra-open-btn">＋ Doplnit jídlo</button>`;
 
-  // Discarded meals
+  // Discarded meals — collapsible, reset on day change
   const discarded = day.discarded_meals || [];
   const visibleDiscarded = discarded.filter(d => pf === 'both' || d.pk === pf);
   if (visibleDiscarded.length > 0) {
-    html += `<div class="discarded-section"><div class="discarded-label">Odložená jídla</div>`;
-    visibleDiscarded.forEach(d => {
-      const realIdx = discarded.indexOf(d);
-      const m = d.macros || {};
-      const macroLine = [
-        m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
-        m.p    != null ? `<strong>${m.p}</strong> B` : '',
-        m.c    != null ? `<strong>${m.c}</strong> S` : '',
-        m.f    != null ? `<strong>${m.f}</strong> T` : '',
-      ].filter(Boolean).join(' · ');
-      html += `<div class="discarded-card">
-        <span class="meal-person">${escapeHtml(plan.persons[d.pk]?.name || d.pk)}</span>
-        <div class="meal-name">${escapeHtml(d.name)}</div>
-        <div class="meal-macros">${macroLine}</div>
-        <button class="discard-restore-btn" data-discard-idx="${realIdx}">↩ Obnovit</button>
-      </div>`;
-    });
+    const dk = dayKey();
+    if (dk !== _discardedDayKey) { _discardedOpen = false; _discardedDayKey = dk; }
+    html += `<div class="discarded-section">
+      <button class="discarded-toggle" id="discarded-toggle">
+        <span>Odložená jídla</span>
+        <span class="discarded-badge">${visibleDiscarded.length}</span>
+        <span class="discarded-chevron">${_discardedOpen ? ICONS.chevronUp : ICONS.chevronDown}</span>
+      </button>`;
+    if (_discardedOpen) {
+      html += `<div class="discarded-body">`;
+      visibleDiscarded.forEach(d => {
+        const realIdx = discarded.indexOf(d);
+        const m = d.macros || {};
+        const macroLine = [
+          m.kcal != null ? `<strong>${m.kcal}</strong> kcal` : '',
+          m.p    != null ? `<strong>${m.p}</strong> B` : '',
+          m.c    != null ? `<strong>${m.c}</strong> S` : '',
+          m.f    != null ? `<strong>${m.f}</strong> T` : '',
+        ].filter(Boolean).join(' · ');
+        html += `<div class="discarded-card">
+          <span class="meal-person">${escapeHtml(plan.persons[d.pk]?.name || d.pk)}</span>
+          <div class="meal-name">${escapeHtml(d.name)}</div>
+          <div class="meal-macros">${macroLine}</div>
+          <button class="discard-restore-btn" data-discard-idx="${realIdx}">↩ Obnovit</button>
+        </div>`;
+      });
+      html += `</div>`;
+    }
     html += '</div>';
   }
 
@@ -773,6 +787,11 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
       persistPlans();
       rerender();
     });
+  });
+
+  document.getElementById('discarded-toggle')?.addEventListener('click', () => {
+    _discardedOpen = !_discardedOpen;
+    rerender();
   });
 
   main.querySelectorAll('.discard-restore-btn').forEach(btn => {

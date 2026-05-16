@@ -1091,12 +1091,26 @@ main {
 /* ─── Discarded meals section ────────────────────────────────── */
 .discarded-section {
   background: var(--bg-card); border: 1px solid var(--rule);
-  border-radius: 12px; padding: 12px; margin-bottom: 6px;
+  border-radius: 12px; margin-bottom: 6px; overflow: hidden;
 }
-.discarded-label {
+.discarded-toggle {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 10px 12px;
+  background: transparent; border: none;
+  font-family: inherit; cursor: pointer; text-align: left;
+}
+.discarded-toggle span:first-child {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--ink-faint); margin-bottom: 8px;
+  letter-spacing: .08em; color: var(--ink-faint); flex: 1;
 }
+.discarded-badge {
+  font-size: 10px; font-weight: 700; color: var(--bg-card);
+  background: var(--ink-faint); border-radius: 999px;
+  padding: 1px 6px; min-width: 18px; text-align: center;
+}
+.discarded-chevron { color: var(--ink-faint); display: flex; }
+.discarded-chevron svg { width: 14px; height: 14px; }
+.discarded-body { padding: 0 12px 12px; }
 .discarded-card {
   background: var(--bg); border: 1px solid var(--rule);
   border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; opacity: .75;

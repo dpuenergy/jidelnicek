@@ -13,7 +13,9 @@ export const ICONS = {
   calendar: _svg('<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
   chat:     _svg('<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>'),
   move:     _svg('<polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/>'),
-  reset:    _svg('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.14"/>'),
+  reset:       _svg('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.14"/>'),
+  chevronDown: _svg('<polyline points="6 9 12 15 18 9"/>'),
+  chevronUp:   _svg('<polyline points="18 15 12 9 6 15"/>'),
 };
 
 const SLOT_ICON_MAP = { snidane: ICONS.coffee, svacina: ICONS.apple, obed: ICONS.utensils, vecere: ICONS.moon };
