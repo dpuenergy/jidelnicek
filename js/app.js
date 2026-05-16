@@ -2,15 +2,15 @@ import { loadState, STATE, persistCurrent, registerSyncPush } from './state.js';
 import { buildTimeline, parseDayDate } from './helpers.js';
 import { CLAUDE_KEY, CLAUDE_MODEL } from './config.js';
 import { renderBottomNav, renderWeekStrip } from './render/nav.js';
-import { renderDayView }     from './render/day.js?v=5';
+import { renderDayView }     from './render/day.js?v=6';
+import { renderMenuView }    from './render/menu.js?v=2';
 import { renderWeekView }    from './render/week.js';
 import { renderRecipesView } from './render/recipes.js';
-import { renderMenuView }    from './render/menu.js';
 import {
   initModalDismiss, initSettings, initAddPlan,
   initActionSheet, initPhoto, initChat,
   initReplace, initEditMacro, initExtraMeal,
-  openPhotoSource, openChat, openAddPlan, openSettings,
+  openPhotoSource, openChat, openDayChat, openAddPlan, openSettings,
   openReplace, openEditMacro, openExtraMeal,
   autoSync, setSyncFunctions,
 } from './modals.js';
@@ -21,7 +21,7 @@ export function render() {
 
   switch (STATE.view) {
     case 'day':
-      renderDayView(render, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal);
+      renderDayView(render, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal, openDayChat);
       break;
     case 'week':
       renderWeekView();
@@ -43,12 +43,10 @@ function onPlanImported(planId) {
   render();
 }
 
-function autoInitTimeline() {
+// Vždy skočí na den nejblíže dnešku — volá se na boootu
+function jumpToToday() {
   const tl = buildTimeline(STATE.plans);
   if (tl.length === 0) return;
-  // If current plan/day is already valid, keep it
-  if (STATE.currentPlanId && STATE.plans[STATE.currentPlanId]) return;
-  // Otherwise jump to the day closest to today
   const now = new Date();
   const best = tl.reduce((acc, e) => {
     if (!e.date) return acc;
@@ -60,6 +58,14 @@ function autoInitTimeline() {
   STATE.currentDayIdx = target.dayIdx;
 }
 
+// Jen obnoví plán/den pokud je aktuální neplatný — pro sync callbacky
+function autoInitTimeline() {
+  const tl = buildTimeline(STATE.plans);
+  if (tl.length === 0) return;
+  if (STATE.currentPlanId && STATE.plans[STATE.currentPlanId]) return;
+  jumpToToday();
+}
+
 function applyConfig() {
   if (CLAUDE_KEY)   localStorage.setItem('claude_api_key', CLAUDE_KEY);
   if (CLAUDE_MODEL) localStorage.setItem('claude_model',   CLAUDE_MODEL);
@@ -68,7 +74,7 @@ function applyConfig() {
 function boot() {
   applyConfig();
   loadState();
-  autoInitTimeline();
+  jumpToToday();
 
   initModalDismiss();
   initSettings();

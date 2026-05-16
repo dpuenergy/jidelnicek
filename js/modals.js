@@ -1440,28 +1440,40 @@ export function initChat(rerender) {
 export function openChat(target) {
   if (!getApiKey()) { alert('Claude API klíč není nastaven — spusť node scripts/gen_config.js.'); return; }
   STATE.chatTarget = target;
-  const m = target.meal.macros || {};
-  document.getElementById('chat-context').innerHTML =
-    `<strong>${escapeHtml(target.meal.name)}</strong><br>` +
-    [m.kcal != null ? m.kcal+' kcal' : '', m.p != null ? m.p+' B' : '',
-     m.c != null ? m.c+' S' : '', m.f != null ? m.f+' T' : ''].filter(Boolean).join(' · ');
+  if (target.slot === 'day') {
+    document.getElementById('chat-context').innerHTML =
+      `<strong>${escapeHtml(target.meal.name)}</strong><br>
+       <span style="font-size:11px;color:var(--ink-faint)">Konzultace dne — vidím všechny dny v plánu</span>`;
+  } else {
+    const m = target.meal.macros || {};
+    document.getElementById('chat-context').innerHTML =
+      `<strong>${escapeHtml(target.meal.name)}</strong><br>` +
+      [m.kcal != null ? m.kcal+' kcal' : '', m.p != null ? m.p+' B' : '',
+       m.c != null ? m.c+' S' : '', m.f != null ? m.f+' T' : ''].filter(Boolean).join(' · ');
+  }
   renderChatHistory();
   openModal('chat-modal');
   setTimeout(() => document.getElementById('chat-input').focus(), 100);
 }
 
+export function openDayChat(target) {
+  openChat({ ...target, slot: 'day' });
+}
+
 function chatKey() {
   const t = STATE.chatTarget;
+  if (t.slot === 'day') return `day:${t.planId}:${t.dayIdx}`;
   return mealKey(t.planId, t.dayIdx, t.slot, t.personKey);
 }
 function renderChatHistory() {
   const hist = STATE.chats[chatKey()] || [];
+  const isDayChat = STATE.chatTarget?.slot === 'day';
   const el   = document.getElementById('chat-history');
   el.innerHTML = hist.map(msg => {
     const isUser = msg.role === 'user';
     let displayText = msg.content;
     let macroBtn = '';
-    if (!isUser && msg.macroUpdate) {
+    if (!isUser && msg.macroUpdate && !isDayChat) {
       const m = msg.macroUpdate;
       const nameLabel = m.name ? `„${m.name}" · ` : '';
       macroBtn = `<button class="chat-record-btn" data-macros='${JSON.stringify(m)}'>✓ Zaznamenat (${nameLabel}${m.kcal} kcal · B${m.p} · S${m.c} · T${m.f})</button>`;
@@ -1535,8 +1547,14 @@ async function sendChat() {
 }
 
 async function callClaudeChat(history) {
-  const t = STATE.chatTarget; const m = t.meal.macros || {};
-  const system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky. Pokud navrhuješ konkrétní úpravu pokrmu (gramáž, příloha, složení), přidej na konec odpovědi na samostatný řádek token: MAKRA:{"name":"celý nový název pokrmu včetně gramáží a příloh","kcal":X,"p":X,"c":X,"f":X} — pole name vždy vyplň; pokud se název nemění, použij původní.`;
+  const t = STATE.chatTarget;
+  let system;
+  if (t.slot === 'day') {
+    system = `Jsi výživový asistent konzultující celý jídelníček. Máš přehled všech dnů v plánu — můžeš odpovídat na dotazy jako "co jsem měl včera k večeři" nebo "přidej mi k obědu to co měla partnerka". Odpovídej stručně česky.\n\nPřehled jídelníčku:\n${t.dayContext || '(bez dat)'}`;
+  } else {
+    const m = t.meal.macros || {};
+    system = `Jsi výživový asistent. Pokrm: ${t.meal.name} — ${m.kcal} kcal, ${m.p}g B, ${m.c}g S, ${m.f}g T. Odpovídej stručně česky. Pokud navrhuješ konkrétní úpravu pokrmu (gramáž, příloha, složení), přidej na konec odpovědi na samostatný řádek token: MAKRA:{"name":"celý nový název pokrmu včetně gramáží a příloh","kcal":X,"p":X,"c":X,"f":X} — pole name vždy vyplň; pokud se název nemění, použij původní.`;
+  }
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST',
     headers:{ 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01',

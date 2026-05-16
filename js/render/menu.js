@@ -12,19 +12,22 @@ export function renderMenuView(rerender, openSettings, openAddPlan) {
     html += `<div class="menu-section">
       <div class="menu-section-title">Plány · přidržením smažeš</div>`;
     for (const id of ids) {
-      const p    = STATE.plans[id];
-      const prog = planProgress(id, STATE.plans, STATE.ate);
-      const pct  = prog.total > 0 ? Math.round(100 * prog.eaten / prog.total) : 0;
-      html += `<div class="menu-item" data-plan-id="${escapeHtml(id)}">
-        <span class="menu-item-icon">${ICONS.calendar}</span>
-        <div class="menu-item-body">
-          <div class="menu-item-label">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
-          <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${p.days.length} ${czechDayPlural(p.days.length)}</div>
-          <div class="menu-item-meta">${prog.eaten}/${prog.total} snědeno · ${pct}% plnění</div>
-        </div>
-        ${p._original_days ? `<button class="menu-item-reset" data-reset-id="${escapeHtml(id)}" title="Reset plánu">${ICONS.reset}</button>` : ''}
-        <span class="menu-item-chevron">›</span>
-      </div>`;
+      try {
+        const p = STATE.plans[id];
+        if (!p || !Array.isArray(p.days)) continue;
+        const prog = planProgress(id, STATE.plans, STATE.ate);
+        const pct  = prog.total > 0 ? Math.round(100 * prog.eaten / prog.total) : 0;
+        html += `<div class="menu-item" data-plan-id="${escapeHtml(id)}">
+          <span class="menu-item-icon">${ICONS.calendar}</span>
+          <div class="menu-item-body">
+            <div class="menu-item-label">${escapeHtml(p.plan_title || 'Jídelníček')}</div>
+            <div class="menu-item-meta">${escapeHtml(p.date_range || '')} · ${p.days.length} ${czechDayPlural(p.days.length)}</div>
+            <div class="menu-item-meta">${prog.eaten}/${prog.total} snědeno · ${pct}% plnění</div>
+          </div>
+          ${p._original_days ? `<button class="menu-item-reset" data-reset-id="${escapeHtml(id)}" title="Reset plánu">${ICONS.reset}</button>` : ''}
+          <span class="menu-item-chevron">›</span>
+        </div>`;
+      } catch(_) { /* skip malformed plan */ }
     }
     html += '</div>';
   }

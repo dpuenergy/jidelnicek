@@ -166,18 +166,56 @@ function extraMealCardHTML(plan, planId, dayIdx, e, realIdx, ate) {
   </div>`;
 }
 
-// ── Day totals card (shows eaten macros vs target) ─────────────
+// ── Build cross-day context string for day chat ────────────────
+function buildDayContext(plan, currentDayIdx) {
+  const lines = [];
+  (plan.days || []).forEach((day, dIdx) => {
+    const label = `${day.name || 'Den '+(dIdx+1)}${day.date ? ' '+day.date : ''}${dIdx === currentDayIdx ? ' (dnes)' : ''}`;
+    lines.push(`\n${label}:`);
+    for (const slotKey of (plan.slots || [])) {
+      const slotLabel = (plan.slot_labels && plan.slot_labels[slotKey]) || slotKey;
+      const slot = day.meals[slotKey] || {};
+      for (const pk of ['jakub', 'partnerka']) {
+        const pName = plan.persons[pk]?.name || pk;
+        let meal = null;
+        if (slot.shared) meal = { name: slot.shared.name, macros: slot.shared['macros_'+pk] };
+        else meal = slot[pk] || null;
+        if (!meal) continue;
+        const m = meal.macros || {};
+        const mac = [m.kcal != null ? m.kcal+' kcal' : null, m.p != null ? 'B'+m.p : null,
+          m.c != null ? 'S'+m.c : null, m.f != null ? 'T'+m.f : null].filter(Boolean).join(' ');
+        lines.push(`  ${slotLabel} (${pName}): ${meal.name}${mac ? ' — '+mac : ''}`);
+      }
+    }
+    for (const e of (day.extra_meals || [])) {
+      const pName = plan.persons[e.pk]?.name || e.pk;
+      const m = e.macros || {};
+      const mac = m.kcal != null ? m.kcal+' kcal' : '';
+      lines.push(`  Extra (${pName}): ${e.name}${mac ? ' — '+mac : ''}`);
+    }
+  });
+  return lines.join('\n');
+}
+
+// ── Day totals card (shows eaten macros vs target + planned total) ─
 function dayTotalsHTML(plan, day, persons, dayIdx, planId, ate) {
-  const totals  = computeEatenTotals(plan, day, dayIdx, planId, ate);
+  const eaten   = computeEatenTotals(plan, day, dayIdx, planId, ate);
+  const planned = computeDayTotals(plan, day);
   const metrics = activeMetricsFor(plan);
   let html = '<div class="day-totals">';
   for (const pk of persons) {
-    const t = totals[pk];
+    const e   = eaten[pk];
+    const pl  = planned[pk];
     const tgt = getEffectiveTargets(plan, pk);
+    const planParts = metrics.map(m => {
+      const v = Math.round(pl[m.key] || 0);
+      return v ? (m.key === 'kcal' ? `${v} kcal` : `${m.labelShort}${v}`) : null;
+    }).filter(Boolean);
     html += `<div class="day-totals-person">
-      <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)} — snědeno</div>`;
+      <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)} — snědeno</div>
+      ${planParts.length ? `<div class="day-plan-summary">plán: ${planParts.join(' · ')}</div>` : ''}`;
     for (const m of metrics) {
-      const v    = Math.round(t[m.key] || 0);
+      const v    = Math.round(e[m.key] || 0);
       const tg   = tgt[m.key] || 0;
       const pct  = tg ? Math.min(v / tg, 1.25) * 80 : 0;
       const over = tg && v > tg * 1.05;
@@ -440,7 +478,7 @@ function _openCopyModalImpl(plan, fromDayIdx, fromSlot, pk, rerender, meal, extr
 }
 
 // ── Main render ────────────────────────────────────────────────
-export function renderDayView(rerender, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal) {
+export function renderDayView(rerender, openPhotoSource, openChat, openReplace, openEditMacro, openExtraMeal, openDayChat) {
   const plan = STATE.currentPlanId ? STATE.plans[STATE.currentPlanId] : null;
   const main = document.getElementById('main');
 
@@ -464,6 +502,7 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
 
   let html = heroHTML(plan, day, dayIdx, planId);
   if (day.note) html += `<div class="day-note">${escapeHtml(day.note)}</div>`;
+  html += `<button class="day-chat-btn" id="day-chat-btn">${ICONS.chat} Konzultovat den</button>`;
 
   for (const slotKey of plan.slots) {
     const slot    = day.meals[slotKey] || {};
@@ -656,6 +695,16 @@ export function renderDayView(rerender, openPhotoSource, openChat, openReplace, 
   const extraOpenBtn = document.getElementById('extra-open-btn');
   if (extraOpenBtn) {
     extraOpenBtn.addEventListener('click', () => openExtraMeal({ plan, planId, dayIdx, rerender }));
+  }
+
+  const dayChatBtn = document.getElementById('day-chat-btn');
+  if (dayChatBtn && openDayChat) {
+    dayChatBtn.addEventListener('click', () => {
+      const dayLabel = (day.name || `Den ${dayIdx+1}`) + (day.date ? ' '+day.date : '');
+      openDayChat({ planId, dayIdx, personKey: 'both', slot: 'day',
+        meal: { name: dayLabel, macros: {} },
+        dayContext: buildDayContext(plan, dayIdx) });
+    });
   }
 
   main.querySelectorAll('[data-act="move"]').forEach(btn => {

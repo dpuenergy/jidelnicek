@@ -341,6 +341,23 @@ main {
   background: var(--accent); color: white; border-color: var(--accent);
 }
 
+/* ─── Day chat button ────────────────────────────────────────── */
+.day-chat-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 11px 14px; margin-bottom: 10px;
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-radius: 12px; font-family: inherit;
+  font-size: 14px; font-weight: 500; color: var(--ink-soft);
+  cursor: pointer; text-align: left;
+}
+.day-chat-btn:active { background: var(--rule-soft); }
+.day-chat-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.day-plan-summary {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
 /* ─── Day totals ─────────────────────────────────────────────── */
 .day-totals {
   background: var(--bg-card);
