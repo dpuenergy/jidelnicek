@@ -22,13 +22,17 @@ export const slotIcon = k => SLOT_ICON_MAP[k] || ICONS.utensils;
 // ── Timeline helpers ───────────────────────────────────────────
 export function parseDayDate(dateStr) {
   if (!dateStr) return null;
+  // ISO YYYY-MM-DD (preferred — year is unambiguous)
+  const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return new Date(parseInt(iso[1]), parseInt(iso[2]) - 1, parseInt(iso[3]));
+  // Czech D. M. e.g. "Po 16. 5." — year inferred from today
   const m = dateStr.match(/(\d+)\.\s*(\d+)\./);
   if (!m) return null;
   const now = new Date();
   const d = parseInt(m[1]), mo = parseInt(m[2]) - 1;
   let yr = now.getFullYear();
   const cand = new Date(yr, mo, d);
-  if (now - cand > 180 * 86400000) yr++; // >6 months in past → next year
+  if (now - cand > 180 * 86400000) yr++;
   return new Date(yr, mo, d);
 }
 

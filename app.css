@@ -396,6 +396,14 @@ main {
 .metric-fill.p     { background: var(--c-protein); }
 .metric-fill.c     { background: var(--c-carbs); }
 .metric-fill.f     { background: var(--c-fat); }
+.metric-fill-plan {
+  position: absolute; top: 0; left: 0; height: 100%;
+  border-radius: 999px; opacity: 0.22;
+}
+.metric-fill-plan.kcal { background: var(--ink); }
+.metric-fill-plan.p    { background: var(--c-protein); }
+.metric-fill-plan.c    { background: var(--c-carbs); }
+.metric-fill-plan.f    { background: var(--c-fat); }
 .metric-value { width: 75px; text-align: right; color: var(--ink); font-weight: 500; }
 .metric-value.over { color: var(--c-over); font-weight: 700; }
 

@@ -215,13 +215,16 @@ function dayTotalsHTML(plan, day, persons, dayIdx, planId, ate) {
       <div class="day-totals-name">${escapeHtml(plan.persons[pk].name)} — snědeno</div>
       ${planParts.length ? `<div class="day-plan-summary">plán: ${planParts.join(' · ')}</div>` : ''}`;
     for (const m of metrics) {
-      const v    = Math.round(e[m.key] || 0);
-      const tg   = tgt[m.key] || 0;
-      const pct  = tg ? Math.min(v / tg, 1.25) * 80 : 0;
-      const over = tg && v > tg * 1.05;
+      const v       = Math.round(e[m.key]  || 0);
+      const plv     = Math.round(pl[m.key] || 0);
+      const tg      = tgt[m.key] || 0;
+      const pct     = tg ? Math.min(v   / tg, 1.25) * 80 : 0;
+      const planPct = tg ? Math.min(plv / tg, 1.25) * 80 : 0;
+      const over    = tg && v > tg * 1.05;
       html += `<div class="metric-row">
         <span class="metric-label">${escapeHtml(m.label)}</span>
         <span class="metric-bar">
+          ${planPct > 0 ? `<span class="metric-fill-plan ${m.key}" style="width:${planPct.toFixed(1)}%"></span>` : ''}
           <span class="metric-fill ${m.key}${over ? ' over' : ''}" style="width:${pct.toFixed(1)}%"></span>
           ${tg ? '<span class="metric-target-line"></span>' : ''}
         </span>
