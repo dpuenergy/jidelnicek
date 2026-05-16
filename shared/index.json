@@ -1,6 +1,13 @@
 {
   "plans": [
     {
+      "id": "2026-W21b",
+      "title": "Jídelníček 17.–22. 5. 2026",
+      "date_range": "2026-05-17 — 2026-05-22",
+      "file": "shared/2026-W21b.json",
+      "generated_at": "2026-05-16"
+    },
+    {
       "id": "tyden-2026-1105",
       "title": "Jídelníček 11.–16. 5. 2026",
       "date_range": "11. – 16. 5. 2026",

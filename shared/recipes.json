@@ -3,8 +3,16 @@
   "plan_title": "BEN recepty",
   "date_range": "",
   "persons": {
-    "jakub":     { "name": "Kuba",  "label": "K", "targets": {} },
-    "partnerka": { "name": "Verča", "label": "V", "targets": {} }
+    "jakub": {
+      "name": "Kuba",
+      "label": "K",
+      "targets": {}
+    },
+    "partnerka": {
+      "name": "Verča",
+      "label": "V",
+      "targets": {}
+    }
   },
   "slots": [],
   "days": [],
@@ -15,11 +23,20 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 212, "p": 18.7, "c": 3.2, "f": 13.8 },
-      "side_dishes": ["Rýže vařená", "Těstoviny vařené"],
+      "macros_per_100g": {
+        "kcal": 212,
+        "p": 18.7,
+        "c": 3.2,
+        "f": 13.8
+      },
+      "side_dishes": [
+        "Rýže vařená",
+        "Těstoviny vařené"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Paprika = koření (mletá), ne zelenina — Verča může."
+      "notes": "Paprika = koření (mletá), ne zelenina — Verča může.",
+      "requires_side": true
     },
     {
       "id": "kure_sladkokysele",
@@ -27,20 +44,52 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 151, "p": 17.8, "c": 12.2, "f": 3.3 },
-      "side_dishes": ["Rýže vařená"],
+      "macros_per_100g": {
+        "kcal": 151,
+        "p": 17.8,
+        "c": 12.2,
+        "f": 3.3
+      },
+      "side_dishes": [
+        "Rýže vařená"
+      ],
       "ingredients": [
-        {"item": "Kuřecí prsa (bez kůže)", "amount": "1 000 g"},
-        {"item": "Sladká chilli omáčka", "amount": "200 ml"},
-        {"item": "Sriracha", "amount": "20 ml"},
-        {"item": "Pšeničná mouka hladká", "amount": "50 g"},
-        {"item": "Olivový olej", "amount": "30 ml"},
-        {"item": "Zázvor čerstvý", "amount": "30 g"},
-        {"item": "Paprika sladká mletá", "amount": "10 g"},
-        {"item": "Česnek", "amount": "3 stroužky"}
+        {
+          "item": "Kuřecí prsa (bez kůže)",
+          "amount": "1 000 g"
+        },
+        {
+          "item": "Sladká chilli omáčka",
+          "amount": "200 ml"
+        },
+        {
+          "item": "Sriracha",
+          "amount": "20 ml"
+        },
+        {
+          "item": "Pšeničná mouka hladká",
+          "amount": "50 g"
+        },
+        {
+          "item": "Olivový olej",
+          "amount": "30 ml"
+        },
+        {
+          "item": "Zázvor čerstvý",
+          "amount": "30 g"
+        },
+        {
+          "item": "Paprika sladká mletá",
+          "amount": "10 g"
+        },
+        {
+          "item": "Česnek",
+          "amount": "3 stroužky"
+        }
       ],
       "steps": [],
-      "notes": "115 g cukrů v celém hrnci ze sladkochilli omáčky."
+      "notes": "115 g cukrů v celém hrnci ze sladkochilli omáčky.",
+      "requires_side": true
     },
     {
       "id": "cina_placicky",
@@ -48,17 +97,41 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 165, "p": 18.5, "c": 1.9, "f": 9.2 },
-      "side_dishes": ["Brambory opečené (air fryer)", "Chléb tmavý"],
+      "macros_per_100g": {
+        "kcal": 165,
+        "p": 18.5,
+        "c": 1.9,
+        "f": 9.2
+      },
+      "side_dishes": [
+        "Brambory opečené (air fryer)",
+        "Chléb tmavý"
+      ],
       "ingredients": [
-        {"item": "Krůtí stehno (bez kosti a kůže)", "amount": "1 000 g"},
-        {"item": "Vejce slepičí", "amount": "3 ks (165 g)"},
-        {"item": "Bramborový škrob", "amount": "20 g"},
-        {"item": "Cibule", "amount": "50 g"},
-        {"item": "Olivový olej", "amount": "60 ml"}
+        {
+          "item": "Krůtí stehno (bez kosti a kůže)",
+          "amount": "1 000 g"
+        },
+        {
+          "item": "Vejce slepičí",
+          "amount": "3 ks (165 g)"
+        },
+        {
+          "item": "Bramborový škrob",
+          "amount": "20 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "50 g"
+        },
+        {
+          "item": "Olivový olej",
+          "amount": "60 ml"
+        }
       ],
       "steps": [],
-      "notes": "Vždy s přílohou — brambor nebo chléb. Krůtí stehno nebo mix prsa+stehna."
+      "notes": "Vždy s přílohou — brambor nebo chléb. Krůtí stehno nebo mix prsa+stehna.",
+      "requires_side": true
     },
     {
       "id": "cina_uz_nekdo",
@@ -66,20 +139,52 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 83, "p": 9.0, "c": 2.4, "f": 2.4 },
-      "side_dishes": ["Rýže vařená"],
+      "macros_per_100g": {
+        "kcal": 83,
+        "p": 9.0,
+        "c": 2.4,
+        "f": 2.4
+      },
+      "side_dishes": [
+        "Rýže vařená"
+      ],
       "ingredients": [
-        {"item": "Kuřecí prsa (bez kůže)", "amount": "800 g"},
-        {"item": "Smetana na vaření 10%", "amount": "400 ml"},
-        {"item": "Bílé víno suché", "amount": "600 ml"},
-        {"item": "Pórek", "amount": "200 g"},
-        {"item": "Žampiony plátky (nálev)", "amount": "115 g"},
-        {"item": "Trvanlivé mléko 1,5%", "amount": "150 ml"},
-        {"item": "Celozrnná mouka", "amount": "15 g"},
-        {"item": "Paprika červená", "amount": "100 g"}
+        {
+          "item": "Kuřecí prsa (bez kůže)",
+          "amount": "800 g"
+        },
+        {
+          "item": "Smetana na vaření 10%",
+          "amount": "400 ml"
+        },
+        {
+          "item": "Bílé víno suché",
+          "amount": "600 ml"
+        },
+        {
+          "item": "Pórek",
+          "amount": "200 g"
+        },
+        {
+          "item": "Žampiony plátky (nálev)",
+          "amount": "115 g"
+        },
+        {
+          "item": "Trvanlivé mléko 1,5%",
+          "amount": "150 ml"
+        },
+        {
+          "item": "Celozrnná mouka",
+          "amount": "15 g"
+        },
+        {
+          "item": "Paprika červená",
+          "amount": "100 g"
+        }
       ],
       "steps": [],
-      "notes": "Kuřecí prsa v smetanové omáčce s bílým vínem. Rýže vždy."
+      "notes": "Kuřecí prsa v smetanové omáčce s bílým vínem. Rýže vždy.",
+      "requires_side": true
     },
     {
       "id": "mangoldova_omacka",
@@ -87,18 +192,45 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 111, "p": 17.6, "c": 3.7, "f": 2.8 },
-      "side_dishes": ["Těstoviny vařené", "Rýže vařená"],
+      "macros_per_100g": {
+        "kcal": 111,
+        "p": 17.6,
+        "c": 3.7,
+        "f": 2.8
+      },
+      "side_dishes": [
+        "Těstoviny vařené",
+        "Rýže vařená"
+      ],
       "ingredients": [
-        {"item": "Kuřecí prso vařené", "amount": "800 g"},
-        {"item": "Smetana na vaření 10% (bezlakt.)", "amount": "200 ml"},
-        {"item": "Cottage cheese proteinový", "amount": "180 g"},
-        {"item": "Kukuřice vařená", "amount": "200 g"},
-        {"item": "Mangold", "amount": "50 g"},
-        {"item": "Celerová nať", "amount": "50 g"}
+        {
+          "item": "Kuřecí prso vařené",
+          "amount": "800 g"
+        },
+        {
+          "item": "Smetana na vaření 10% (bezlakt.)",
+          "amount": "200 ml"
+        },
+        {
+          "item": "Cottage cheese proteinový",
+          "amount": "180 g"
+        },
+        {
+          "item": "Kukuřice vařená",
+          "amount": "200 g"
+        },
+        {
+          "item": "Mangold",
+          "amount": "50 g"
+        },
+        {
+          "item": "Celerová nať",
+          "amount": "50 g"
+        }
       ],
       "steps": [],
-      "notes": "Rekordní protein 73 % kalorií. 800 g prs + cottage cheese."
+      "notes": "Rekordní protein 73 % kalorií. 800 g prs + cottage cheese.",
+      "requires_side": true
     },
     {
       "id": "gnocchi_spenat",
@@ -106,17 +238,46 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 2 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 108, "p": 11.2, "c": 7.9, "f": 3.4 },
+      "macros_per_100g": {
+        "kcal": 108,
+        "p": 11.2,
+        "c": 7.9,
+        "f": 3.4
+      },
       "side_dishes": [],
       "ingredients": [
-        {"item": "Gnocchi", "amount": "800 g"},
-        {"item": "Kuřecí prsa restovaná", "amount": "900 g"},
-        {"item": "Kuřecí stehenní řízek", "amount": "400 g"},
-        {"item": "Špenátový protlak", "amount": "900 g"},
-        {"item": "Cottage (bez laktózy)", "amount": "300 g"},
-        {"item": "Smetana na vaření 10%", "amount": "200 ml"},
-        {"item": "Cuketa", "amount": "250 g"},
-        {"item": "Kuřecí vývar", "amount": "200 ml"}
+        {
+          "item": "Gnocchi",
+          "amount": "800 g"
+        },
+        {
+          "item": "Kuřecí prsa restovaná",
+          "amount": "900 g"
+        },
+        {
+          "item": "Kuřecí stehenní řízek",
+          "amount": "400 g"
+        },
+        {
+          "item": "Špenátový protlak",
+          "amount": "900 g"
+        },
+        {
+          "item": "Cottage (bez laktózy)",
+          "amount": "300 g"
+        },
+        {
+          "item": "Smetana na vaření 10%",
+          "amount": "200 ml"
+        },
+        {
+          "item": "Cuketa",
+          "amount": "250 g"
+        },
+        {
+          "item": "Kuřecí vývar",
+          "amount": "200 ml"
+        }
       ],
       "steps": [],
       "notes": "Var. A (bezlaktózová). Gnocchi integrované v receptu. Sůl 13.9 g na hrnec — sledovat."
@@ -128,11 +289,19 @@
       "v_compatible": false,
       "v_restriction": "ajvar obsahuje papriku",
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 143, "p": 10.5, "c": 5.3, "f": 8.7 },
-      "side_dishes": ["Těstoviny vařené"],
+      "macros_per_100g": {
+        "kcal": 143,
+        "p": 10.5,
+        "c": 5.3,
+        "f": 8.7
+      },
+      "side_dishes": [
+        "Těstoviny vařené"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Verča nesmí — ajvar obsahuje papriku."
+      "notes": "Verča nesmí — ajvar obsahuje papriku.",
+      "requires_side": true
     },
     {
       "id": "nivova_omacka",
@@ -140,18 +309,44 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 130, "p": 14.0, "c": 2.0, "f": 8.0 },
-      "side_dishes": ["Těstoviny vařené"],
+      "macros_per_100g": {
+        "kcal": 130,
+        "p": 14.0,
+        "c": 2.0,
+        "f": 8.0
+      },
+      "side_dishes": [
+        "Těstoviny vařené"
+      ],
       "ingredients": [
-        {"item": "Smetana ke šlehání 31% Kunín", "amount": "200 g"},
-        {"item": "Jihočeská niva Madeta", "amount": "110 g"},
-        {"item": "Kuřecí prsa (přidají se zvlášť)", "amount": "∼200 g / porci"},
-        {"item": "Ketchup sladký", "amount": "20 g"},
-        {"item": "Sladká chilli omáčka", "amount": "20 ml"},
-        {"item": "Bezlepkové penne Combino", "amount": "400 g (celý recept)"}
+        {
+          "item": "Smetana ke šlehání 31% Kunín",
+          "amount": "200 g"
+        },
+        {
+          "item": "Jihočeská niva Madeta",
+          "amount": "110 g"
+        },
+        {
+          "item": "Kuřecí prsa (přidají se zvlášť)",
+          "amount": "∼200 g / porci"
+        },
+        {
+          "item": "Ketchup sladký",
+          "amount": "20 g"
+        },
+        {
+          "item": "Sladká chilli omáčka",
+          "amount": "20 ml"
+        },
+        {
+          "item": "Bezlepkové penne Combino",
+          "amount": "400 g (celý recept)"
+        }
       ],
       "steps": [],
-      "notes": "Pasta se vaří čerstvě ke každé porci, omáčka do batche."
+      "notes": "Pasta se vaří čerstvě ke každé porci, omáčka do batche.",
+      "requires_side": true
     },
     {
       "id": "hovezi_na_houbach",
@@ -159,11 +354,19 @@
       "protein_type": "Hovězí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 100, "p": 9.1, "c": 3.1, "f": 5.7 },
-      "side_dishes": ["Rýže vařená"],
+      "macros_per_100g": {
+        "kcal": 100,
+        "p": 9.1,
+        "c": 3.1,
+        "f": 5.7
+      },
+      "side_dishes": [
+        "Rýže vařená"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Příloha VÝHRADNĚ rýže. Knedlík nikdy."
+      "notes": "Příloha VÝHRADNĚ rýže. Knedlík nikdy.",
+      "requires_side": true
     },
     {
       "id": "kanci_gulas",
@@ -171,11 +374,20 @@
       "protein_type": "Zvěřina",
       "v_compatible": true,
       "batch_note": "batch 4 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 127, "p": 12.3, "c": 7.3, "f": 5.5 },
-      "side_dishes": ["Chléb tmavý", "Těstoviny vařené"],
+      "macros_per_100g": {
+        "kcal": 127,
+        "p": 12.3,
+        "c": 7.3,
+        "f": 5.5
+      },
+      "side_dishes": [
+        "Chléb tmavý",
+        "Těstoviny vařené"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Vždy chléb, výjimečně těstoviny."
+      "notes": "Vždy chléb, výjimečně těstoviny.",
+      "requires_side": true
     },
     {
       "id": "picado_madeirense",
@@ -183,11 +395,19 @@
       "protein_type": "Hovězí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 140, "p": 13.3, "c": 1.4, "f": 8.9 },
-      "side_dishes": ["Polenta (na hovězím vývaru)"],
+      "macros_per_100g": {
+        "kcal": 140,
+        "p": 13.3,
+        "c": 1.4,
+        "f": 8.9
+      },
+      "side_dishes": [
+        "Polenta (na hovězím vývaru)"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Hovězí krk + hrudí. Nejnižší sacharidy ze všech masových receptů."
+      "notes": "Hovězí krk + hrudí. Nejnižší sacharidy ze všech masových receptů.",
+      "requires_side": true
     },
     {
       "id": "chilli_con_carne",
@@ -196,11 +416,20 @@
       "v_compatible": false,
       "v_restriction": "rajčata",
       "batch_note": "batch 4 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 92, "p": 6.4, "c": 4.4, "f": 5.1 },
-      "side_dishes": ["Rýže vařená", "Tortilla (wrap 25 cm)"],
+      "macros_per_100g": {
+        "kcal": 92,
+        "p": 6.4,
+        "c": 4.4,
+        "f": 5.1
+      },
+      "side_dishes": [
+        "Rýže vařená",
+        "Tortilla (wrap 25 cm)"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Nejlepší poměr kcal/100g ze všech. Fazole + hovězí. Verča nesmí — rajčata."
+      "notes": "Nejlepší poměr kcal/100g ze všech. Fazole + hovězí. Verča nesmí — rajčata.",
+      "requires_side": true
     },
     {
       "id": "rajska_plnene_papriky",
@@ -209,11 +438,19 @@
       "v_compatible": false,
       "v_restriction": "rajčata i papriky",
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 120, "p": 8.0, "c": 9.0, "f": 5.5 },
-      "side_dishes": ["Houskový knedlík"],
+      "macros_per_100g": {
+        "kcal": 120,
+        "p": 8.0,
+        "c": 9.0,
+        "f": 5.5
+      },
+      "side_dishes": [
+        "Houskový knedlík"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Omáčka + plněné papriky + houskový knedlík. Verča nesmí — rajčata i papriky."
+      "notes": "Omáčka + plněné papriky + houskový knedlík. Verča nesmí — rajčata i papriky.",
+      "requires_side": true
     },
     {
       "id": "char_siu_pork",
@@ -221,11 +458,20 @@
       "protein_type": "Vepřové",
       "v_compatible": true,
       "batch_note": "batch 4 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 264, "p": 24.8, "c": 8.9, "f": 14.3 },
-      "side_dishes": ["Rýže vařená", "Chléb tmavý"],
+      "macros_per_100g": {
+        "kcal": 264,
+        "p": 24.8,
+        "c": 8.9,
+        "f": 14.3
+      },
+      "side_dishes": [
+        "Rýže vařená",
+        "Chléb tmavý"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Rýže k obědu i večeři; chléb jen k večeři."
+      "notes": "Rýže k obědu i večeři; chléb jen k večeři.",
+      "requires_side": true
     },
     {
       "id": "segedinsky_gulas",
@@ -233,11 +479,19 @@
       "protein_type": "Vepřové",
       "v_compatible": true,
       "batch_note": "batch 4 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 161, "p": 7.6, "c": 3.2, "f": 13.0 },
-      "side_dishes": ["Houskový knedlík"],
+      "macros_per_100g": {
+        "kcal": 161,
+        "p": 7.6,
+        "c": 3.2,
+        "f": 13.0
+      },
+      "side_dishes": [
+        "Houskový knedlík"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Sůl 4.5 g/porci (kysané zelí). Hubnoucí var: smetanu nahradit řeckým jogurtem."
+      "notes": "Sůl 4.5 g/porci (kysané zelí). Hubnoucí var: smetanu nahradit řeckým jogurtem.",
+      "requires_side": true
     },
     {
       "id": "koprovka",
@@ -245,11 +499,20 @@
       "protein_type": "Vegetariánské",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 66, "p": 1.2, "c": 4.7, "f": 4.6 },
-      "side_dishes": ["Brambory opečené (air fryer)", "Vejce vařená natvrdo"],
+      "macros_per_100g": {
+        "kcal": 66,
+        "p": 1.2,
+        "c": 4.7,
+        "f": 4.6
+      },
+      "side_dishes": [
+        "Brambory opečené (air fryer)",
+        "Vejce vařená natvrdo"
+      ],
       "ingredients": [],
       "steps": [],
-      "notes": "Omáčka + opečené brambory (air fryer) + vařená vejce. Protein dodají vejce. Vždy obě přílohy spolu."
+      "notes": "Omáčka + opečené brambory (air fryer) + vařená vejce. Protein dodají vejce. Vždy obě přílohy spolu.",
+      "requires_side": true
     },
     {
       "id": "losos_wakame",
@@ -257,7 +520,12 @@
       "protein_type": "Ryby",
       "v_compatible": true,
       "batch_note": "čerstvé — nehodí se do batche",
-      "macros_per_100g": { "kcal": 208, "p": 20.0, "c": 0.0, "f": 14.0 },
+      "macros_per_100g": {
+        "kcal": 208,
+        "p": 20.0,
+        "c": 0.0,
+        "f": 14.0
+      },
       "side_dishes": [],
       "ingredients": [],
       "steps": [],
@@ -269,7 +537,12 @@
       "protein_type": "Ryby",
       "v_compatible": true,
       "batch_note": "batch 2 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 130, "p": 8.9, "c": 15.7, "f": 3.7 },
+      "macros_per_100g": {
+        "kcal": 130,
+        "p": 8.9,
+        "c": 15.7,
+        "f": 3.7
+      },
       "side_dishes": [],
       "ingredients": [],
       "steps": [],
@@ -282,17 +555,46 @@
       "v_compatible": false,
       "v_restriction": "rajčata",
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 144, "p": 6.3, "c": 8.6, "f": 9.1 },
+      "macros_per_100g": {
+        "kcal": 144,
+        "p": 6.3,
+        "c": 8.6,
+        "f": 9.1
+      },
       "side_dishes": [],
       "ingredients": [
-        {"item": "Mleté hovězí", "amount": "500 g"},
-        {"item": "Rajčata loupaná krájená", "amount": "800 g (2× konzerva)"},
-        {"item": "Lasagne pláty Panzani", "amount": "125 g"},
-        {"item": "Mléko polotučné 1,5%", "amount": "500 ml"},
-        {"item": "Máslo", "amount": "55 g"},
-        {"item": "Mouka polohrubá", "amount": "50 g"},
-        {"item": "Olej slunečnicový", "amount": "50 ml"},
-        {"item": "Česnek", "amount": "2 stroužky"}
+        {
+          "item": "Mleté hovězí",
+          "amount": "500 g"
+        },
+        {
+          "item": "Rajčata loupaná krájená",
+          "amount": "800 g (2× konzerva)"
+        },
+        {
+          "item": "Lasagne pláty Panzani",
+          "amount": "125 g"
+        },
+        {
+          "item": "Mléko polotučné 1,5%",
+          "amount": "500 ml"
+        },
+        {
+          "item": "Máslo",
+          "amount": "55 g"
+        },
+        {
+          "item": "Mouka polohrubá",
+          "amount": "50 g"
+        },
+        {
+          "item": "Olej slunečnicový",
+          "amount": "50 ml"
+        },
+        {
+          "item": "Česnek",
+          "amount": "2 stroužky"
+        }
       ],
       "steps": [],
       "notes": "Mleté hovězí + béchamel + lasagne pláty. Verča nesmí — rajčata."
@@ -303,628 +605,2138 @@
       "protein_type": "Kuřecí",
       "v_compatible": true,
       "batch_note": "batch 3 dny · oběd i večeře",
-      "macros_per_100g": { "kcal": 200, "p": 12.0, "c": 18.5, "f": 8.2 },
+      "macros_per_100g": {
+        "kcal": 200,
+        "p": 12.0,
+        "c": 18.5,
+        "f": 8.2
+      },
       "side_dishes": [],
       "ingredients": [],
       "steps": [],
       "notes": "Celozrnné těsto. Sůl 9.7 g — sledovat. Listové těsto výhradně Albert."
     },
-
-    { "id": "bf_jk_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 321, "p": 25, "c": 40, "f": 7 },
+    {
+      "id": "bf_jk_01",
+      "name": "Tuňáková pomazánka + chléb + microgreens",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 321,
+        "p": 25,
+        "c": 40,
+        "f": 7
+      },
       "ingredients": [
-        { "item": "Tuňák v oleji (slitý)", "amount": "100 g" },
-        { "item": "Lučina", "amount": "30 g" },
-        { "item": "Cibule", "amount": "20 g" },
-        { "item": "Chléb tmavý", "amount": "80 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bf_jk_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 405, "p": 22, "c": 41, "f": 18 },
+        {
+          "item": "Tuňák v oleji (slitý)",
+          "amount": "100 g"
+        },
+        {
+          "item": "Lučina",
+          "amount": "30 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "20 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bf_jk_02",
+      "name": "Tvarůžková pomazánka + chléb + microgreens",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 405,
+        "p": 22,
+        "c": 41,
+        "f": 18
+      },
       "ingredients": [
-        { "item": "Olomoucké tvarůžky", "amount": "50 g" },
-        { "item": "Máslo nesolené", "amount": "20 g" },
-        { "item": "Cibule", "amount": "20 g" },
-        { "item": "Hořčice", "amount": "5 g" },
-        { "item": "Chléb tmavý", "amount": "80 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bf_jk_03", "name": "Slaný závin", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 380, "p": 14, "c": 30, "f": 22 },
+        {
+          "item": "Olomoucké tvarůžky",
+          "amount": "50 g"
+        },
+        {
+          "item": "Máslo nesolené",
+          "amount": "20 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "20 g"
+        },
+        {
+          "item": "Hořčice",
+          "amount": "5 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bf_jk_03",
+      "name": "Slaný závin",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 380,
+        "p": 14,
+        "c": 30,
+        "f": 22
+      },
       "ingredients": [
-        { "item": "Listové těsto (Albert)", "amount": "150 g" },
-        { "item": "Špenát (mražený rozmražený)", "amount": "80 g" },
-        { "item": "Feta nebo sýr", "amount": "50 g" },
-        { "item": "Vejce", "amount": "1 ks" }
-      ], "steps": [], "notes": "Vyžaduje troubu — nevhodné na cestách." },
-
-    { "id": "bf_jk_04", "name": "Volské oko / hemenex + chléb", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 453, "p": 25, "c": 30, "f": 25 },
+        {
+          "item": "Listové těsto (Albert)",
+          "amount": "150 g"
+        },
+        {
+          "item": "Špenát (mražený rozmražený)",
+          "amount": "80 g"
+        },
+        {
+          "item": "Feta nebo sýr",
+          "amount": "50 g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "1 ks"
+        }
+      ],
+      "steps": [],
+      "notes": "Vyžaduje troubu — nevhodné na cestách."
+    },
+    {
+      "id": "bf_jk_04",
+      "name": "Volské oko / hemenex + chléb",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 453,
+        "p": 25,
+        "c": 30,
+        "f": 25
+      },
       "ingredients": [
-        { "item": "Vejce", "amount": "2 ks" },
-        { "item": "Šunka přírodní", "amount": "50 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Tuk na smažení", "amount": "10 g" }
-      ], "steps": [], "notes": "Vyžaduje sporák — nevhodné na cestách." },
-
-    { "id": "bf_jk_05", "name": "Chléb s paštiku + microgreens", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 391, "p": 16, "c": 40, "f": 19 },
+        {
+          "item": "Vejce",
+          "amount": "2 ks"
+        },
+        {
+          "item": "Šunka přírodní",
+          "amount": "50 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Tuk na smažení",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Vyžaduje sporák — nevhodné na cestách."
+    },
+    {
+      "id": "bf_jk_05",
+      "name": "Chléb s paštiku + microgreens",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 391,
+        "p": 16,
+        "c": 40,
+        "f": 19
+      },
       "ingredients": [
-        { "item": "Domácí kuřecí paštika", "amount": "80 g" },
-        { "item": "Chléb tmavý", "amount": "80 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bf_jk_06", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 412, "p": 24, "c": 40, "f": 18 },
+        {
+          "item": "Domácí kuřecí paštika",
+          "amount": "80 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bf_jk_06",
+      "name": "Sendvič: chléb + lučina + jamon + microgreens",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 412,
+        "p": 24,
+        "c": 40,
+        "f": 18
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "60 g" },
-        { "item": "Jamon serrano", "amount": "50 g" },
-        { "item": "Chléb tmavý", "amount": "80 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bf_jk_07", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "snídaně", "person": "Kuba",
-      "macros_per_serving": { "kcal": 584, "p": 24, "c": 41, "f": 37 },
+        {
+          "item": "Lučina",
+          "amount": "60 g"
+        },
+        {
+          "item": "Jamon serrano",
+          "amount": "50 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bf_jk_07",
+      "name": "Sendvič: chléb + lučina + fuet + microgreens",
+      "category": "snídaně",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 584,
+        "p": 24,
+        "c": 41,
+        "f": 37
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "60 g" },
-        { "item": "Fuet", "amount": "60 g" },
-        { "item": "Chléb tmavý", "amount": "80 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bf_vr_01", "name": "Jogurt set", "category": "snídaně", "person": "Verča",
-      "macros_per_serving": { "kcal": 416, "p": 12, "c": 62, "f": 16 },
+        {
+          "item": "Lučina",
+          "amount": "60 g"
+        },
+        {
+          "item": "Fuet",
+          "amount": "60 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bf_vr_01",
+      "name": "Jogurt set",
+      "category": "snídaně",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 416,
+        "p": 12,
+        "c": 62,
+        "f": 16
+      },
       "ingredients": [
-        { "item": "Hollandia krémový jogurt bílý 0,01% laktózy", "amount": "180 g" },
-        { "item": "Banán", "amount": "150 g" },
-        { "item": "Borůvky", "amount": "100 g" },
-        { "item": "Vlašské ořechy", "amount": "15 g" }
-      ], "steps": [], "notes": "Pevná snídaně — vždy stejná kombinace." },
-
-    { "id": "sn_jk_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 248, "p": 20, "c": 30, "f": 5 },
+        {
+          "item": "Hollandia krémový jogurt bílý 0,01% laktózy",
+          "amount": "180 g"
+        },
+        {
+          "item": "Banán",
+          "amount": "150 g"
+        },
+        {
+          "item": "Borůvky",
+          "amount": "100 g"
+        },
+        {
+          "item": "Vlašské ořechy",
+          "amount": "15 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Pevná snídaně — vždy stejná kombinace."
+    },
+    {
+      "id": "sn_jk_01",
+      "name": "Tuňáková pomazánka + chléb + microgreens",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 248,
+        "p": 20,
+        "c": 30,
+        "f": 5
+      },
       "ingredients": [
-        { "item": "Tuňák v oleji (slitý)", "amount": "80 g" },
-        { "item": "Lučina", "amount": "20 g" },
-        { "item": "Cibule", "amount": "15 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "Synchronizováno s Verčou (sn_vr_01)." },
-
-    { "id": "sn_jk_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 316, "p": 18, "c": 33, "f": 14 },
+        {
+          "item": "Tuňák v oleji (slitý)",
+          "amount": "80 g"
+        },
+        {
+          "item": "Lučina",
+          "amount": "20 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "15 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Synchronizováno s Verčou (sn_vr_01)."
+    },
+    {
+      "id": "sn_jk_02",
+      "name": "Tvarůžková pomazánka + chléb + microgreens",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 316,
+        "p": 18,
+        "c": 33,
+        "f": 14
+      },
       "ingredients": [
-        { "item": "Olomoucké tvarůžky", "amount": "40 g" },
-        { "item": "Máslo nesolené", "amount": "15 g" },
-        { "item": "Cibule", "amount": "15 g" },
-        { "item": "Hořčice", "amount": "5 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_jk_03", "name": "Slaný závin", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 380, "p": 14, "c": 30, "f": 22 },
+        {
+          "item": "Olomoucké tvarůžky",
+          "amount": "40 g"
+        },
+        {
+          "item": "Máslo nesolené",
+          "amount": "15 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "15 g"
+        },
+        {
+          "item": "Hořčice",
+          "amount": "5 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_jk_03",
+      "name": "Slaný závin",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 380,
+        "p": 14,
+        "c": 30,
+        "f": 22
+      },
       "ingredients": [
-        { "item": "Listové těsto (Albert)", "amount": "150 g" },
-        { "item": "Špenát (mražený rozmražený)", "amount": "80 g" },
-        { "item": "Feta nebo sýr", "amount": "50 g" },
-        { "item": "Vejce", "amount": "1 ks" }
-      ], "steps": [], "notes": "Vyžaduje troubu — nevhodné na cestách." },
-
-    { "id": "sn_jk_04", "name": "Chléb s paštiku + microgreens", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 294, "p": 11, "c": 30, "f": 15 },
+        {
+          "item": "Listové těsto (Albert)",
+          "amount": "150 g"
+        },
+        {
+          "item": "Špenát (mražený rozmražený)",
+          "amount": "80 g"
+        },
+        {
+          "item": "Feta nebo sýr",
+          "amount": "50 g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "1 ks"
+        }
+      ],
+      "steps": [],
+      "notes": "Vyžaduje troubu — nevhodné na cestách."
+    },
+    {
+      "id": "sn_jk_04",
+      "name": "Chléb s paštiku + microgreens",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 294,
+        "p": 11,
+        "c": 30,
+        "f": 15
+      },
       "ingredients": [
-        { "item": "Domácí kuřecí paštika", "amount": "60 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_jk_05", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 325, "p": 19, "c": 31, "f": 15 },
+        {
+          "item": "Domácí kuřecí paštika",
+          "amount": "60 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_jk_05",
+      "name": "Sendvič: chléb + lučina + jamon + microgreens",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 325,
+        "p": 19,
+        "c": 31,
+        "f": 15
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "50 g" },
-        { "item": "Jamon serrano", "amount": "40 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_jk_06", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 472, "p": 20, "c": 31, "f": 31 },
+        {
+          "item": "Lučina",
+          "amount": "50 g"
+        },
+        {
+          "item": "Jamon serrano",
+          "amount": "40 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_jk_06",
+      "name": "Sendvič: chléb + lučina + fuet + microgreens",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 472,
+        "p": 20,
+        "c": 31,
+        "f": 31
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "50 g" },
-        { "item": "Fuet", "amount": "50 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_jk_07", "name": "Sendvič: chléb + kozí sýr + sušené datle", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 356, "p": 14, "c": 44, "f": 15 },
+        {
+          "item": "Lučina",
+          "amount": "50 g"
+        },
+        {
+          "item": "Fuet",
+          "amount": "50 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_jk_07",
+      "name": "Sendvič: chléb + kozí sýr + sušené datle",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 356,
+        "p": 14,
+        "c": 44,
+        "f": 15
+      },
       "ingredients": [
-        { "item": "Kozí sýr čerstvý", "amount": "80 g" },
-        { "item": "Sušené datle", "amount": "20 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_jk_08", "name": "Sendvič: chléb + Parenica + sušené datle", "category": "svačina", "person": "Kuba",
-      "macros_per_serving": { "kcal": 505, "p": 34, "c": 45, "f": 23 },
+        {
+          "item": "Kozí sýr čerstvý",
+          "amount": "80 g"
+        },
+        {
+          "item": "Sušené datle",
+          "amount": "20 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_jk_08",
+      "name": "Sendvič: chléb + Parenica + sušené datle",
+      "category": "svačina",
+      "person": "Kuba",
+      "macros_per_serving": {
+        "kcal": 505,
+        "p": 34,
+        "c": 45,
+        "f": 23
+      },
       "ingredients": [
-        { "item": "Milsy Lacti-No Parenica neuzená bez laktózy", "amount": "110 g" },
-        { "item": "Sušené datle", "amount": "20 g" },
-        { "item": "Chléb tmavý", "amount": "60 g" }
-      ], "steps": [], "notes": "Celé balení Parenica najednou." },
-
-    { "id": "sn_vr_01", "name": "Tuňáková pomazánka + chléb + microgreens", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 188, "p": 16, "c": 21, "f": 4 },
+        {
+          "item": "Milsy Lacti-No Parenica neuzená bez laktózy",
+          "amount": "110 g"
+        },
+        {
+          "item": "Sušené datle",
+          "amount": "20 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "60 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Celé balení Parenica najednou."
+    },
+    {
+      "id": "sn_vr_01",
+      "name": "Tuňáková pomazánka + chléb + microgreens",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 188,
+        "p": 16,
+        "c": 21,
+        "f": 4
+      },
       "ingredients": [
-        { "item": "Tuňák v oleji (slitý)", "amount": "60 g" },
-        { "item": "Lučina", "amount": "15 g" },
-        { "item": "Cibule", "amount": "10 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_02", "name": "Tvarůžková pomazánka + chléb + microgreens", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 247, "p": 14, "c": 21, "f": 13 },
+        {
+          "item": "Tuňák v oleji (slitý)",
+          "amount": "60 g"
+        },
+        {
+          "item": "Lučina",
+          "amount": "15 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "10 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_02",
+      "name": "Tvarůžková pomazánka + chléb + microgreens",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 247,
+        "p": 14,
+        "c": 21,
+        "f": 13
+      },
       "ingredients": [
-        { "item": "Olomoucké tvarůžky", "amount": "35 g" },
-        { "item": "Máslo nesolené", "amount": "12 g" },
-        { "item": "Cibule", "amount": "10 g" },
-        { "item": "Hořčice", "amount": "4 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_03", "name": "Slaný závin", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 253, "p": 9, "c": 20, "f": 15 },
+        {
+          "item": "Olomoucké tvarůžky",
+          "amount": "35 g"
+        },
+        {
+          "item": "Máslo nesolené",
+          "amount": "12 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "10 g"
+        },
+        {
+          "item": "Hořčice",
+          "amount": "4 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_03",
+      "name": "Slaný závin",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 253,
+        "p": 9,
+        "c": 20,
+        "f": 15
+      },
       "ingredients": [
-        { "item": "Listové těsto (Albert)", "amount": "100 g" },
-        { "item": "Špenát (mražený rozmražený)", "amount": "60 g" },
-        { "item": "Feta nebo sýr", "amount": "35 g" },
-        { "item": "Vejce", "amount": "1 ks" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_04", "name": "Chléb s paštiku + microgreens", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 222, "p": 10, "c": 20, "f": 12 },
+        {
+          "item": "Listové těsto (Albert)",
+          "amount": "100 g"
+        },
+        {
+          "item": "Špenát (mražený rozmražený)",
+          "amount": "60 g"
+        },
+        {
+          "item": "Feta nebo sýr",
+          "amount": "35 g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "1 ks"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_04",
+      "name": "Chléb s paštiku + microgreens",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 222,
+        "p": 10,
+        "c": 20,
+        "f": 12
+      },
       "ingredients": [
-        { "item": "Domácí kuřecí paštika", "amount": "50 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_05", "name": "Sendvič: chléb + lučina + jamon + microgreens", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 228, "p": 14, "c": 20, "f": 10 },
+        {
+          "item": "Domácí kuřecí paštika",
+          "amount": "50 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_05",
+      "name": "Sendvič: chléb + lučina + jamon + microgreens",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 228,
+        "p": 14,
+        "c": 20,
+        "f": 10
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "35 g" },
-        { "item": "Jamon serrano", "amount": "30 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_06", "name": "Sendvič: chléb + lučina + fuet + microgreens", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 326, "p": 14, "c": 21, "f": 21 },
+        {
+          "item": "Lučina",
+          "amount": "35 g"
+        },
+        {
+          "item": "Jamon serrano",
+          "amount": "30 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_06",
+      "name": "Sendvič: chléb + lučina + fuet + microgreens",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 326,
+        "p": 14,
+        "c": 21,
+        "f": 21
+      },
       "ingredients": [
-        { "item": "Lučina", "amount": "35 g" },
-        { "item": "Fuet", "amount": "35 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" },
-        { "item": "Microgreens", "amount": "10 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_07", "name": "Sendvič: chléb + kozí sýr + sušené datle", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 269, "p": 10, "c": 34, "f": 11 },
+        {
+          "item": "Lučina",
+          "amount": "35 g"
+        },
+        {
+          "item": "Fuet",
+          "amount": "35 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        },
+        {
+          "item": "Microgreens",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_07",
+      "name": "Sendvič: chléb + kozí sýr + sušené datle",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 269,
+        "p": 10,
+        "c": 34,
+        "f": 11
+      },
       "ingredients": [
-        { "item": "Kozí sýr čerstvý", "amount": "60 g" },
-        { "item": "Sušené datle", "amount": "20 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "sn_vr_08", "name": "Sendvič: chléb + Parenica + sušené datle", "category": "svačina", "person": "Verča",
-      "macros_per_serving": { "kcal": 458, "p": 33, "c": 35, "f": 23 },
+        {
+          "item": "Kozí sýr čerstvý",
+          "amount": "60 g"
+        },
+        {
+          "item": "Sušené datle",
+          "amount": "20 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "sn_vr_08",
+      "name": "Sendvič: chléb + Parenica + sušené datle",
+      "category": "svačina",
+      "person": "Verča",
+      "macros_per_serving": {
+        "kcal": 458,
+        "p": 33,
+        "c": 35,
+        "f": 23
+      },
       "ingredients": [
-        { "item": "Milsy Lacti-No Parenica neuzená bez laktózy", "amount": "110 g" },
-        { "item": "Sušené datle", "amount": "20 g" },
-        { "item": "Chléb tmavý", "amount": "40 g" }
-      ], "steps": [], "notes": "" },
-
-    { "id": "bananove-brownies", "name": "Banánové brownies", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 185, "p": 7.7, "c": 19.3, "f": 8.0 },
+        {
+          "item": "Milsy Lacti-No Parenica neuzená bez laktózy",
+          "amount": "110 g"
+        },
+        {
+          "item": "Sušené datle",
+          "amount": "20 g"
+        },
+        {
+          "item": "Chléb tmavý",
+          "amount": "40 g"
+        }
+      ],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "bananove-brownies",
+      "name": "Banánové brownies",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 185,
+        "p": 7.7,
+        "c": 19.3,
+        "f": 8.0
+      },
       "ingredients": [
-        { "item": "Banán", "amount": "4× kus (360 g)" },
-        { "item": "Vejce", "amount": "1 ks (55 g)" },
-        { "item": "Čokoládový protein", "amount": "30 g" },
-        { "item": "Arašídové máslo Allnature", "amount": "20 g" },
-        { "item": "Holandské kakao 20–22% Kávoviny", "amount": "30 g" },
-        { "item": "Vlašské ořechy", "amount": "30 g" },
-        { "item": "Kypřicí prášek Dr. Oetker", "amount": "3 g" }
-      ], "steps": [], "notes": "Celý recept 528 g → 978 kcal. Vláknina 19 g (nadprůměrná). Sladké — Jakub nevyhovuje sladká jídla." },
-
-    { "id": "bramborovy-salat", "name": "Bramborový salát", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 191, "p": 3.0, "c": 11.6, "f": 14.9 },
+        {
+          "item": "Banán",
+          "amount": "4× kus (360 g)"
+        },
+        {
+          "item": "Vejce",
+          "amount": "1 ks (55 g)"
+        },
+        {
+          "item": "Čokoládový protein",
+          "amount": "30 g"
+        },
+        {
+          "item": "Arašídové máslo Allnature",
+          "amount": "20 g"
+        },
+        {
+          "item": "Holandské kakao 20–22% Kávoviny",
+          "amount": "30 g"
+        },
+        {
+          "item": "Vlašské ořechy",
+          "amount": "30 g"
+        },
+        {
+          "item": "Kypřicí prášek Dr. Oetker",
+          "amount": "3 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Celý recept 528 g → 978 kcal. Vláknina 19 g (nadprůměrná). Sladké — Jakub nevyhovuje sladká jídla."
+    },
+    {
+      "id": "bramborovy-salat",
+      "name": "Bramborový salát",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 191,
+        "p": 3.0,
+        "c": 11.6,
+        "f": 14.9
+      },
       "ingredients": [
-        { "item": "Originál majonéza Hellmann's", "amount": "405 ml" },
-        { "item": "Okurky sterilované Znojmia 7–9 cm", "amount": "300 g" },
-        { "item": "Brambory vařené bez slupky", "amount": "1 200 g" },
-        { "item": "Vejce na tvrdo", "amount": "6 ks (330 g)" }
-      ], "steps": [], "notes": "Velká dávka (2 235 g → 4 272 kcal). Kalorická bomba — táhne majonéza (405 ml ≈ 3 000 kcal). Zdravější varianta: Yofresh." },
-
-    { "id": "bramborovy-salat-yofresh", "name": "Bramborový salát Yofresh", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 105, "p": 2.9, "c": 14.8, "f": 3.6 },
+        {
+          "item": "Originál majonéza Hellmann's",
+          "amount": "405 ml"
+        },
+        {
+          "item": "Okurky sterilované Znojmia 7–9 cm",
+          "amount": "300 g"
+        },
+        {
+          "item": "Brambory vařené bez slupky",
+          "amount": "1 200 g"
+        },
+        {
+          "item": "Vejce na tvrdo",
+          "amount": "6 ks (330 g)"
+        }
+      ],
+      "steps": [],
+      "notes": "Velká dávka (2 235 g → 4 272 kcal). Kalorická bomba — táhne majonéza (405 ml ≈ 3 000 kcal). Zdravější varianta: Yofresh."
+    },
+    {
+      "id": "bramborovy-salat-yofresh",
+      "name": "Bramborový salát Yofresh",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 105,
+        "p": 2.9,
+        "c": 14.8,
+        "f": 3.6
+      },
       "ingredients": [
-        { "item": "Brambory salátové", "amount": "2 000 g" },
-        { "item": "Okurka kyselá", "amount": "7× kus (210 g)" },
-        { "item": "Nálev sladkokyselý", "amount": "70 ml" },
-        { "item": "Vejce na tvrdo", "amount": "6 ks (330 g)" },
-        { "item": "Yofresh s jogurtem Hellmann's", "amount": "250 ml" }
-      ], "steps": [], "notes": "Zdravější varianta — −45 % kcal a −76 % tuků vs. klasický bramborák s majonézou." },
-
-    { "id": "cuketo-batátové-bramboráky", "name": "Cuketo-batátové bramboráky", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 91, "p": 5.7, "c": 9.7, "f": 2.8 },
+        {
+          "item": "Brambory salátové",
+          "amount": "2 000 g"
+        },
+        {
+          "item": "Okurka kyselá",
+          "amount": "7× kus (210 g)"
+        },
+        {
+          "item": "Nálev sladkokyselý",
+          "amount": "70 ml"
+        },
+        {
+          "item": "Vejce na tvrdo",
+          "amount": "6 ks (330 g)"
+        },
+        {
+          "item": "Yofresh s jogurtem Hellmann's",
+          "amount": "250 ml"
+        }
+      ],
+      "steps": [],
+      "notes": "Zdravější varianta — −45 % kcal a −76 % tuků vs. klasický bramborák s majonézou."
+    },
+    {
+      "id": "cuketo-batátové-bramboráky",
+      "name": "Cuketo-batátové bramboráky",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 91,
+        "p": 5.7,
+        "c": 9.7,
+        "f": 2.8
+      },
       "ingredients": [
-        { "item": "Cuketa", "amount": "1 600 g" },
-        { "item": "Batáty (sladké brambory)", "amount": "400 g" },
-        { "item": "Vejce", "amount": "7 ks (385 g)" },
-        { "item": "Ovesné vločky jemné celozrnné Emco", "amount": "300 g" },
-        { "item": "Kuřecí prso vařené", "amount": "150 g" },
-        { "item": "Brokolice", "amount": "150 g" },
-        { "item": "Vepřový bok bez kosti a kůže syrový", "amount": "60 g" }
-      ], "steps": [], "notes": "Celý recept 3 145 g → 2 866 kcal. Vláknina 62 g — rekord ze všech jídel." },
-
-    { "id": "dynova-polevka", "name": "Dýňová polévka", "category": "polévka",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 65, "p": 1.8, "c": 8.4, "f": 3.4 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "hruskove-livance", "name": "Hruškové lívance", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 106, "p": 5.1, "c": 14.4, "f": 3.1 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "jahodova-buchta", "name": "Jahodová buchta s drobenkou", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 298, "p": 3.9, "c": 33.1, "f": 16.5 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "jahlove-rizoto", "name": "Jáhlové rizoto", "category": "příloha",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 110, "p": 4.6, "c": 19.6, "f": 1.0 },
-      "ingredients": [], "steps": [], "notes": "Samo o sobě příloha, ne hlavní chod." },
-
-    { "id": "kapr-smažený", "name": "Kapr smažený", "category": "hlavní jídlo",
-      "protein_type": "Ryby", "v_compatible": true,
-      "macros_per_100g": { "kcal": 177, "p": 16.1, "c": 13.3, "f": 6.2 },
-      "ingredients": [], "steps": [], "notes": "⚠️ Vánoční jídlo." },
-
-    { "id": "karlovarsky-knedlik", "name": "Karlovarský knedlík", "category": "příloha",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 185, "p": 8.7, "c": 24.6, "f": 5.4 },
-      "ingredients": [], "steps": [], "notes": "1 bochník ≈ 10 plátků à 50 g." },
-
-    { "id": "langose", "name": "Langoše", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 231, "p": 9.9, "c": 40.1, "f": 2.1 },
+        {
+          "item": "Cuketa",
+          "amount": "1 600 g"
+        },
+        {
+          "item": "Batáty (sladké brambory)",
+          "amount": "400 g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "7 ks (385 g)"
+        },
+        {
+          "item": "Ovesné vločky jemné celozrnné Emco",
+          "amount": "300 g"
+        },
+        {
+          "item": "Kuřecí prso vařené",
+          "amount": "150 g"
+        },
+        {
+          "item": "Brokolice",
+          "amount": "150 g"
+        },
+        {
+          "item": "Vepřový bok bez kosti a kůže syrový",
+          "amount": "60 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Celý recept 3 145 g → 2 866 kcal. Vláknina 62 g — rekord ze všech jídel."
+    },
+    {
+      "id": "dynova-polevka",
+      "name": "Dýňová polévka",
+      "category": "polévka",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 65,
+        "p": 1.8,
+        "c": 8.4,
+        "f": 3.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "hruskove-livance",
+      "name": "Hruškové lívance",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 106,
+        "p": 5.1,
+        "c": 14.4,
+        "f": 3.1
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "jahodova-buchta",
+      "name": "Jahodová buchta s drobenkou",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 298,
+        "p": 3.9,
+        "c": 33.1,
+        "f": 16.5
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "jahlove-rizoto",
+      "name": "Jáhlové rizoto",
+      "category": "příloha",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 110,
+        "p": 4.6,
+        "c": 19.6,
+        "f": 1.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Samo o sobě příloha, ne hlavní chod."
+    },
+    {
+      "id": "kapr-smažený",
+      "name": "Kapr smažený",
+      "category": "hlavní jídlo",
+      "protein_type": "Ryby",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 177,
+        "p": 16.1,
+        "c": 13.3,
+        "f": 6.2
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "⚠️ Vánoční jídlo."
+    },
+    {
+      "id": "karlovarsky-knedlik",
+      "name": "Karlovarský knedlík",
+      "category": "příloha",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 185,
+        "p": 8.7,
+        "c": 24.6,
+        "f": 5.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "1 bochník ≈ 10 plátků à 50 g."
+    },
+    {
+      "id": "langose",
+      "name": "Langoše",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 231,
+        "p": 9.9,
+        "c": 40.1,
+        "f": 2.1
+      },
       "ingredients": [
-        { "item": "BIO pšeničná celozrnná hladká mouka Pernerka", "amount": "250 g" },
-        { "item": "Trvanlivé mléko polotučné 1,5% bez laktózy Pragolaktos", "amount": "150 ml" },
-        { "item": "Čerstvé pekařské droždí", "amount": "21 g" }
-      ], "steps": [], "notes": "Makra pouze těsto — bez absorpce oleje při smažení a bez toppingů (zakysaná smetana + slanina/šunka/sýr). Zdravější var: péct v troubě místo smažení." },
-
-    { "id": "livance", "name": "Lívance", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 213, "p": 8.9, "c": 29.9, "f": 6.0 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "makovo-boruvkovy-chlebik", "name": "Makovo-borůvkový chlebík", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 158, "p": 10.6, "c": 4.8, "f": 10.1 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "makovo-svestkovy-chlebicek", "name": "Makovo-švestkový chlebíček", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 284, "p": 9.5, "c": 22.0, "f": 16.0 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "nivova-omacka-bez-masa", "name": "Nivová omáčka (bez masa)", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 337, "p": 7.3, "c": 45.0, "f": 13.8 },
-      "ingredients": [], "steps": [], "notes": "Varianta bez masa — kombinovat s přílohou (těstoviny). Viz nivova_omacka pro verzi s kuřecím." },
-
-    { "id": "ovesna-kase", "name": "Ovesná kaše", "category": "snídaně",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 221, "p": 9.2, "c": 33.5, "f": 4.7 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "pad-thai-tofu", "name": "Pad thai — tofu", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 161, "p": 5.0, "c": 25.2, "f": 4.6 },
+        {
+          "item": "BIO pšeničná celozrnná hladká mouka Pernerka",
+          "amount": "250 g"
+        },
+        {
+          "item": "Trvanlivé mléko polotučné 1,5% bez laktózy Pragolaktos",
+          "amount": "150 ml"
+        },
+        {
+          "item": "Čerstvé pekařské droždí",
+          "amount": "21 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Makra pouze těsto — bez absorpce oleje při smažení a bez toppingů (zakysaná smetana + slanina/šunka/sýr). Zdravější var: péct v troubě místo smažení."
+    },
+    {
+      "id": "livance",
+      "name": "Lívance",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 213,
+        "p": 8.9,
+        "c": 29.9,
+        "f": 6.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "makovo-boruvkovy-chlebik",
+      "name": "Makovo-borůvkový chlebík",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 158,
+        "p": 10.6,
+        "c": 4.8,
+        "f": 10.1
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "makovo-svestkovy-chlebicek",
+      "name": "Makovo-švestkový chlebíček",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 284,
+        "p": 9.5,
+        "c": 22.0,
+        "f": 16.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "nivova-omacka-bez-masa",
+      "name": "Nivová omáčka (bez masa)",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 337,
+        "p": 7.3,
+        "c": 45.0,
+        "f": 13.8
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Varianta bez masa — kombinovat s přílohou (těstoviny). Viz nivova_omacka pro verzi s kuřecím.",
+      "requires_side": true,
+      "side_dishes": [
+        "Těstoviny vařené"
+      ]
+    },
+    {
+      "id": "ovesna-kase",
+      "name": "Ovesná kaše",
+      "category": "snídaně",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 221,
+        "p": 9.2,
+        "c": 33.5,
+        "f": 4.7
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "pad-thai-tofu",
+      "name": "Pad thai — tofu",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 161,
+        "p": 5.0,
+        "c": 25.2,
+        "f": 4.6
+      },
       "ingredients": [
-        { "item": "Rýžové nudle (suché)", "amount": "400 g" },
-        { "item": "Tofu", "amount": "400 g (2 balení)" },
-        { "item": "Vejce", "amount": "2 ks (110 g)" },
-        { "item": "Mrkev", "amount": "300 g" },
-        { "item": "Cibule", "amount": "200 g" },
-        { "item": "Jarní cibulka", "amount": "120 g" },
-        { "item": "Olej slunečnicový", "amount": "50 ml" },
-        { "item": "Sojová omáčka", "amount": "45 g" },
-        { "item": "Tamarindová pasta", "amount": "30 g" },
-        { "item": "Med", "amount": "15 g" },
-        { "item": "Česnek", "amount": "15 g" }
-      ], "steps": [], "notes": "Celý recept ~1 681 g → 2 708 kcal (4 porce). Sacharidy dominují nudlemi. Hubnoucí varianta: kuřecí verze." },
-
-    { "id": "pad-thai-kuřecí", "name": "Pad thai — kuřecí", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 160, "p": 10.9, "c": 20.8, "f": 3.4 },
+        {
+          "item": "Rýžové nudle (suché)",
+          "amount": "400 g"
+        },
+        {
+          "item": "Tofu",
+          "amount": "400 g (2 balení)"
+        },
+        {
+          "item": "Vejce",
+          "amount": "2 ks (110 g)"
+        },
+        {
+          "item": "Mrkev",
+          "amount": "300 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "200 g"
+        },
+        {
+          "item": "Jarní cibulka",
+          "amount": "120 g"
+        },
+        {
+          "item": "Olej slunečnicový",
+          "amount": "50 ml"
+        },
+        {
+          "item": "Sojová omáčka",
+          "amount": "45 g"
+        },
+        {
+          "item": "Tamarindová pasta",
+          "amount": "30 g"
+        },
+        {
+          "item": "Med",
+          "amount": "15 g"
+        },
+        {
+          "item": "Česnek",
+          "amount": "15 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Celý recept ~1 681 g → 2 708 kcal (4 porce). Sacharidy dominují nudlemi. Hubnoucí varianta: kuřecí verze."
+    },
+    {
+      "id": "pad-thai-kuřecí",
+      "name": "Pad thai — kuřecí",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 160,
+        "p": 10.9,
+        "c": 20.8,
+        "f": 3.4
+      },
       "ingredients": [
-        { "item": "Rýžové nudle (suché)", "amount": "400 g" },
-        { "item": "Kuřecí prsa (syrová)", "amount": "720 g (4 ks)" },
-        { "item": "Vejce", "amount": "2 ks (110 g)" },
-        { "item": "Mrkev", "amount": "300 g" },
-        { "item": "Cibule", "amount": "200 g" },
-        { "item": "Jarní cibulka", "amount": "120 g" },
-        { "item": "Olej slunečnicový", "amount": "50 ml" },
-        { "item": "Sojová omáčka", "amount": "45 g" },
-        { "item": "Tamarindová pasta", "amount": "30 g" },
-        { "item": "Med", "amount": "15 g" },
-        { "item": "Česnek", "amount": "15 g" }
-      ], "steps": [], "notes": "Celý recept ~2 001 g → 3 196 kcal (4 porce). Na porci: ~799 kcal, 55 g B. Sůl 7 g ze sojovky — hlídat." },
-
-    { "id": "pečený-losos", "name": "Pečený losos", "category": "hlavní jídlo",
-      "protein_type": "Ryby", "v_compatible": true,
-      "macros_per_100g": { "kcal": 206, "p": 20.4, "c": 0.0, "f": 13.4 },
-      "ingredients": [], "steps": [], "notes": "Atlantic salmon farmed. Omega-3 ~2,5 g/100g. Bez sacharidové přílohy." },
-
-    { "id": "polenta", "name": "Polenta (příloha)", "category": "příloha",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 55, "p": 2.5, "c": 8.6, "f": 1.2 },
-      "ingredients": [], "steps": [], "notes": "Vařená na hovězím vývaru." },
-
-    { "id": "rajska-omacka", "name": "Rajská omáčka", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": false, "v_restriction": "rajčata",
-      "macros_per_100g": { "kcal": 84, "p": 1.9, "c": 8.3, "f": 4.4 },
-      "ingredients": [], "steps": [], "notes": "Samotná omáčka bez plněných paprik. Viz rajska_plnene_papriky pro verzi s paprikami." },
-
-    { "id": "salat-rajcata-vejce-salam", "name": "Salát s rajčaty, vejci a salámem", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": false, "v_restriction": "rajčata syrová",
-      "macros_per_100g": { "kcal": 132, "p": 8.9, "c": 3.6, "f": 9.2 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "svickova-light", "name": "Svíčková light", "category": "hlavní jídlo",
-      "protein_type": "Hovězí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 72, "p": 8.0, "c": 5.8, "f": 1.4 },
-      "ingredients": [], "steps": [], "notes": "Light varianta — nízké kcal, vysoký protein." },
-
-    { "id": "svestkova-buchta", "name": "Švestková buchta s drobenkou", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 318, "p": 5.9, "c": 29.1, "f": 19.1 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "tunakova-pomazanka", "name": "Tuňáková pomazánka z lučiny", "category": "snídaně",
-      "protein_type": "Ryby", "v_compatible": true,
-      "macros_per_100g": { "kcal": 188, "p": 13.8, "c": 1.6, "f": 14.2 },
-      "ingredients": [], "steps": [], "notes": "Makra pro samotnou pomazánku /100g. Snídaňová/svačinová verze s chlebem a gramážemi viz bf_jk_01/sn_jk_01." },
-
-    { "id": "tvaruzková-pomazanka", "name": "Tvarůžková pomazánka", "category": "snídaně",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 136, "p": 19.1, "c": 2.4, "f": 5.8 },
-      "ingredients": [], "steps": [], "notes": "Makra pro samotnou pomazánku /100g. Snídaňová/svačinová verze s chlebem viz bf_jk_02/sn_jk_02." },
-
-    { "id": "zavin-sunka-syr", "name": "Závin se šunkou a sýrem", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": true,
-      "macros_per_100g": { "kcal": 293, "p": 12.2, "c": 20.0, "f": 17.1 },
-      "ingredients": [], "steps": [], "notes": "Listové těsto výhradně Albert." },
-
-    { "id": "zeleninove-placicky", "name": "Zeleninové placičky", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 52, "p": 4.0, "c": 6.6, "f": 1.0 },
-      "ingredients": [], "steps": [], "notes": "Nejnižší kcal ze všech hlavních jídel." },
-
-    { "id": "cervene-kari-tofu", "name": "Červené kari s tofu", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": false, "v_restriction": "červená kari pasta obsahuje papriku",
-      "macros_per_100g": { "kcal": 122, "p": 3.3, "c": 12.3, "f": 7.0 },
+        {
+          "item": "Rýžové nudle (suché)",
+          "amount": "400 g"
+        },
+        {
+          "item": "Kuřecí prsa (syrová)",
+          "amount": "720 g (4 ks)"
+        },
+        {
+          "item": "Vejce",
+          "amount": "2 ks (110 g)"
+        },
+        {
+          "item": "Mrkev",
+          "amount": "300 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "200 g"
+        },
+        {
+          "item": "Jarní cibulka",
+          "amount": "120 g"
+        },
+        {
+          "item": "Olej slunečnicový",
+          "amount": "50 ml"
+        },
+        {
+          "item": "Sojová omáčka",
+          "amount": "45 g"
+        },
+        {
+          "item": "Tamarindová pasta",
+          "amount": "30 g"
+        },
+        {
+          "item": "Med",
+          "amount": "15 g"
+        },
+        {
+          "item": "Česnek",
+          "amount": "15 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Celý recept ~2 001 g → 3 196 kcal (4 porce). Na porci: ~799 kcal, 55 g B. Sůl 7 g ze sojovky — hlídat."
+    },
+    {
+      "id": "pečený-losos",
+      "name": "Pečený losos",
+      "category": "hlavní jídlo",
+      "protein_type": "Ryby",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 206,
+        "p": 20.4,
+        "c": 0.0,
+        "f": 13.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Atlantic salmon farmed. Omega-3 ~2,5 g/100g. Bez sacharidové přílohy."
+    },
+    {
+      "id": "polenta",
+      "name": "Polenta (příloha)",
+      "category": "příloha",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 55,
+        "p": 2.5,
+        "c": 8.6,
+        "f": 1.2
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Vařená na hovězím vývaru."
+    },
+    {
+      "id": "rajska-omacka",
+      "name": "Rajská omáčka",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": false,
+      "v_restriction": "rajčata",
+      "macros_per_100g": {
+        "kcal": 84,
+        "p": 1.9,
+        "c": 8.3,
+        "f": 4.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Samotná omáčka bez plněných paprik. Viz rajska_plnene_papriky pro verzi s paprikami.",
+      "requires_side": true,
+      "side_dishes": [
+        "Houskový knedlík"
+      ]
+    },
+    {
+      "id": "salat-rajcata-vejce-salam",
+      "name": "Salát s rajčaty, vejci a salámem",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": false,
+      "v_restriction": "rajčata syrová",
+      "macros_per_100g": {
+        "kcal": 132,
+        "p": 8.9,
+        "c": 3.6,
+        "f": 9.2
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "svickova-light",
+      "name": "Svíčková light",
+      "category": "hlavní jídlo",
+      "protein_type": "Hovězí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 72,
+        "p": 8.0,
+        "c": 5.8,
+        "f": 1.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Light varianta — nízké kcal, vysoký protein.",
+      "requires_side": true,
+      "side_dishes": [
+        "Houskový knedlík"
+      ]
+    },
+    {
+      "id": "svestkova-buchta",
+      "name": "Švestková buchta s drobenkou",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 318,
+        "p": 5.9,
+        "c": 29.1,
+        "f": 19.1
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "tunakova-pomazanka",
+      "name": "Tuňáková pomazánka z lučiny",
+      "category": "snídaně",
+      "protein_type": "Ryby",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 188,
+        "p": 13.8,
+        "c": 1.6,
+        "f": 14.2
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Makra pro samotnou pomazánku /100g. Snídaňová/svačinová verze s chlebem a gramážemi viz bf_jk_01/sn_jk_01."
+    },
+    {
+      "id": "tvaruzková-pomazanka",
+      "name": "Tvarůžková pomazánka",
+      "category": "snídaně",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 136,
+        "p": 19.1,
+        "c": 2.4,
+        "f": 5.8
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Makra pro samotnou pomazánku /100g. Snídaňová/svačinová verze s chlebem viz bf_jk_02/sn_jk_02."
+    },
+    {
+      "id": "zavin-sunka-syr",
+      "name": "Závin se šunkou a sýrem",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 293,
+        "p": 12.2,
+        "c": 20.0,
+        "f": 17.1
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Listové těsto výhradně Albert."
+    },
+    {
+      "id": "zeleninove-placicky",
+      "name": "Zeleninové placičky",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 52,
+        "p": 4.0,
+        "c": 6.6,
+        "f": 1.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Nejnižší kcal ze všech hlavních jídel."
+    },
+    {
+      "id": "cervene-kari-tofu",
+      "name": "Červené kari s tofu",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": false,
+      "v_restriction": "červená kari pasta obsahuje papriku",
+      "macros_per_100g": {
+        "kcal": 122,
+        "p": 3.3,
+        "c": 12.3,
+        "f": 7.0
+      },
       "ingredients": [
-        { "item": "Tofu firm", "amount": "400 g (2 balení)" },
-        { "item": "Kokosové mléko (full fat)", "amount": "400 ml (1 plechovka)" },
-        { "item": "Basmati rýže (suchá)", "amount": "320 g" },
-        { "item": "Červená kari pasta", "amount": "75 g (3 lžíce)" },
-        { "item": "Brokolice", "amount": "300 g" },
-        { "item": "Mrkev", "amount": "200 g" },
-        { "item": "Kuřecí vývar", "amount": "500 ml" },
-        { "item": "Olej slunečnicový", "amount": "75 ml" }
-      ], "steps": [], "notes": "Makra bez papriky (Verča vynechává). Jakub přidá papriku na svůj talíř zvlášť. Kokosové mléko dominuje tuku." },
-
-    { "id": "zelene-kari-kuřecí", "name": "Zelené kari s kuřecím masem", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 123, "p": 7.3, "c": 10.5, "f": 5.8 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "grilovaný-hermelin", "name": "Grilovaný hermelín", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 296, "p": 18.6, "c": 0.5, "f": 24.5 },
-      "ingredients": [], "steps": [], "notes": "Téměř nulové sacharidy. Vysoký tuk z tučného sýra." },
-
-    { "id": "pho-ga", "name": "Pho ga", "category": "polévka",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 63, "p": 3.1, "c": 8.2, "f": 1.0 },
-      "ingredients": [], "steps": [], "notes": "Makra orientační — maso ze skeletů proměnlivé." },
-
-    { "id": "grilované-klobásky", "name": "Grilované bavorské klobásky", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": true,
-      "macros_per_100g": { "kcal": 146, "p": 5.3, "c": 11.2, "f": 8.9 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "grilovaná-krkovice", "name": "Grilovaná krkovice", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": true,
-      "macros_per_100g": { "kcal": 145, "p": 6.8, "c": 9.6, "f": 9.1 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "caesar-salat", "name": "Caesar salát (odlehčený)", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 112, "p": 10.2, "c": 7.5, "f": 4.3 },
-      "ingredients": [], "steps": [], "notes": "Zálivka — přesný recept partnerky neznámý, makra odhadnuta." },
-
-    { "id": "těstovinový-salat-kuřecí", "name": "Těstovinový salát s kuřecím masem", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 102, "p": 7.6, "c": 14.2, "f": 1.5 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "vepřenky-zelný-salát", "name": "Vepřenky se zelným salátem", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": true,
-      "macros_per_100g": { "kcal": 101, "p": 4.5, "c": 6.5, "f": 6.6 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "grilovaná-křídla", "name": "Grilovaná kuřecí křídla", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 169, "p": 11.9, "c": 8.9, "f": 9.0 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "pečené-kuře", "name": "Pečené kuře", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 172, "p": 25.1, "c": 0.0, "f": 7.4 },
-      "ingredients": [], "steps": [], "notes": "Makra pro stehno bez kůže. S kůží: 247 kcal, 22 g B, 17 g T. Celé kuře (maso+kůže): 215 kcal, 22.6 g B, 13.4 g T/100g." },
-
-    { "id": "buřty-na-pivu", "name": "Buřty na pivu", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": false, "v_restriction": "rajčata v omáčce",
-      "macros_per_100g": { "kcal": 151, "p": 5.8, "c": 10.5, "f": 9.7 },
-      "ingredients": [], "steps": [], "notes": "⚠️ Sodík kriticky vysoký (~1 960 mg/porci). Příležitostné jídlo max 1× za 2 týdny." },
-
-    { "id": "nádivka", "name": "Nádivka", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 263, "p": 13.4, "c": 23.8, "f": 12.6 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "vepřová-panenka", "name": "Vepřová panenka", "category": "hlavní jídlo",
-      "protein_type": "Vepřové", "v_compatible": true,
-      "macros_per_100g": { "kcal": 125, "p": 14.6, "c": 9.5, "f": 3.0 },
+        {
+          "item": "Tofu firm",
+          "amount": "400 g (2 balení)"
+        },
+        {
+          "item": "Kokosové mléko (full fat)",
+          "amount": "400 ml (1 plechovka)"
+        },
+        {
+          "item": "Basmati rýže (suchá)",
+          "amount": "320 g"
+        },
+        {
+          "item": "Červená kari pasta",
+          "amount": "75 g (3 lžíce)"
+        },
+        {
+          "item": "Brokolice",
+          "amount": "300 g"
+        },
+        {
+          "item": "Mrkev",
+          "amount": "200 g"
+        },
+        {
+          "item": "Kuřecí vývar",
+          "amount": "500 ml"
+        },
+        {
+          "item": "Olej slunečnicový",
+          "amount": "75 ml"
+        }
+      ],
+      "steps": [],
+      "notes": "Makra bez papriky (Verča vynechává). Jakub přidá papriku na svůj talíř zvlášť. Kokosové mléko dominuje tuku."
+    },
+    {
+      "id": "zelene-kari-kuřecí",
+      "name": "Zelené kari s kuřecím masem",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 123,
+        "p": 7.3,
+        "c": 10.5,
+        "f": 5.8
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "",
+      "requires_side": true,
+      "side_dishes": [
+        "Rýže vařená"
+      ]
+    },
+    {
+      "id": "grilovaný-hermelin",
+      "name": "Grilovaný hermelín",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 296,
+        "p": 18.6,
+        "c": 0.5,
+        "f": 24.5
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Téměř nulové sacharidy. Vysoký tuk z tučného sýra."
+    },
+    {
+      "id": "pho-ga",
+      "name": "Pho ga",
+      "category": "polévka",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 63,
+        "p": 3.1,
+        "c": 8.2,
+        "f": 1.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Makra orientační — maso ze skeletů proměnlivé."
+    },
+    {
+      "id": "grilované-klobásky",
+      "name": "Grilované bavorské klobásky",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 146,
+        "p": 5.3,
+        "c": 11.2,
+        "f": 8.9
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "grilovaná-krkovice",
+      "name": "Grilovaná krkovice",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 145,
+        "p": 6.8,
+        "c": 9.6,
+        "f": 9.1
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "caesar-salat",
+      "name": "Caesar salát (odlehčený)",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 112,
+        "p": 10.2,
+        "c": 7.5,
+        "f": 4.3
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Zálivka — přesný recept partnerky neznámý, makra odhadnuta."
+    },
+    {
+      "id": "těstovinový-salat-kuřecí",
+      "name": "Těstovinový salát s kuřecím masem",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 102,
+        "p": 7.6,
+        "c": 14.2,
+        "f": 1.5
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "vepřenky-zelný-salát",
+      "name": "Vepřenky se zelným salátem",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 101,
+        "p": 4.5,
+        "c": 6.5,
+        "f": 6.6
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "grilovaná-křídla",
+      "name": "Grilovaná kuřecí křídla",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 169,
+        "p": 11.9,
+        "c": 8.9,
+        "f": 9.0
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "pečené-kuře",
+      "name": "Pečené kuře",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 172,
+        "p": 25.1,
+        "c": 0.0,
+        "f": 7.4
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Makra pro stehno bez kůže. S kůží: 247 kcal, 22 g B, 17 g T. Celé kuře (maso+kůže): 215 kcal, 22.6 g B, 13.4 g T/100g.",
+      "requires_side": true,
+      "side_dishes": [
+        "Brambory opečené (air fryer)",
+        "Rýže vařená"
+      ]
+    },
+    {
+      "id": "buřty-na-pivu",
+      "name": "Buřty na pivu",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": false,
+      "v_restriction": "rajčata v omáčce",
+      "macros_per_100g": {
+        "kcal": 151,
+        "p": 5.8,
+        "c": 10.5,
+        "f": 9.7
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "⚠️ Sodík kriticky vysoký (~1 960 mg/porci). Příležitostné jídlo max 1× za 2 týdny."
+    },
+    {
+      "id": "nádivka",
+      "name": "Nádivka",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 263,
+        "p": 13.4,
+        "c": 23.8,
+        "f": 12.6
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "vepřová-panenka",
+      "name": "Vepřová panenka",
+      "category": "hlavní jídlo",
+      "protein_type": "Vepřové",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 125,
+        "p": 14.6,
+        "c": 9.5,
+        "f": 3.0
+      },
       "ingredients": [
-        { "item": "Vepřová panenka", "amount": "1 ks (~450 g)" }
-      ], "steps": [], "notes": "Makra panenky + opečené brambory (varianta A). Samotná panenka: 109 kcal, 22.2 g B, 0 g S, 1.7 g T/100g — nejnižší T ze všech mas. Nejlepší poměr B/T v celé databázi." },
-
-    { "id": "sekaná-krůtí", "name": "Sekaná z krůtího masa", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 136, "p": 17.6, "c": 0.8, "f": 6.6 },
+        {
+          "item": "Vepřová panenka",
+          "amount": "1 ks (~450 g)"
+        }
+      ],
+      "steps": [],
+      "notes": "Makra panenky + opečené brambory (varianta A). Samotná panenka: 109 kcal, 22.2 g B, 0 g S, 1.7 g T/100g — nejnižší T ze všech mas. Nejlepší poměr B/T v celé databázi."
+    },
+    {
+      "id": "sekaná-krůtí",
+      "name": "Sekaná z krůtího masa",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 136,
+        "p": 17.6,
+        "c": 0.8,
+        "f": 6.6
+      },
       "ingredients": [
-        { "item": "Krůtí mleté maso", "amount": "600 g" },
-        { "item": "Hořčice", "amount": "30 g" },
-        { "item": "Vejce", "amount": "2 ks (110 g)" },
-        { "item": "Česnek", "amount": "10 g" }
-      ], "steps": [], "notes": "Základní verze. Plněná (+vejce +okurka +salám): 152 kcal, 18.6 g B, 1.2 g S, 7.7 g T /100g. Krůtí výrazně méně tuku než vepřové." },
-
-    { "id": "kapustové-karbanátky", "name": "Kapustové karbanátky", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 162, "p": 8.6, "c": 7.7, "f": 10.9 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "halušky-tofu-řepa", "name": "Halušky s tofu a červenou řepou", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 118, "p": 5.6, "c": 9.4, "f": 6.7 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "ovocné-knedlíky", "name": "Ovocné knedlíky", "category": "sladké",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 240, "p": 11.3, "c": 28.2, "f": 8.6 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "quiche", "name": "Quiche", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 230, "p": 12.3, "c": 13.3, "f": 14.7 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "banh-mi", "name": "Bánh mì (vietnamské bagetky)", "category": "hlavní jídlo",
-      "protein_type": "Smíšené", "v_compatible": true,
-      "macros_per_100g": { "kcal": 192, "p": 9.7, "c": 25.2, "f": 5.5 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "hovezi-tatarácek", "name": "Hovězí tataráček", "category": "hlavní jídlo",
-      "protein_type": "Hovězí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 140, "p": 14.7, "c": 10.3, "f": 3.9 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "steak-tunaka", "name": "Steak z tuňáka", "category": "hlavní jídlo",
-      "protein_type": "Ryby", "v_compatible": true,
-      "macros_per_100g": { "kcal": 108, "p": 23.4, "c": 0.0, "f": 0.5 },
-      "ingredients": [], "steps": [], "notes": "Yellowfin tuna. Extrémně nízký tuk (0,5 g/100g). Omega-3 ~0,3 g/100g." },
-
-    { "id": "pečený-chřest-gouda", "name": "Pečený chřest zapečený s goudou", "category": "hlavní jídlo",
-      "protein_type": "Vegetariánské", "v_compatible": true,
-      "macros_per_100g": { "kcal": 95, "p": 7.3, "c": 4.7, "f": 5.7 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "hovezi-steak-svickova", "name": "Hovězí steak ze svíčkové", "category": "hlavní jídlo",
-      "protein_type": "Hovězí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 109, "p": 10.6, "c": 7.9, "f": 3.9 },
-      "ingredients": [], "steps": [], "notes": "Makra včetně přílohy. Samotná svíčková: ~147 kcal, 20.3 g B, 0 g S, 6.8 g T/100g." },
-
-    { "id": "butter-chicken", "name": "Butter chicken", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": false, "v_restriction": "rajčata v omáčce",
-      "macros_per_100g": { "kcal": 114, "p": 8.6, "c": 13.7, "f": 2.6 },
-      "ingredients": [], "steps": [], "notes": "" },
-
-    { "id": "poke-bowl-losos", "name": "Poke bowl — losos", "category": "hlavní jídlo",
-      "protein_type": "Ryby", "v_compatible": false, "v_restriction": "okurka syrová v bowlu",
-      "macros_per_100g": { "kcal": 106, "p": 5.2, "c": 14.6, "f": 2.9 },
-      "ingredients": [], "steps": [], "notes": "Verča vynechat okurku. Tuňák varianta: 88 kcal, 5.8 g B, 14.6 g S, 0.6 g T/100g. Sodík ⚠️ ~940 mg/porci." },
-
-    { "id": "batátové-burgery", "name": "Batátové burgery s mletým hovězím", "category": "hlavní jídlo",
-      "protein_type": "Hovězí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 154, "p": 10.2, "c": 12.6, "f": 7.0 },
+        {
+          "item": "Krůtí mleté maso",
+          "amount": "600 g"
+        },
+        {
+          "item": "Hořčice",
+          "amount": "30 g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "2 ks (110 g)"
+        },
+        {
+          "item": "Česnek",
+          "amount": "10 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Základní verze. Plněná (+vejce +okurka +salám): 152 kcal, 18.6 g B, 1.2 g S, 7.7 g T /100g. Krůtí výrazně méně tuku než vepřové."
+    },
+    {
+      "id": "kapustové-karbanátky",
+      "name": "Kapustové karbanátky",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 162,
+        "p": 8.6,
+        "c": 7.7,
+        "f": 10.9
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "halušky-tofu-řepa",
+      "name": "Halušky s tofu a červenou řepou",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 118,
+        "p": 5.6,
+        "c": 9.4,
+        "f": 6.7
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "ovocné-knedlíky",
+      "name": "Ovocné knedlíky",
+      "category": "sladké",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 240,
+        "p": 11.3,
+        "c": 28.2,
+        "f": 8.6
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "quiche",
+      "name": "Quiche",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 230,
+        "p": 12.3,
+        "c": 13.3,
+        "f": 14.7
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "banh-mi",
+      "name": "Bánh mì (vietnamské bagetky)",
+      "category": "hlavní jídlo",
+      "protein_type": "Smíšené",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 192,
+        "p": 9.7,
+        "c": 25.2,
+        "f": 5.5
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "hovezi-tatarácek",
+      "name": "Hovězí tataráček",
+      "category": "hlavní jídlo",
+      "protein_type": "Hovězí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 140,
+        "p": 14.7,
+        "c": 10.3,
+        "f": 3.9
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "steak-tunaka",
+      "name": "Steak z tuňáka",
+      "category": "hlavní jídlo",
+      "protein_type": "Ryby",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 108,
+        "p": 23.4,
+        "c": 0.0,
+        "f": 0.5
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Yellowfin tuna. Extrémně nízký tuk (0,5 g/100g). Omega-3 ~0,3 g/100g."
+    },
+    {
+      "id": "pečený-chřest-gouda",
+      "name": "Pečený chřest zapečený s goudou",
+      "category": "hlavní jídlo",
+      "protein_type": "Vegetariánské",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 95,
+        "p": 7.3,
+        "c": 4.7,
+        "f": 5.7
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": ""
+    },
+    {
+      "id": "hovezi-steak-svickova",
+      "name": "Hovězí steak ze svíčkové",
+      "category": "hlavní jídlo",
+      "protein_type": "Hovězí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 109,
+        "p": 10.6,
+        "c": 7.9,
+        "f": 3.9
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Makra včetně přílohy. Samotná svíčková: ~147 kcal, 20.3 g B, 0 g S, 6.8 g T/100g."
+    },
+    {
+      "id": "butter-chicken",
+      "name": "Butter chicken",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": false,
+      "v_restriction": "rajčata v omáčce",
+      "macros_per_100g": {
+        "kcal": 114,
+        "p": 8.6,
+        "c": 13.7,
+        "f": 2.6
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "",
+      "requires_side": true,
+      "side_dishes": [
+        "Rýže vařená"
+      ]
+    },
+    {
+      "id": "poke-bowl-losos",
+      "name": "Poke bowl — losos",
+      "category": "hlavní jídlo",
+      "protein_type": "Ryby",
+      "v_compatible": false,
+      "v_restriction": "okurka syrová v bowlu",
+      "macros_per_100g": {
+        "kcal": 106,
+        "p": 5.2,
+        "c": 14.6,
+        "f": 2.9
+      },
+      "ingredients": [],
+      "steps": [],
+      "notes": "Verča vynechat okurku. Tuňák varianta: 88 kcal, 5.8 g B, 14.6 g S, 0.6 g T/100g. Sodík ⚠️ ~940 mg/porci."
+    },
+    {
+      "id": "batátové-burgery",
+      "name": "Batátové burgery s mletým hovězím",
+      "category": "hlavní jídlo",
+      "protein_type": "Hovězí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 154,
+        "p": 10.2,
+        "c": 12.6,
+        "f": 7.0
+      },
       "ingredients": [
-        { "item": "Mleté hovězí (15% tuku)", "amount": "400 g" },
-        { "item": "Batáty", "amount": "400 g (na plátky — supluje housku)" },
-        { "item": "Cibule", "amount": "100 g" },
-        { "item": "Česnek", "amount": "15 g" },
-        { "item": "Bílý jogurt (dip)", "amount": "100 g" },
-        { "item": "Kečup (dip)", "amount": "40 g" },
-        { "item": "Ledový salát", "amount": "100 g" }
-      ], "steps": [], "notes": "Batát jako náhrada housky. Hubnoucí var: hovězí 10% tuku → 591 kcal/porci. Kečup je hlavní zdroj Na — nahradit hořčicí pro nižší sodík." },
-
-    { "id": "tortilla-quesadilla", "name": "Tortilla — quesadilla", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 201, "p": 16.4, "c": 14.8, "f": 8.5 },
+        {
+          "item": "Mleté hovězí (15% tuku)",
+          "amount": "400 g"
+        },
+        {
+          "item": "Batáty",
+          "amount": "400 g (na plátky — supluje housku)"
+        },
+        {
+          "item": "Cibule",
+          "amount": "100 g"
+        },
+        {
+          "item": "Česnek",
+          "amount": "15 g"
+        },
+        {
+          "item": "Bílý jogurt (dip)",
+          "amount": "100 g"
+        },
+        {
+          "item": "Kečup (dip)",
+          "amount": "40 g"
+        },
+        {
+          "item": "Ledový salát",
+          "amount": "100 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Batát jako náhrada housky. Hubnoucí var: hovězí 10% tuku → 591 kcal/porci. Kečup je hlavní zdroj Na — nahradit hořčicí pro nižší sodík."
+    },
+    {
+      "id": "tortilla-quesadilla",
+      "name": "Tortilla — quesadilla",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 201,
+        "p": 16.4,
+        "c": 14.8,
+        "f": 8.5
+      },
       "ingredients": [
-        { "item": "Tortilla pšeničná střední", "amount": "2 ks (~130 g)" },
-        { "item": "Kuřecí prsa", "amount": "300 g syrové" },
-        { "item": "Bezlaktózová gouda (strouhaná)", "amount": "100 g" },
-        { "item": "Kukuřice sterilovaná", "amount": "100 g" },
-        { "item": "Cibule", "amount": "100 g" }
-      ], "steps": [], "notes": "2 porce → 1 307 kcal celkem. Sodík ⚠️ ~998 mg/porci." },
-
-    { "id": "tortilla-kuřecí-dip", "name": "Tortilla — kuřecí s dipem", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 144, "p": 12.3, "c": 12.4, "f": 4.9 },
+        {
+          "item": "Tortilla pšeničná střední",
+          "amount": "2 ks (~130 g)"
+        },
+        {
+          "item": "Kuřecí prsa",
+          "amount": "300 g syrové"
+        },
+        {
+          "item": "Bezlaktózová gouda (strouhaná)",
+          "amount": "100 g"
+        },
+        {
+          "item": "Kukuřice sterilovaná",
+          "amount": "100 g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "100 g"
+        }
+      ],
+      "steps": [],
+      "notes": "2 porce → 1 307 kcal celkem. Sodík ⚠️ ~998 mg/porci."
+    },
+    {
+      "id": "tortilla-kuřecí-dip",
+      "name": "Tortilla — kuřecí s dipem",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 144,
+        "p": 12.3,
+        "c": 12.4,
+        "f": 4.9
+      },
       "ingredients": [
-        { "item": "Tortilla pšeničná střední", "amount": "2 ks (~130 g)" },
-        { "item": "Kuřecí prsa", "amount": "300 g syrové" },
-        { "item": "Kečup", "amount": "30 g" },
-        { "item": "Hořčice", "amount": "20 g" },
-        { "item": "Sriracha", "amount": "10 g" },
-        { "item": "Ledový salát", "amount": "100 g" }
-      ], "steps": [], "notes": "Nejlehčí ze 4 tortilla variant. 470 kcal/porci. Sodík ~820 mg/porci." },
-
-    { "id": "tortilla-krémová", "name": "Tortilla — krémová", "category": "hlavní jídlo",
-      "protein_type": "Kuřecí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 204, "p": 15.4, "c": 10.8, "f": 10.7 },
+        {
+          "item": "Tortilla pšeničná střední",
+          "amount": "2 ks (~130 g)"
+        },
+        {
+          "item": "Kuřecí prsa",
+          "amount": "300 g syrové"
+        },
+        {
+          "item": "Kečup",
+          "amount": "30 g"
+        },
+        {
+          "item": "Hořčice",
+          "amount": "20 g"
+        },
+        {
+          "item": "Sriracha",
+          "amount": "10 g"
+        },
+        {
+          "item": "Ledový salát",
+          "amount": "100 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Nejlehčí ze 4 tortilla variant. 470 kcal/porci. Sodík ~820 mg/porci."
+    },
+    {
+      "id": "tortilla-krémová",
+      "name": "Tortilla — krémová",
+      "category": "hlavní jídlo",
+      "protein_type": "Kuřecí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 204,
+        "p": 15.4,
+        "c": 10.8,
+        "f": 10.7
+      },
       "ingredients": [
-        { "item": "Tortilla pšeničná střední", "amount": "2 ks (~130 g)" },
-        { "item": "Kuřecí prsa", "amount": "300 g syrové" },
-        { "item": "Lučina krémový sýr", "amount": "100 g" },
-        { "item": "Bezlaktózová gouda (strouhaná)", "amount": "60 g" }
-      ], "steps": [], "notes": "Nejtučnější ze 4 variant (34,7 g T/porci = 46 % denního limitu). 663 kcal/porci. Sodík ⚠️ ~1 009 mg/porci." },
-
-    { "id": "tortilla-burrito", "name": "Tortilla — burrito s mletým hovězím", "category": "hlavní jídlo",
-      "protein_type": "Hovězí", "v_compatible": true,
-      "macros_per_100g": { "kcal": 272, "p": 15.0, "c": 21.2, "f": 13.9 },
+        {
+          "item": "Tortilla pšeničná střední",
+          "amount": "2 ks (~130 g)"
+        },
+        {
+          "item": "Kuřecí prsa",
+          "amount": "300 g syrové"
+        },
+        {
+          "item": "Lučina krémový sýr",
+          "amount": "100 g"
+        },
+        {
+          "item": "Bezlaktózová gouda (strouhaná)",
+          "amount": "60 g"
+        }
+      ],
+      "steps": [],
+      "notes": "Nejtučnější ze 4 variant (34,7 g T/porci = 46 % denního limitu). 663 kcal/porci. Sodík ⚠️ ~1 009 mg/porci."
+    },
+    {
+      "id": "tortilla-burrito",
+      "name": "Tortilla — burrito s mletým hovězím",
+      "category": "hlavní jídlo",
+      "protein_type": "Hovězí",
+      "v_compatible": true,
+      "macros_per_100g": {
+        "kcal": 272,
+        "p": 15.0,
+        "c": 21.2,
+        "f": 13.9
+      },
       "ingredients": [
-        { "item": "Tortilla velká (~30 cm)", "amount": "2 ks (200 g)" },
-        { "item": "Tortilla malá (~15 cm)", "amount": "2 ks (80 g)" },
-        { "item": "Mleté hovězí (15% tuku)", "amount": "400 g" },
-        { "item": "Rozpékací sýr Edam", "amount": "120 g" },
-        { "item": "Červená cibule", "amount": "80 g" },
-        { "item": "Nachos", "amount": "60 g" }
-      ], "steps": [], "notes": "⚠️ Kalorická bomba — 1 223 kcal/porci (49 % denního cíle). Tuk 62,7 g/porci = 84 % denního limitu. Sodík ⚠️ ~1 600 mg/porci. Příležitostné jídlo." }
+        {
+          "item": "Tortilla velká (~30 cm)",
+          "amount": "2 ks (200 g)"
+        },
+        {
+          "item": "Tortilla malá (~15 cm)",
+          "amount": "2 ks (80 g)"
+        },
+        {
+          "item": "Mleté hovězí (15% tuku)",
+          "amount": "400 g"
+        },
+        {
+          "item": "Rozpékací sýr Edam",
+          "amount": "120 g"
+        },
+        {
+          "item": "Červená cibule",
+          "amount": "80 g"
+        },
+        {
+          "item": "Nachos",
+          "amount": "60 g"
+        }
+      ],
+      "steps": [],
+      "notes": "⚠️ Kalorická bomba — 1 223 kcal/porci (49 % denního cíle). Tuk 62,7 g/porci = 84 % denního limitu. Sodík ⚠️ ~1 600 mg/porci. Příležitostné jídlo."
+    }
   ]
 }

@@ -1,0 +1,791 @@
+{
+  "id": "2026-W21b",
+  "plan_title": "Jídelníček 17.–22. 5. 2026",
+  "date_range": "2026-05-17 — 2026-05-22",
+  "persons": {
+    "jakub": {
+      "label": "K",
+      "name": "Kuba",
+      "targets": {
+        "kcal": 2500,
+        "p": 210,
+        "c": 240,
+        "f": 75
+      }
+    },
+    "partnerka": {
+      "label": "V",
+      "name": "Verča",
+      "targets": {
+        "kcal": 1640,
+        "p": 100,
+        "c": 150,
+        "f": 60
+      }
+    }
+  },
+  "slots": [
+    "snidane",
+    "obed",
+    "svacina",
+    "vecere"
+  ],
+  "slot_labels": {
+    "snidane": "snídaně",
+    "obed": "oběd",
+    "svacina": "svačina",
+    "vecere": "večeře"
+  },
+  "days": [
+    {
+      "name": "Neděle",
+      "date": "17. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Tuňáková pomazánka + chléb + microgreens",
+            "macros": {
+              "kcal": 321,
+              "p": 25,
+              "c": 40,
+              "f": 7
+            }
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Kuře na paprice 380g + rýže vařená 200g",
+            "macros": {
+              "kcal": 1066,
+              "p": 76,
+              "c": 70,
+              "f": 53
+            },
+            "note": "BATCH — vaří se dnes. K: Ne 380g+200g rýže / Po 320g+180g rýže. V: 2×160g+120g rýže."
+          },
+          "partnerka": {
+            "name": "Kuře na paprice 160g + rýže vařená 120g",
+            "macros": {
+              "kcal": 495,
+              "p": 33,
+              "c": 39,
+              "f": 22
+            },
+            "note": "Z batche."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Tvarůžková pomazánka + chléb + microgreens",
+            "macros": {
+              "kcal": 316,
+              "p": 18,
+              "c": 33,
+              "f": 14
+            }
+          },
+          "partnerka": {
+            "name": "Tvarůžková pomazánka + chléb + microgreens",
+            "macros": {
+              "kcal": 247,
+              "p": 14,
+              "c": 21,
+              "f": 13
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Losos filet 300g + wakame 50g + bylinkové máslo + brambory opečené air fryer 200g",
+            "macros": {
+              "kcal": 824,
+              "p": 64,
+              "c": 36,
+              "f": 48
+            }
+          },
+          "partnerka": {
+            "name": "Chléb tmavý 80g + Milsy Parenica 110g + pečená mrkev 150g (trouba 200°C, 20 min)",
+            "macros": {
+              "kcal": 553,
+              "p": 33,
+              "c": 57,
+              "f": 24
+            },
+            "note": "Jednoduchá večeře V — chléb + plátkový sýr + pečená zelenina."
+          }
+        }
+      }
+    },
+    {
+      "name": "Pondělí",
+      "date": "18. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Tvarůžková pomazánka + chléb + microgreens",
+            "macros": {
+              "kcal": 405,
+              "p": 22,
+              "c": 41,
+              "f": 18
+            }
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Kuře na paprice 320g + rýže vařená 180g",
+            "macros": {
+              "kcal": 912,
+              "p": 65,
+              "c": 61,
+              "f": 45
+            },
+            "note": "Z batche (den 2)."
+          },
+          "partnerka": {
+            "name": "Kuře na paprice 160g + rýže vařená 120g",
+            "macros": {
+              "kcal": 495,
+              "p": 33,
+              "c": 39,
+              "f": 22
+            },
+            "note": "Z batche (den 2)."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Sendvič: chléb + lučina + jamon + microgreens",
+            "macros": {
+              "kcal": 325,
+              "p": 19,
+              "c": 31,
+              "f": 15
+            }
+          },
+          "partnerka": {
+            "name": "Sendvič: chléb + lučina + jamon + microgreens",
+            "macros": {
+              "kcal": 228,
+              "p": 14,
+              "c": 20,
+              "f": 10
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Char Siu Pork 250g + chléb tmavý 100g",
+            "macros": {
+              "kcal": 895,
+              "p": 70,
+              "c": 60,
+              "f": 38
+            },
+            "note": "BATCH — vaří se dnes. K: Po večeře 250g+chléb / Čt oběd 300g+rýže 200g / Pá oběd 250g+rýže 150g."
+          },
+          "partnerka": {
+            "name": "Chléb tmavý 80g + fuet 50g + lučina 30g + pečená brokolice 150g",
+            "macros": {
+              "kcal": 526,
+              "p": 21,
+              "c": 47,
+              "f": 28
+            },
+            "note": "Jednoduchá večeře V."
+          }
+        }
+      }
+    },
+    {
+      "name": "Úterý",
+      "date": "19. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Chléb s paštiku + microgreens",
+            "macros": {
+              "kcal": 391,
+              "p": 16,
+              "c": 40,
+              "f": 19
+            },
+            "note": "TRAVEL — do krabičky, studené ✓"
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Špenátové palačinky 450g",
+            "macros": {
+              "kcal": 585,
+              "p": 40,
+              "c": 71,
+              "f": 17
+            },
+            "note": "TRAVEL — studené v krabičce ✓. Připravit v pondělí večer."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Sendvič: chléb + lučina + fuet + microgreens",
+            "macros": {
+              "kcal": 472,
+              "p": 20,
+              "c": 31,
+              "f": 31
+            },
+            "note": "TRAVEL — do krabičky, studené ✓"
+          },
+          "partnerka": {
+            "name": "Sendvič: chléb + lučina + fuet + microgreens",
+            "macros": {
+              "kcal": 326,
+              "p": 14,
+              "c": 21,
+              "f": 21
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Mangoldová omáčka 450g + těstoviny vařené 200g",
+            "macros": {
+              "kcal": 760,
+              "p": 88,
+              "c": 65,
+              "f": 14
+            },
+            "note": "BATCH — vaří se po návratu z Brna. K: Út večeře 450g+200g. V: Čt oběd + Pá oběd (2×250g+150g)."
+          },
+          "partnerka": {
+            "name": "Chléb tmavý 80g + kozí sýr čerstvý 80g + pečené batáty 150g",
+            "macros": {
+              "kcal": 493,
+              "p": 20,
+              "c": 68,
+              "f": 15
+            },
+            "note": "Jednoduchá večeře V. V doma po NGO obědě — lehčí."
+          }
+        }
+      }
+    },
+    {
+      "name": "Středa",
+      "date": "20. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Slaný závin",
+            "macros": {
+              "kcal": 380,
+              "p": 14,
+              "c": 30,
+              "f": 22
+            }
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Hovězí na houbách 450g + rýže vařená 180g",
+            "macros": {
+              "kcal": 684,
+              "p": 46,
+              "c": 64,
+              "f": 26
+            },
+            "note": "BATCH — vaří se dnes. K: St oběd. V: St oběd."
+          },
+          "partnerka": {
+            "name": "Hovězí na houbách 200g + rýže vařená 100g",
+            "macros": {
+              "kcal": 330,
+              "p": 21,
+              "c": 31,
+              "f": 12
+            },
+            "note": "Z batche."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Chléb s paštiku + microgreens",
+            "macros": {
+              "kcal": 294,
+              "p": 11,
+              "c": 30,
+              "f": 15
+            }
+          },
+          "partnerka": {
+            "name": "Chléb s paštiku + microgreens",
+            "macros": {
+              "kcal": 222,
+              "p": 10,
+              "c": 20,
+              "f": 12
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Burger nebo tortilla z Burger & Bistro u Toma",
+            "macros": {
+              "kcal": 820,
+              "p": 45,
+              "c": 60,
+              "f": 40
+            },
+            "note": "manual_override — Verča terapie. Burger nebo tortilla (oba). Makra orientační."
+          },
+          "partnerka": {
+            "name": "Burger nebo tortilla z Burger & Bistro u Toma",
+            "macros": {
+              "kcal": 650,
+              "p": 30,
+              "c": 55,
+              "f": 30
+            },
+            "note": "manual_override — Verča terapie. Burger nebo tortilla (oba). Makra orientační."
+          }
+        }
+      }
+    },
+    {
+      "name": "Čtvrtek",
+      "date": "21. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Volské oko / hemenex + chléb",
+            "macros": {
+              "kcal": 453,
+              "p": 25,
+              "c": 30,
+              "f": 25
+            }
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Char Siu Pork 300g + rýže vařená 200g",
+            "macros": {
+              "kcal": 1052,
+              "p": 81,
+              "c": 79,
+              "f": 44
+            },
+            "note": "Z batche (uvařeno v pondělí)."
+          },
+          "partnerka": {
+            "name": "Mangoldová omáčka 250g + těstoviny vařené 150g",
+            "macros": {
+              "kcal": 473,
+              "p": 51,
+              "c": 50,
+              "f": 7
+            },
+            "note": "Z batche (uvařeno Út večer)."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Sendvič: chléb + kozí sýr + sušené datle",
+            "macros": {
+              "kcal": 356,
+              "p": 14,
+              "c": 44,
+              "f": 15
+            }
+          },
+          "partnerka": {
+            "name": "Sendvič: chléb + kozí sýr + sušené datle",
+            "macros": {
+              "kcal": 269,
+              "p": 10,
+              "c": 34,
+              "f": 11
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Losos filet 250g + wakame 50g + bylinkové máslo + brambory opečené air fryer 200g",
+            "macros": {
+              "kcal": 720,
+              "p": 54,
+              "c": 36,
+              "f": 41
+            }
+          },
+          "partnerka": {
+            "name": "Chléb tmavý 80g + jamon serrano 50g + pečená brokolice 150g",
+            "macros": {
+              "kcal": 341,
+              "p": 27,
+              "c": 43,
+              "f": 7
+            },
+            "note": "Jednoduchá večeře V."
+          }
+        }
+      }
+    },
+    {
+      "name": "Pátek",
+      "date": "22. 5.",
+      "note": null,
+      "meals": {
+        "snidane": {
+          "jakub": {
+            "name": "Tuňáková pomazánka + chléb + microgreens",
+            "macros": {
+              "kcal": 321,
+              "p": 25,
+              "c": 40,
+              "f": 7
+            }
+          },
+          "partnerka": {
+            "name": "Jogurt set",
+            "macros": {
+              "kcal": 416,
+              "p": 12,
+              "c": 62,
+              "f": 16
+            }
+          }
+        },
+        "obed": {
+          "jakub": {
+            "name": "Char Siu Pork 250g + rýže vařená 150g",
+            "macros": {
+              "kcal": 855,
+              "p": 66,
+              "c": 64,
+              "f": 36
+            },
+            "note": "Z batche (uvařeno v pondělí — Pá porci zamrazit v úterý)."
+          },
+          "partnerka": {
+            "name": "Mangoldová omáčka 250g + těstoviny vařené 150g",
+            "macros": {
+              "kcal": 473,
+              "p": 51,
+              "c": 50,
+              "f": 7
+            },
+            "note": "Z batche (den 2 — uvařeno Út večer)."
+          }
+        },
+        "svacina": {
+          "jakub": {
+            "name": "Sendvič: chléb + Parenica + sušené datle",
+            "macros": {
+              "kcal": 505,
+              "p": 34,
+              "c": 45,
+              "f": 23
+            }
+          },
+          "partnerka": {
+            "name": "Sendvič: chléb + Parenica + sušené datle",
+            "macros": {
+              "kcal": 458,
+              "p": 33,
+              "c": 35,
+              "f": 23
+            }
+          }
+        },
+        "vecere": {
+          "jakub": {
+            "name": "Čína placičky (krůtí/kuřecí stehna) 350g + brambory opečené air fryer 250g",
+            "macros": {
+              "kcal": 828,
+              "p": 71,
+              "c": 44,
+              "f": 58
+            }
+          },
+          "partnerka": {
+            "name": "Chléb tmavý 80g + fuet 50g + lučina 30g + pečená brokolice 150g",
+            "macros": {
+              "kcal": 526,
+              "p": 21,
+              "c": 47,
+              "f": 28
+            },
+            "note": "Jednoduchá večeře V."
+          }
+        }
+      }
+    }
+  ],
+  "recipes": [
+    {
+      "id": "kure-na-paprice-batch",
+      "name": "Kuře na paprice — batch (Ne oběd)",
+      "batch_note": "K: Ne oběd 380g+rýže 200g · Po oběd 320g+rýže 180g · V: 2×160g+rýže 120g",
+      "prep_time": 15,
+      "cook_time": 40,
+      "ingredients": [
+        {
+          "item": "Kuřecí prsa nebo stehna (porcovaná z celého kuřete)",
+          "amount": "1200g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "200g"
+        },
+        {
+          "item": "Mletá paprika sladká",
+          "amount": "20g"
+        },
+        {
+          "item": "Řecký jogurt nebo zakysaná smetana",
+          "amount": "300g"
+        },
+        {
+          "item": "Kuřecí vývar",
+          "amount": "400ml"
+        },
+        {
+          "item": "Sůl, pepř, majoránka, olej",
+          "amount": "dle chuti"
+        }
+      ],
+      "steps": [
+        "Maso nakrájet na kousky 3×3 cm, cibuli najemno.",
+        "Na oleji osmažit cibuli do zlatova, přidat papriku, 30 s míchat.",
+        "Přidat maso, opéct ze všech stran 5 min.",
+        "Zalít vývarem, dusit 25 min pod pokličkou.",
+        "Vmíchat jogurt/smetanu, 5 min dovařit, dochutit.",
+        "K Ne porce: 380g. K Po porce: 320g. V porce: 2×160g. Rýže vařit zvlášť."
+      ],
+      "notes": "Příloha VŽDY rýže."
+    },
+    {
+      "id": "spenatove-palacinkzy-prep",
+      "name": "Špenátové palačinky (K Út krabička)",
+      "batch_note": "Připravit v pondělí večer. K Út oběd studené 450g v krabičce.",
+      "prep_time": 15,
+      "cook_time": 20,
+      "ingredients": [
+        {
+          "item": "Tvaroh",
+          "amount": "300g"
+        },
+        {
+          "item": "Špenát mražený rozmražený",
+          "amount": "180g"
+        },
+        {
+          "item": "Vejce",
+          "amount": "2 ks"
+        },
+        {
+          "item": "Kukuřičná nebo pšeničná mouka",
+          "amount": "60g"
+        },
+        {
+          "item": "Uzený losos plátky",
+          "amount": "150g"
+        },
+        {
+          "item": "Citronová šťáva, sůl, pepř, olej",
+          "amount": "dle chuti"
+        }
+      ],
+      "steps": [
+        "Špenát vymačkat, smíchat s tvarohem, vejci, moukou, solí.",
+        "Smažit palačinky 3 min každá strana.",
+        "Vychladit, přidat plátky lososa. Zabalit do krabičky.",
+        "Citron kápnout těsně před jídlem."
+      ],
+      "notes": "Studené výborné — ověřeno v receptu."
+    },
+    {
+      "id": "char-siu-batch",
+      "name": "Char Siu Pork — batch (Po večeře)",
+      "batch_note": "K: Po večeře 250g+chléb 100g · Čt oběd 300g+rýže 200g · Pá oběd 250g+rýže 150g. Pá porci zamrazit v úterý.",
+      "prep_time": 20,
+      "cook_time": 90,
+      "ingredients": [
+        {
+          "item": "Vepřová krkovice nebo plec",
+          "amount": "1100g"
+        },
+        {
+          "item": "Sójová omáčka",
+          "amount": "60ml"
+        },
+        {
+          "item": "Med nebo hnědý cukr",
+          "amount": "40g"
+        },
+        {
+          "item": "Čínská omáčka hoisin",
+          "amount": "40g"
+        },
+        {
+          "item": "Sezamový olej",
+          "amount": "15ml"
+        },
+        {
+          "item": "Čínské pětikořenné koření",
+          "amount": "5g"
+        },
+        {
+          "item": "Česnek mletý",
+          "amount": "10g"
+        }
+      ],
+      "steps": [
+        "Smíchat marinádu: sójovka, med, hoisin, sezam, koření, česnek.",
+        "Maso nakrájet na silné proužky 4×4 cm, marinovat min 4 h (ideálně přes noc).",
+        "Péct v troubě 180°C 60–70 min, přelévat marinádou každých 20 min.",
+        "Nechat 10 min odpočinout, nakrájet.",
+        "Porce: Po večeře 250g+chléb. Čt oběd 300g+rýže. Pá porci (250g) zamrazit hned v úterý."
+      ],
+      "notes": "Marinovat v pondělí ráno nebo v neděli — péct v pondělí odpoledne."
+    },
+    {
+      "id": "mangoldova-batch",
+      "name": "Mangoldová omáčka s kuřecím — batch (Út večer)",
+      "batch_note": "K Út večeře 450g+těstoviny 200g · V Čt oběd 250g+těstoviny 150g · V Pá oběd 250g+těstoviny 150g",
+      "prep_time": 15,
+      "cook_time": 30,
+      "ingredients": [
+        {
+          "item": "Kuřecí prsa nebo stehna",
+          "amount": "1050g"
+        },
+        {
+          "item": "Mangold nebo špenát",
+          "amount": "400g"
+        },
+        {
+          "item": "Cottage cheese",
+          "amount": "300g"
+        },
+        {
+          "item": "Česnek",
+          "amount": "3 stroužky"
+        },
+        {
+          "item": "Cibule",
+          "amount": "120g"
+        },
+        {
+          "item": "Olivový olej, sůl, pepř, muškátový oříšek",
+          "amount": "dle chuti"
+        }
+      ],
+      "steps": [
+        "Maso nakrájet na proužky, cibuli a česnek najemno.",
+        "Orestovat cibuli a česnek 3 min, přidat maso, opéct 8 min.",
+        "Přidat mangold/špenát, 5 min dusit.",
+        "Vmíchat cottage cheese, dochutit.",
+        "Těstoviny vařit čerstvě ke každé porci."
+      ],
+      "notes": "Vaří se Út večer po návratu z Brna."
+    },
+    {
+      "id": "hovezi-houby-batch",
+      "name": "Hovězí na houbách — batch (St oběd)",
+      "batch_note": "K: St oběd 450g+rýže 180g · V: St oběd 200g+rýže 100g",
+      "prep_time": 20,
+      "cook_time": 70,
+      "ingredients": [
+        {
+          "item": "Hovězí plec nebo kližka",
+          "amount": "800g"
+        },
+        {
+          "item": "Žampiony nebo lesní houby",
+          "amount": "300g"
+        },
+        {
+          "item": "Cibule",
+          "amount": "120g"
+        },
+        {
+          "item": "Hovězí vývar",
+          "amount": "300ml"
+        },
+        {
+          "item": "Worcestershire omáčka",
+          "amount": "15ml"
+        },
+        {
+          "item": "Zakysaná smetana",
+          "amount": "80g"
+        },
+        {
+          "item": "Tymián, sůl, pepř, olej",
+          "amount": "dle chuti"
+        }
+      ],
+      "steps": [
+        "Maso nakrájet na větší kusy, houby na čtvrtiny, cibuli na půlkolečka.",
+        "Orestovat maso do hněda, vyjmout.",
+        "Orestovat cibuli a houby 5 min, vrátit maso.",
+        "Zalít vývarem + worcestershire + tymián, dusit 60 min.",
+        "Vmíchat smetanu, dochutit."
+      ],
+      "notes": "Příloha VÝHRADNĚ rýže."
+    }
+  ]
+}
