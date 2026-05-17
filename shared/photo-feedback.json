@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Topinky se sýrem a vlašskými ořechy",
+      "to": "Topinky se sýrem",
+      "ts": 1779005027519
+    },
+    {
       "from": "Pomazánka z celeru a mrkve s jogurtem a vlašskými ořechy",
       "to": "Topinky se sýrem a vlašskými ořechy",
       "ts": 1779005009367
