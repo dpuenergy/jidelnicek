@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Sýrová pomazánka s vlašskými ořechy na chlebu",
+      "to": "Salát z nastrouhaného celeru a mrkve s ořechy",
+      "ts": 1779004969856
+    },
+    {
       "from": "Sýrová pomazánka s vlašskými ořechy na chlebu, charcuterie deska se sýry a salámem",
       "to": "Celerovo-mrkvová pomazánka s jogurtem, charcuterie deska se sýry a salámem",
       "ts": 1779004848155
