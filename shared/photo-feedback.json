@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Žitný chléb s mrkvovo-celerovou pomazánkou, sýry a uzeniny",
+      "to": "Kozí sýry, jamón, uzenáček, vlašské ořechy a žitný chléb",
+      "ts": 1779004701880
+    },
+    {
       "from": "Sýrová deska s uzeninou a krekry (polovina bez ořechů)",
       "to": "Žitný chléb s mrkvovo-celerovou pomazánkou, sýry a uzeniny",
       "ts": 1779004655580
