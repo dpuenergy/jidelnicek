@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Kozí sýry, jamón, uheráček, vlašské ořechy a žitný chléb",
+      "to": "Celerovomrkvová pomazánka s vlašskými ořechy na žitném chlebu, charcuterie deska se sýry a salámem",
+      "ts": 1779004774464
+    },
+    {
       "from": "Kozí sýry, jamón, uzenáček, vlašské ořechy a žitný chléb",
       "to": "Kozí sýry, jamón, uheráček, vlašské ořechy a žitný chléb",
       "ts": 1779004751648
