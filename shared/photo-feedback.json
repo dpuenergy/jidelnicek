@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Kozí sýry, jamón, uzenáček, vlašské ořechy a žitný chléb",
+      "to": "Kozí sýry, jamón, uheráček, vlašské ořechy a žitný chléb",
+      "ts": 1779004751648
+    },
+    {
       "from": "Žitný chléb s mrkvovo-celerovou pomazánkou, sýry a uzeniny",
       "to": "Kozí sýry, jamón, uzenáček, vlašské ořechy a žitný chléb",
       "ts": 1779004701880
