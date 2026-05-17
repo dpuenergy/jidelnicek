@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Sýrová deska s uzeninou a krekry (polovina bez ořechů)",
+      "to": "Žitný chléb s mrkvovo-celerovou pomazánkou, sýry a uzeniny",
+      "ts": 1779004655580
+    },
+    {
       "from": "Sýrová deska s uzeninou, ořechy a krekry",
       "to": "Sýrová deska s uzeninou a krekry (polovina bez ořechů)",
       "ts": 1779004580727
