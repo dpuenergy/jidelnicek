@@ -1,6 +1,11 @@
 {
   "corrections": [
     {
+      "from": "Sýrová pomazánka s vlašskými ořechy na chlebu, charcuterie deska se sýry a salámem",
+      "to": "Celerovo-mrkvová pomazánka s jogurtem, charcuterie deska se sýry a salámem",
+      "ts": 1779004848155
+    },
+    {
       "from": "Celerovomrkvová pomazánka s vlašskými ořechy na žitném chlebu, charcuterie deska se sýry a salámem",
       "to": "Sýrová pomazánka s vlašskými ořechy na chlebu, charcuterie deska se sýry a salámem",
       "ts": 1779004798736
